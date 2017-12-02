@@ -1,4 +1,4 @@
-import Square, { SquareSide, SquareMode } from "./square";
+import Square, { SquareSide } from "./square";
 import * as React from "react";
 
 import styled from "./styles";

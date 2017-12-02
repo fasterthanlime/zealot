@@ -70,11 +70,11 @@ class Deck extends React.PureComponent<IProps & IDerivedProps> {
 
 interface IProps {
   player: Color;
-  count: number;
 }
 
 interface IDerivedProps {
   deck: IDeck;
+  count: number;
 }
 
 export default connect<IProps>(Deck, {
