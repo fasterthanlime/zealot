@@ -2,6 +2,7 @@ import * as React from "react";
 import { connect } from "./connect";
 import styled from "./styles";
 import { IRootState } from "../types/index";
+import PlayArea from "./play-area";
 
 const StatusDiv = styled.div`
   margin: 40px;
@@ -25,7 +26,12 @@ const StatusDiv = styled.div`
 
 class App extends React.PureComponent<IProps & IDerivedProps> {
   render() {
-    return <StatusDiv>Hi!</StatusDiv>;
+    return (
+      <div>
+        <StatusDiv>Hi!</StatusDiv>
+        <PlayArea />
+      </div>
+    );
   }
 }
 
