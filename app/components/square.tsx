@@ -17,6 +17,7 @@ const SquareDiv = styled.div`
   background-size: cover;
   border-style: dashed;
   opacity: 1;
+  transition: background-color 0.4s;
 
   &.draggable {
     opacity: 0.7;

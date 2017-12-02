@@ -148,7 +148,10 @@ const initialReducer = reducer<Partial<IGameState>>(initialState, on => {
         };
       }
 
-      board = withChangedSquare(board, col, row, makeNeutralSquare());
+      board = withChangedSquare(board, col, row, {
+        ...makeNeutralSquare(),
+        vibrating: true,
+      });
     } else {
       board = withChangedSquare(board, col, row, {
         card,
@@ -160,13 +163,17 @@ const initialReducer = reducer<Partial<IGameState>>(initialState, on => {
         switch (card.suit) {
           case Suit.Goblin:
             // destroy all the things!
-            board = withChangedSquare(board, col, row, makeNeutralSquare());
+            board = withChangedSquare(board, col, row, {
+              ...makeNeutralSquare(),
+              vibrating: true,
+            });
             break;
           case Suit.Priest:
             // swap all the things!
             board = withChangedSquare(board, col, row, {
               card: square.card,
               color: swapColor(square.color),
+              vibrating: true,
             });
             break;
         }
