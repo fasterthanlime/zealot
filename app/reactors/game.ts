@@ -1,6 +1,8 @@
 import { Watcher } from "./watcher";
 import * as actions from "../actions";
-import { isCivilian, getSquare, Suit } from "../types/index";
+import { isCivilian, getSquare, suitName } from "../types/index";
+
+import { warning } from "react-notification-system-redux";
 
 export default function(watcher: Watcher) {
   watcher.on(actions.dragEnd, async (store, action) => {
@@ -18,8 +20,13 @@ export default function(watcher: Watcher) {
           dropTarget.row,
         );
         if (dropSquare && dropSquare.card) {
-          window.alert(
-            `Can only place ${Suit[card.suit]} (a civilian) on empty squares!`,
+          store.dispatch(
+            warning({
+              title: "Invalid move",
+              message: `Can only place ${suitName(
+                card.suit,
+              )} (a civilian) on empty squares!`,
+            }),
           );
           return;
         }

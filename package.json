@@ -27,6 +27,8 @@
     "nanoid": "^1.0.1",
     "react": "^16.0.0",
     "react-dom": "^16.0.0",
+    "react-notification-system": "^0.2.16",
+    "react-notification-system-redux": "^1.2.0",
     "react-redux": "^5.0.6",
     "redux": "^3.7.2",
     "styled-components": "^2.2.1",

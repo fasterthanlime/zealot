@@ -3,6 +3,7 @@ import { connect } from "./connect";
 import styled from "./styles";
 import { IRootState, IGameState } from "../types/index";
 import PlayArea from "./play-area";
+import Notifications from "./notifications";
 
 const StatusDiv = styled.div`
   margin: 40px;
@@ -32,7 +33,12 @@ class App extends React.PureComponent<IProps & IDerivedProps> {
       return <StatusDiv>Loading game...</StatusDiv>;
     }
 
-    return <PlayArea />;
+    return (
+      <div>
+        <Notifications />
+        <PlayArea />
+      </div>
+    );
   }
 }
 

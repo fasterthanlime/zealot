@@ -29,6 +29,7 @@ export interface IRootState {
   system: ISystemState;
   game: IGameState;
   controls: IControlsState;
+  notifications: any;
 }
 
 export interface ISystemState {
