@@ -9,6 +9,10 @@ import {
   cardCounts,
   deckSize,
   ICard,
+  makeNeutralSquare,
+  getCardAreaType,
+  forEachAreaSquare,
+  swapColor,
 } from "../types/index";
 import derivedReducer from "./derived-reducer";
 import * as actions from "../actions";
@@ -32,11 +36,7 @@ const initialReducer = reducer<Partial<IGameState>>(initialState, on => {
 
     for (let col = 0; col < board.numCols; col++) {
       for (let row = 0; row < board.numRows; row++) {
-        const square = {
-          color: Color.Neutral,
-          card: null,
-        };
-
+        const square = makeNeutralSquare();
         board = withChangedSquare(board, col, row, square);
       }
     }
@@ -75,6 +75,7 @@ const initialReducer = reducer<Partial<IGameState>>(initialState, on => {
       card = deck.cards[index];
       const newCards = [...deck.cards];
       newCards.splice(index, 1);
+      newCards.length = deckSize;
       return {
         ...deck,
         cards: newCards,
@@ -89,12 +90,59 @@ const initialReducer = reducer<Partial<IGameState>>(initialState, on => {
       },
     };
 
-    state = {
-      ...state,
-      board: withChangedSquare(state.board, col, row, {
+    let board = state.board;
+
+    const previousSquare = getSquare(board, col, row);
+    if (card.suit === Suit.Necromancer) {
+      console.log("necromancing!");
+      if (previousSquare.card) {
+        console.log("necromancing ", previousSquare.card);
+        let newCards = [...state.decks[player].cards];
+        for (let i = 0; i < newCards.length; i++) {
+          if (!newCards[i]) {
+            console.log("putting it at", i);
+            newCards[i] = previousSquare.card;
+            break;
+          }
+        }
+        state = {
+          ...state,
+          decks: {
+            ...state.decks,
+            [player]: {
+              ...state.decks[player],
+              cards: newCards,
+            },
+          },
+        };
+      }
+    } else {
+      board = withChangedSquare(board, col, row, {
         card,
         color: player,
-      }),
+      });
+
+      const areaType = getCardAreaType(previousSquare.card);
+      forEachAreaSquare(board, col, row, areaType, (col, row, square) => {
+        switch (card.suit) {
+          case Suit.Goblin:
+            // destroy all the things!
+            board = withChangedSquare(board, col, row, makeNeutralSquare());
+            break;
+          case Suit.Priest:
+            // swap all the things!
+            board = withChangedSquare(board, col, row, {
+              card: square.card,
+              color: swapColor(square.color),
+            });
+            break;
+        }
+      });
+    }
+
+    state = {
+      ...state,
+      board,
     };
 
     return state;

@@ -173,3 +173,103 @@ export const playerColors = {
 };
 
 export const deckSize = 12;
+
+export enum AreaType {
+  Single = 1,
+  Plus = 2,
+  Square = 3,
+  RayRight = 4,
+  RayLeft = 5,
+}
+
+export function getCardAreaType(card: ICard): AreaType {
+  if (!card) {
+    return AreaType.Single;
+  }
+  const { suit } = card;
+
+  switch (suit) {
+    case Suit.Monk:
+      return AreaType.Square;
+    case Suit.Martyr:
+      return AreaType.Plus;
+    case Suit.MarksmanL:
+      return AreaType.RayLeft;
+    case Suit.MarksmanR:
+      return AreaType.RayRight;
+    default:
+      return AreaType.Single;
+  }
+}
+
+export function forEachAreaSquare(
+  board: IBoard,
+  col: number,
+  row: number,
+  at: AreaType,
+  cb: (col: number, row: number, square: ISquare) => void,
+) {
+  const originalCol = col;
+  const originalRow = row;
+
+  const tryCell = function(col: number, row: number) {
+    const sq = getSquare(board, col, row);
+    if (sq) {
+      // if we got a square, we're in the board!
+      // if we're in the board, cb will want to know about it!
+      cb(col, row, sq);
+    }
+  };
+
+  if (at === AreaType.Single) {
+    // muffin
+  } else if (at === AreaType.Plus) {
+    tryCell(col - 1, row);
+    tryCell(col + 1, row);
+    tryCell(col, row - 1);
+    tryCell(col, row + 1);
+  } else if (at === AreaType.Square) {
+    tryCell(col - 1, row - 1);
+    tryCell(col - 1, row);
+
+    tryCell(col - 1, row + 1);
+    tryCell(col, row + 1);
+
+    tryCell(col + 1, row + 1);
+    tryCell(col + 1, row);
+
+    tryCell(col + 1, row - 1);
+    tryCell(col, row - 1);
+  } else if (at === AreaType.RayLeft) {
+    col--;
+    while (col >= 0) {
+      tryCell(col, row);
+      col--;
+    }
+  } else if (at === AreaType.RayRight) {
+    col++;
+    while (col < board.numCols) {
+      tryCell(col, row);
+      col++;
+    }
+  }
+
+  tryCell(originalCol, originalRow);
+}
+
+export function swapColor(color: Color): Color {
+  if (color === Color.Red) {
+    return Color.Blue;
+  }
+  if (color === Color.Blue) {
+    return Color.Red;
+  }
+  return color; // /shrug
+}
+
+export function makeNeutralSquare(): ISquare {
+  return {
+    color: Color.Neutral,
+    card: null,
+  };
+}
