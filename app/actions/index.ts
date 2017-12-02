@@ -40,6 +40,7 @@ export const types = mirror({
   EXIT_SQUARE: null,
 
   PLAY_CARD: null,
+  SKIP_TURN: null,
 
   MOUSE_MOVE: null,
 });
@@ -67,6 +68,8 @@ interface IPlayCardPayload {
   row: number;
 }
 export const playCard = createAction<IPlayCardPayload>(types.PLAY_CARD);
+
+export const skipTurn = createAction<{}>(types.SKIP_TURN);
 
 // TODO: make that a local listener instead, just don't change
 // the state every time

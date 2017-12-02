@@ -17,18 +17,18 @@ export default reducer<IControlsState>(initialState, on => {
     return initialState;
   });
   on(actions.playCard, (state, action) => {
+    return nextTurn(state);
+  });
+  on(actions.skipTurn, (state, action) => {
+    return nextTurn(state);
+  });
+  on(actions.dragStart, (state, action) => {
     return {
       ...state,
-      turnPlayer: swapColor(state.turnPlayer),
+      draggable: action.payload,
+      dropTarget: null,
     };
-  }),
-    on(actions.dragStart, (state, action) => {
-      return {
-        ...state,
-        draggable: action.payload,
-        dropTarget: null,
-      };
-    });
+  });
   on(actions.dragClear, (state, action) => {
     return {
       ...state,
@@ -55,3 +55,10 @@ export default reducer<IControlsState>(initialState, on => {
     };
   });
 });
+
+function nextTurn(state: IControlsState): IControlsState {
+  return {
+    ...state,
+    turnPlayer: swapColor(state.turnPlayer),
+  };
+}

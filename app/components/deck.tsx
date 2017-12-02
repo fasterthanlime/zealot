@@ -9,6 +9,8 @@ import {
 import * as React from "react";
 import { connect } from "./connect";
 
+import * as actions from "../actions";
+
 import styled from "./styles";
 
 import Square, { SquareSide } from "./square";
@@ -55,6 +57,19 @@ const DeckDiv = styled.div`
   transition: all 0.2s;
 `;
 
+const PassDiv = styled.div`
+  z-index: 10;
+  padding: 8px;
+  font-size: 32px;
+  background: #232323;
+  border: 4px solid white;
+  border-radius: 4px;
+
+  &:hover {
+    cursor: pointer;
+  }
+`;
+
 class Deck extends React.PureComponent<IProps & IDerivedProps> {
   render() {
     const { draggable, turnPlayer, player, count, deck } = this.props;
@@ -75,6 +90,8 @@ class Deck extends React.PureComponent<IProps & IDerivedProps> {
     }
 
     const cardEls: JSX.Element[] = [];
+    let totalCards = 0;
+
     for (let i = 0; i < deckSize; i++) {
       const card = deck.cards[i];
       const x = margin + i * (SquareSide + margin);
@@ -89,6 +106,9 @@ class Deck extends React.PureComponent<IProps & IDerivedProps> {
       };
 
       cardEls.push(<Square style={squareStyle} key={`ghost-${i}`} />);
+      if (card) {
+        totalCards++;
+      }
 
       if (card && ourTurn) {
         cardEls.push(
@@ -113,16 +133,22 @@ class Deck extends React.PureComponent<IProps & IDerivedProps> {
       }
     }
 
+    let canPass = ourTurn && totalCards == 0;
     return (
       <DeckDiv style={deckStyle}>
         <Filler />
         <CounterDiv>{count}</CounterDiv>
         <Spacer />
+        {canPass ? <PassDiv onClick={this.onPass}>Pass</PassDiv> : null}
         <CardsDiv>{cardEls}</CardsDiv>
         <Filler />
       </DeckDiv>
     );
   }
+
+  onPass = () => {
+    this.props.skipTurn({});
+  };
 }
 
 interface IProps {
@@ -134,6 +160,8 @@ interface IDerivedProps {
   count: number;
   draggable: IDraggable;
   turnPlayer: Color;
+
+  skipTurn: typeof actions.skipTurn;
 }
 
 export default connect<IProps>(Deck, {
@@ -143,4 +171,7 @@ export default connect<IProps>(Deck, {
     draggable: rs.controls.draggable,
     turnPlayer: rs.controls.turnPlayer,
   }),
+  actions: {
+    skipTurn: actions.skipTurn,
+  },
 });

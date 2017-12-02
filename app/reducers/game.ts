@@ -69,7 +69,6 @@ const initialReducer = reducer<Partial<IGameState>>(initialState, on => {
 
   on(actions.playCard, (state, action) => {
     const { player, index, col, row } = action.payload;
-
     let card: ICard = null;
     const changeDeck = (deck: IDeck) => {
       card = deck.cards[index];
