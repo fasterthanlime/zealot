@@ -28,6 +28,7 @@ export function dispatcher<T, U>(
 export interface IRootState {
   system: ISystemState;
   game: IGameState;
+  controls: IControlsState;
 }
 
 export interface ISystemState {
@@ -38,6 +39,21 @@ export interface IGameState {
   board: IBoard;
   deckBlue: IDeck;
   deckRed: IDeck;
+}
+
+export interface IControlsState {
+  draggable?: {
+    player: Color;
+    index: number;
+  };
+  dropTarget?: {
+    col: number;
+    row: number;
+  };
+  mouse: {
+    x: number;
+    y: number;
+  };
 }
 
 export interface IDeck {

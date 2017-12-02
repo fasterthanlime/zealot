@@ -1,5 +1,11 @@
 import reducer from "./reducer";
-import { IGameState, withChangedSquare, Color, Card } from "../types/index";
+import {
+  IGameState,
+  withChangedSquare,
+  Color,
+  Card,
+  IDeck,
+} from "../types/index";
 import * as actions from "../actions";
 
 const initialState: IGameState = null;
@@ -37,5 +43,42 @@ export default reducer<IGameState>(initialState, on => {
         cards: [Card.Peasant, Card.Peasant, Card.Peasant, Card.Peasant],
       },
     };
+  });
+
+  on(actions.playCard, (state, action) => {
+    const { player, index, col, row } = action.payload;
+
+    let card = Card.None;
+    const changeDeck = (deck: IDeck) => {
+      card = deck.cards[index];
+      const newCards = [...deck.cards];
+      newCards.splice(index, 1);
+      return {
+        ...deck,
+        cards: newCards,
+      };
+    };
+
+    if (player === Color.Red) {
+      state = {
+        ...state,
+        deckRed: changeDeck(state.deckRed),
+      };
+    } else {
+      state = {
+        ...state,
+        deckBlue: changeDeck(state.deckBlue),
+      };
+    }
+
+    state = {
+      ...state,
+      board: withChangedSquare(state.board, col, row, {
+        card,
+        color: player,
+      }),
+    };
+
+    return state;
   });
 });

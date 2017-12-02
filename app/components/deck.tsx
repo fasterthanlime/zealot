@@ -5,7 +5,7 @@ import { connect } from "./connect";
 import styled from "./styles";
 
 import { map } from "underscore";
-import Square, { SquareSide } from "./square";
+import Square, { SquareSide, SquareMode } from "./square";
 
 const Filler = styled.div`
   height: 1px;
@@ -43,7 +43,15 @@ class Deck extends React.PureComponent<IProps & IDerivedProps> {
       <DeckDiv style={deckStyle}>
         <Filler />
         {map(deck.cards, (card, i) => (
-          <Square style={squareStyle} key={`${i}`} card={card} />
+          <Square
+            style={squareStyle}
+            key={`${i}`}
+            card={card}
+            draggable={{
+              index: i,
+              player,
+            }}
+          />
         ))}
         <Filler />
       </DeckDiv>

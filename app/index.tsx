@@ -23,6 +23,19 @@ function main() {
     appDiv,
   );
   store.dispatch(actions.boot({}));
+
+  document.addEventListener("mouseup", () => {
+    store.dispatch(actions.dragEnd({}));
+  });
+
+  document.addEventListener("mousemove", e => {
+    store.dispatch(
+      actions.mouseMove({
+        x: e.clientX,
+        y: e.clientY,
+      }),
+    );
+  });
 }
 
 main();

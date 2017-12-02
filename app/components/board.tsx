@@ -1,4 +1,4 @@
-import Square, { SquareSide } from "./square";
+import Square, { SquareSide, SquareMode } from "./square";
 import * as React from "react";
 
 import styled from "./styles";
@@ -28,6 +28,10 @@ class Board extends React.PureComponent<IProps & IDerivedProps> {
           };
           children.push(
             <Square
+              dropTarget={{
+                col,
+                row,
+              }}
               key={`${col}-${row}`}
               style={style}
               color={square.color}

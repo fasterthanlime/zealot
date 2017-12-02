@@ -1,4 +1,4 @@
-import { IAction } from "../types/index";
+import { IAction, Color } from "../types/index";
 
 export function createAction<PayloadType>(type: string) {
   if (typeof type !== "string" || type.length === 0) {
@@ -31,8 +31,45 @@ export const types = mirror({
   BOOT: null,
 
   NEW_GAME: null,
+
+  DRAG_START: null,
+  DRAG_END: null,
+  DRAG_CLEAR: null,
+
+  ENTER_SQUARE: null,
+  EXIT_SQUARE: null,
+
+  PLAY_CARD: null,
+
+  MOUSE_MOVE: null,
 });
 
 export const boot = createAction<{}>(types.BOOT);
 
 export const newGame = createAction<{}>(types.NEW_GAME);
+export const dragStart = createAction<{
+  player: Color;
+  index: number;
+}>(types.DRAG_START);
+export const dragEnd = createAction<{}>(types.DRAG_END);
+export const dragClear = createAction<{}>(types.DRAG_CLEAR);
+
+export const enterSquare = createAction<{
+  col: number;
+  row: number;
+}>(types.ENTER_SQUARE);
+export const exitSquare = createAction<{}>(types.EXIT_SQUARE);
+
+export const playCard = createAction<{
+  player: Color;
+  index: number;
+  col: number;
+  row: number;
+}>(types.PLAY_CARD);
+
+// TODO: make that a local listener instead, just don't change
+// the state every time
+export const mouseMove = createAction<{
+  x: number;
+  y: number;
+}>(types.MOUSE_MOVE);
