@@ -60,12 +60,13 @@ export const enterSquare = createAction<{
 }>(types.ENTER_SQUARE);
 export const exitSquare = createAction<{}>(types.EXIT_SQUARE);
 
-export const playCard = createAction<{
+interface IPlayCardPayload {
   player: Color;
   index: number;
   col: number;
   row: number;
-}>(types.PLAY_CARD);
+}
+export const playCard = createAction<IPlayCardPayload>(types.PLAY_CARD);
 
 // TODO: make that a local listener instead, just don't change
 // the state every time

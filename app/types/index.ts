@@ -141,6 +141,28 @@ export enum Suit {
   MAX_CARD = 8,
 }
 
+export function suitName(suit: Suit): string {
+  switch (suit) {
+    case Suit.Peasant:
+      return "Peasant";
+    case Suit.Martyr:
+      return "Martyr";
+    case Suit.Monk:
+      return "Monk";
+    case Suit.MarksmanL:
+    case Suit.MarksmanR:
+      return "Marksman";
+    case Suit.Priest:
+      return "Priest";
+    case Suit.Goblin:
+      return "Goblin";
+    case Suit.Necromancer:
+      return "Necromancer";
+    default:
+      return "<Unknown suit>";
+  }
+}
+
 export const cardGraphics = {
   [Suit.Peasant]: require("../images/cards/peasant.png").default,
 
@@ -273,4 +295,15 @@ export function makeNeutralSquare(): ISquare {
     color: Color.Neutral,
     card: null,
   };
+}
+
+export function isCivilian(suit: Suit): boolean {
+  switch (suit) {
+    case Suit.Peasant:
+    case Suit.Martyr:
+    case Suit.Monk:
+      return true;
+    default:
+      return false;
+  }
 }
