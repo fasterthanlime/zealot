@@ -29,6 +29,10 @@ function mirror<T extends IMirrorInput>(input: T): IMirrorOutput<T> {
 
 export const types = mirror({
   BOOT: null,
+
+  NEW_GAME: null,
 });
 
 export const boot = createAction<{}>(types.BOOT);
+
+export const newGame = createAction<{}>(types.NEW_GAME);

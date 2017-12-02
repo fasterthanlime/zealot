@@ -37,7 +37,7 @@ const fuse = FuseBox.init({
       CSSPlugin(),
     ],
     CopyPlugin({
-      files: ["images/*.png"],
+      files: ["images/**/*.png"],
     }),
     WebIndexPlugin({
       title: "Zealot — LD 40",

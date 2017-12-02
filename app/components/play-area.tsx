@@ -1,33 +1,24 @@
 import * as React from "react";
-import Slot, { SlotSide } from "./slot";
+import Deck from "./deck";
+import Board from "./board";
 
 import styled from "./styles";
+import { Color } from "../types/index";
 
 const PlayAreaDiv = styled.div`
-  border: 3px solid white;
-  position: relative;
-  width: 800px;
-  height: 800px;
-  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 `;
 
 export default class PlayArea extends React.PureComponent<{}> {
   render() {
-    const numCols = 5;
-    const numRows = 3;
-    const margin = 10;
-    const children: JSX.Element[] = [];
-    for (let row = 0; row < numRows; row++) {
-      for (let col = 0; col < numCols; col++) {
-        const x = (margin + SlotSide) * col;
-        const y = (margin + SlotSide) * row;
-        const style: React.CSSProperties = {
-          transform: `translate(${x}px, ${y}px)`,
-        };
-        children.push(<Slot key={`${col}-${row}`} style={style} />);
-      }
-    }
-
-    return <PlayAreaDiv>{children}</PlayAreaDiv>;
+    return (
+      <PlayAreaDiv>
+        <Deck player={Color.Red} />
+        <Board />
+        <Deck player={Color.Blue} />
+      </PlayAreaDiv>
+    );
   }
 }

@@ -1,7 +1,7 @@
 import * as React from "react";
 import { connect } from "./connect";
 import styled from "./styles";
-import { IRootState } from "../types/index";
+import { IRootState, IGameState } from "../types/index";
 import PlayArea from "./play-area";
 
 const StatusDiv = styled.div`
@@ -26,21 +26,24 @@ const StatusDiv = styled.div`
 
 class App extends React.PureComponent<IProps & IDerivedProps> {
   render() {
-    return (
-      <div>
-        <StatusDiv>Hi!</StatusDiv>
-        <PlayArea />
-      </div>
-    );
+    const { game } = this.props;
+
+    if (!game) {
+      return <StatusDiv>Loading game...</StatusDiv>;
+    }
+
+    return <PlayArea />;
   }
 }
 
 interface IProps {}
 
-interface IDerivedProps {}
+interface IDerivedProps {
+  game: IGameState;
+}
 
 export default connect<IProps>(App, {
   state: (rs: IRootState) => ({
-    // muffin
+    game: rs.game,
   }),
 });

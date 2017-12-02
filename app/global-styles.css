@@ -8,6 +8,7 @@ html, body, #app {
   height: 100%;
 
   font-family: "Josefin Sans";
+  font-size: 20px;
 
   background: #171717;
   color: white;
