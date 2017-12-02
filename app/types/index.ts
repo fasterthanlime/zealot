@@ -57,6 +57,7 @@ export interface IControlsState {
     x: number;
     y: number;
   };
+  turnPlayer: Color;
 }
 
 export interface IDraggable {

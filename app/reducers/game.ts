@@ -28,7 +28,7 @@ const initialState: IGameState = {
 const initialReducer = reducer<Partial<IGameState>>(initialState, on => {
   on(actions.newGame, (state, action) => {
     let board = {
-      numCols: 5,
+      numCols: 6,
       numRows: 4,
       squares: [],
     };
@@ -116,6 +116,8 @@ const initialReducer = reducer<Partial<IGameState>>(initialState, on => {
           },
         };
       }
+
+      board = withChangedSquare(board, col, row, makeNeutralSquare());
     } else {
       board = withChangedSquare(board, col, row, {
         card,

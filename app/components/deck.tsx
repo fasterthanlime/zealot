@@ -51,14 +51,23 @@ const DeckDiv = styled.div`
   align-items: center;
 
   font-size: 48px;
+
+  transition: all 0.2s;
 `;
 
 class Deck extends React.PureComponent<IProps & IDerivedProps> {
   render() {
-    const { draggable, player, count, deck } = this.props;
-    const deckStyle: React.CSSProperties = {
-      backgroundColor: playerColors[player],
-    };
+    const { draggable, turnPlayer, player, count, deck } = this.props;
+    let bgColor = "#222";
+    const ourTurn = turnPlayer == player;
+
+    const deckStyle: React.CSSProperties = {};
+    if (ourTurn) {
+      bgColor = playerColors[player];
+    } else {
+      deckStyle.pointerEvents = "none";
+    }
+    deckStyle.backgroundColor = bgColor;
 
     let invisibleIndex = -1;
     if (draggable && draggable.player === player) {
@@ -75,13 +84,13 @@ class Deck extends React.PureComponent<IProps & IDerivedProps> {
         transform: `translateX(${x}px)`,
         flexShrink: 0,
         transition: "transform 0.2s ease-in-out",
-        backgroundColor: playerColors[player],
+        backgroundColor: bgColor,
         opacity: 0.3,
       };
 
       cardEls.push(<Square style={squareStyle} key={`ghost-${i}`} />);
 
-      if (card) {
+      if (card && ourTurn) {
         cardEls.push(
           <Square
             style={{
@@ -124,6 +133,7 @@ interface IDerivedProps {
   deck: IDeck;
   count: number;
   draggable: IDraggable;
+  turnPlayer: Color;
 }
 
 export default connect<IProps>(Deck, {
@@ -131,5 +141,6 @@ export default connect<IProps>(Deck, {
     deck: rs.game.decks[props.player],
     count: rs.game.counts[props.player],
     draggable: rs.controls.draggable,
+    turnPlayer: rs.controls.turnPlayer,
   }),
 });
