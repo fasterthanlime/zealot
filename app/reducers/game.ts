@@ -90,6 +90,9 @@ const initialReducer = reducer<Partial<IGameState>>(initialState, on => {
       squares: map(board.squares, square => ({
         ...square,
         vibrating: false,
+        lit: false,
+        exploding: false,
+        turning: false,
       })),
     };
 
@@ -150,7 +153,7 @@ const initialReducer = reducer<Partial<IGameState>>(initialState, on => {
 
       board = withChangedSquare(board, col, row, {
         ...makeNeutralSquare(),
-        vibrating: true,
+        turning: true,
       });
     } else {
       board = withChangedSquare(board, col, row, {
@@ -165,7 +168,7 @@ const initialReducer = reducer<Partial<IGameState>>(initialState, on => {
             // destroy all the things!
             board = withChangedSquare(board, col, row, {
               ...makeNeutralSquare(),
-              vibrating: true,
+              exploding: true,
             });
             break;
           case Suit.Priest:
@@ -173,7 +176,7 @@ const initialReducer = reducer<Partial<IGameState>>(initialState, on => {
             board = withChangedSquare(board, col, row, {
               card: square.card,
               color: swapColor(square.color),
-              vibrating: true,
+              lit: true,
             });
             break;
         }

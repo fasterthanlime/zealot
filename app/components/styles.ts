@@ -100,6 +100,24 @@ export const animations = {
     }
   `,
 
+  lighting: keyframes`
+    0% {
+      box-shadow: 0 0 1px white;
+    }
+    100% {
+      box-shadow: 0 0 80px white;
+    }
+  `,
+
+  exploding: keyframes`
+    0%, 66% {
+      box-shadow: 0 0 1px red;
+    }
+    33%, 100% {
+      box-shadow: 0 0 80px red;
+    }
+  `,
+
   shake: keyframes`
     10%, 90% {
       transform: translate3d(-1px, 0, 0);
@@ -115,6 +133,16 @@ export const animations = {
 
     40%, 60% {
       transform: translate3d(4px, 0, 0);
+    }
+  `,
+
+  turn: keyframes`
+    0% {
+      transform: rotateY(0deg) scale(1);
+    }
+    
+    100% {
+      transform: rotateY(180deg) scale(0);
     }
   `,
 };

@@ -1,4 +1,4 @@
-import styled from "./styles";
+import styled, { animations } from "./styles";
 import * as React from "react";
 import * as classNames from "classnames";
 import { Color, cardGraphics, playerColors, ICard } from "../types/index";
@@ -35,11 +35,19 @@ const SquareDiv = styled.div`
       border-color: white;
     }
   }
+
+  &.lit {
+    animation: ${animations.lighting} 0.5s both;
+  }
+
+  &.exploding {
+    animation: ${animations.exploding} 0.5s both;
+  }
 `;
 
 class Square extends React.PureComponent<IProps & IDerivedProps> {
   render() {
-    let { color, card, draggable, dropTarget } = this.props;
+    let { color, card, draggable, dropTarget, lit, exploding } = this.props;
     let style: React.CSSProperties = {
       ...this.props.style,
     };
@@ -59,6 +67,8 @@ class Square extends React.PureComponent<IProps & IDerivedProps> {
     const className = classNames({
       draggable: !!draggable,
       dropTarget: !!dropTarget,
+      lit: !!lit,
+      exploding: !!exploding,
     });
 
     return (
@@ -113,6 +123,9 @@ interface IProps {
     col: number;
     row: number;
   };
+
+  lit?: boolean;
+  exploding?: boolean;
 }
 
 interface IDerivedProps {

@@ -13,6 +13,7 @@ import {
 import { warning, info } from "react-notification-system-redux";
 
 const animDuration = 400;
+const clearDuration = 1000;
 
 export default function(watcher: Watcher) {
   watcher.on(actions.pass, async (store, action) => {
@@ -74,8 +75,14 @@ async function delay(ms: number): Promise<void> {
 }
 
 async function doNextTurn(store: IStore, previousPlayer: Color) {
+  setTimeout(() => {
+    try {
+      store.dispatch(actions.clearEffects({}));
+    } catch (e) {
+      // meh
+    }
+  }, clearDuration);
   await delay(animDuration);
-  store.dispatch(actions.clearEffects({}));
 
   const rs = store.getState();
   if (hasEmptyDeck(rs, Color.Red) && hasEmptyDeck(rs, Color.Blue)) {

@@ -118,6 +118,9 @@ export interface ISquare {
   color: Color;
   card: ICard;
   vibrating?: boolean;
+  lit?: boolean;
+  exploding?: boolean;
+  turning?: boolean;
 }
 
 export enum Color {
