@@ -10,8 +10,14 @@ import { connect } from "./connect";
 
 import styled from "./styles";
 
-import { map } from "underscore";
 import Square, { SquareSide } from "./square";
+
+const margin = 4;
+const CardsDiv = styled.div`
+  width: ${margin * 2 + deckSize * (margin + SquareSide)}px;
+  height: ${SquareSide + margin * 2}px;
+  position: relative;
+`;
 
 const CounterDiv = styled.div`
   flex-basis: 50px;
@@ -46,25 +52,39 @@ const DeckDiv = styled.div`
   font-size: 48px;
 `;
 
-const scaleFactor = 1;
-
 class Deck extends React.PureComponent<IProps & IDerivedProps> {
   render() {
     const { player, count, deck } = this.props;
-    const squareStyle: React.CSSProperties = {
-      marginLeft: "2px",
-      marginRight: "2px",
-      width: `${SquareSide * scaleFactor}px`,
-      height: `${SquareSide * scaleFactor}px`,
-      flexShrink: 0,
-    };
     const deckStyle: React.CSSProperties = {
       backgroundColor: playerColors[player],
     };
 
-    const ghosts: JSX.Element[] = [];
-    for (let i = deck.cards.length; i < deckSize; i++) {
-      ghosts.push(<Square style={squareStyle} key={`${i}`} />);
+    const cardEls: JSX.Element[] = [];
+    for (let i = 0; i < deckSize; i++) {
+      const card = deck.cards[i];
+      const x = margin + i * (SquareSide + margin);
+
+      const squareStyle: React.CSSProperties = {
+        position: "absolute",
+        transform: `translateX(${x}px)`,
+        flexShrink: 0,
+      };
+
+      cardEls.push(
+        <Square
+          style={squareStyle}
+          key={`${i}`}
+          card={card}
+          draggable={
+            card
+              ? {
+                  index: i,
+                  player,
+                }
+              : null
+          }
+        />,
+      );
     }
 
     return (
@@ -72,18 +92,7 @@ class Deck extends React.PureComponent<IProps & IDerivedProps> {
         <Filler />
         <CounterDiv>{count}</CounterDiv>
         <Spacer />
-        {map(deck.cards, (card, i) => (
-          <Square
-            style={squareStyle}
-            key={`${i}`}
-            card={card}
-            draggable={{
-              index: i,
-              player,
-            }}
-          />
-        ))}
-        {ghosts}
+        <CardsDiv>{cardEls}</CardsDiv>
         <Filler />
       </DeckDiv>
     );
