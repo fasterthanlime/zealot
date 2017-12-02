@@ -48,10 +48,7 @@ export interface IDecks {
 }
 
 export interface IControlsState {
-  draggable?: {
-    player: Color;
-    index: number;
-  };
+  draggable?: IDraggable;
   dropTarget?: {
     col: number;
     row: number;
@@ -60,6 +57,11 @@ export interface IControlsState {
     x: number;
     y: number;
   };
+}
+
+export interface IDraggable {
+  player: Color;
+  index: number;
 }
 
 export interface IDeck {

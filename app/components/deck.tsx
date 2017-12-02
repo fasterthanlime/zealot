@@ -4,6 +4,7 @@ import {
   IDeck,
   playerColors,
   deckSize,
+  IDraggable,
 } from "../types/index";
 import * as React from "react";
 import { connect } from "./connect";
@@ -54,10 +55,15 @@ const DeckDiv = styled.div`
 
 class Deck extends React.PureComponent<IProps & IDerivedProps> {
   render() {
-    const { player, count, deck } = this.props;
+    const { draggable, player, count, deck } = this.props;
     const deckStyle: React.CSSProperties = {
       backgroundColor: playerColors[player],
     };
+
+    let invisibleIndex = -1;
+    if (draggable && draggable.player === player) {
+      invisibleIndex = draggable.index;
+    }
 
     const cardEls: JSX.Element[] = [];
     for (let i = 0; i < deckSize; i++) {
@@ -68,7 +74,7 @@ class Deck extends React.PureComponent<IProps & IDerivedProps> {
         position: "absolute",
         transform: `translateX(${x}px)`,
         flexShrink: 0,
-        transition: "all 0.2s ease-in-out",
+        transition: "transform 0.2s ease-in-out",
         backgroundColor: playerColors[player],
         opacity: 0.3,
       };
@@ -78,7 +84,11 @@ class Deck extends React.PureComponent<IProps & IDerivedProps> {
       if (card) {
         cardEls.push(
           <Square
-            style={{ ...squareStyle, opacity: 1, zIndex: 10 }}
+            style={{
+              ...squareStyle,
+              opacity: i === invisibleIndex ? 0 : 1,
+              zIndex: 10,
+            }}
             key={card ? card.id : `${i}`}
             card={card}
             draggable={
@@ -113,11 +123,13 @@ interface IProps {
 interface IDerivedProps {
   deck: IDeck;
   count: number;
+  draggable: IDraggable;
 }
 
 export default connect<IProps>(Deck, {
   state: (rs: IRootState, props: IProps) => ({
     deck: rs.game.decks[props.player],
     count: rs.game.counts[props.player],
+    draggable: rs.controls.draggable,
   }),
 });
