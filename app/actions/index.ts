@@ -40,7 +40,9 @@ export const types = mirror({
   EXIT_SQUARE: null,
 
   PLAY_CARD: null,
-  SKIP_TURN: null,
+  END_TURN: null,
+  NEXT_TURN: null,
+  PASS: null,
 
   MOUSE_MOVE: null,
 });
@@ -69,7 +71,12 @@ interface IPlayCardPayload {
 }
 export const playCard = createAction<IPlayCardPayload>(types.PLAY_CARD);
 
-export const skipTurn = createAction<{}>(types.SKIP_TURN);
+export const endTurn = createAction<{}>(types.END_TURN);
+export const nextTurn = createAction<{
+  turnPlayer: Color;
+}>(types.NEXT_TURN);
+
+export const pass = createAction<{}>(types.PASS);
 
 // TODO: make that a local listener instead, just don't change
 // the state every time

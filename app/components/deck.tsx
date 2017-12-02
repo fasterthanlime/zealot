@@ -147,7 +147,7 @@ class Deck extends React.PureComponent<IProps & IDerivedProps> {
   }
 
   onPass = () => {
-    this.props.skipTurn({});
+    this.props.pass({});
   };
 }
 
@@ -161,7 +161,7 @@ interface IDerivedProps {
   draggable: IDraggable;
   turnPlayer: Color;
 
-  skipTurn: typeof actions.skipTurn;
+  pass: typeof actions.pass;
 }
 
 export default connect<IProps>(Deck, {
@@ -172,6 +172,6 @@ export default connect<IProps>(Deck, {
     turnPlayer: rs.controls.turnPlayer,
   }),
   actions: {
-    skipTurn: actions.skipTurn,
+    pass: actions.pass,
   },
 });

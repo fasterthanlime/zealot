@@ -1,5 +1,5 @@
 import * as actions from "../actions";
-import { IControlsState, Color, swapColor } from "../types/index";
+import { IControlsState, Color } from "../types/index";
 import reducer from "./reducer";
 
 const initialState: IControlsState = {
@@ -16,11 +16,17 @@ export default reducer<IControlsState>(initialState, on => {
   on(actions.newGame, (state, action) => {
     return initialState;
   });
-  on(actions.playCard, (state, action) => {
-    return nextTurn(state);
+  on(actions.endTurn, (state, action) => {
+    return {
+      ...state,
+      turnPlayer: Color.Neutral,
+    };
   });
-  on(actions.skipTurn, (state, action) => {
-    return nextTurn(state);
+  on(actions.nextTurn, (state, action) => {
+    return {
+      ...state,
+      turnPlayer: action.payload.turnPlayer,
+    };
   });
   on(actions.dragStart, (state, action) => {
     return {
@@ -55,10 +61,3 @@ export default reducer<IControlsState>(initialState, on => {
     };
   });
 });
-
-function nextTurn(state: IControlsState): IControlsState {
-  return {
-    ...state,
-    turnPlayer: swapColor(state.turnPlayer),
-  };
-}

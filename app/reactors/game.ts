@@ -1,13 +1,28 @@
 import { Watcher } from "./watcher";
 import * as actions from "../actions";
-import { isCivilian, getSquare, suitName } from "../types/index";
+import {
+  isCivilian,
+  getSquare,
+  suitName,
+  swapColor,
+  IStore,
+  Color,
+  IRootState,
+} from "../types/index";
 
-import { warning } from "react-notification-system-redux";
+import { warning, info } from "react-notification-system-redux";
+
+const animDuration = 400;
 
 export default function(watcher: Watcher) {
+  watcher.on(actions.pass, async (store, action) => {
+    const { controls } = store.getState();
+    store.dispatch(actions.endTurn({}));
+    await doNextTurn(store, controls.turnPlayer);
+  });
+
   watcher.on(actions.dragEnd, async (store, action) => {
     const { controls, game } = store.getState();
-
     store.dispatch(actions.dragClear({}));
 
     const { draggable, dropTarget } = controls;
@@ -32,6 +47,8 @@ export default function(watcher: Watcher) {
         }
       }
 
+      store.dispatch(actions.endTurn({}));
+
       store.dispatch(
         actions.playCard({
           player: draggable.player,
@@ -40,6 +57,56 @@ export default function(watcher: Watcher) {
           row: dropTarget.row,
         }),
       );
+      await doNextTurn(store, controls.turnPlayer);
     }
   });
+}
+
+async function delay(ms: number): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
+    setTimeout(resolve, ms);
+  });
+}
+
+async function doNextTurn(store: IStore, previousPlayer: Color) {
+  await delay(animDuration);
+
+  const rs = store.getState();
+  if (hasEmptyDeck(rs, Color.Red) && hasEmptyDeck(rs, Color.Blue)) {
+    const r = rs.game.counts[Color.Red];
+    const b = rs.game.counts[Color.Blue];
+    let message = `It's a draw! (${r} vs ${b})`;
+
+    if (r < b) {
+      message = `Player red has won! (${r} vs ${b} for blue)`;
+    } else if (b < r) {
+      message = `Player blue has won! (${b} vs ${r} for red)`;
+    }
+
+    store.dispatch(
+      info({
+        title: "Game over!",
+        message,
+      }),
+    );
+
+    await delay(animDuration);
+    store.dispatch(actions.newGame({}));
+  }
+
+  store.dispatch(
+    actions.nextTurn({
+      turnPlayer: swapColor(previousPlayer),
+    }),
+  );
+}
+
+function hasEmptyDeck(rs: IRootState, color: Color): boolean {
+  const { cards } = rs.game.decks[color];
+  for (const card of cards) {
+    if (card) {
+      return false;
+    }
+  }
+  return true;
 }
