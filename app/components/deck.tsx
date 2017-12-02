@@ -68,23 +68,30 @@ class Deck extends React.PureComponent<IProps & IDerivedProps> {
         position: "absolute",
         transform: `translateX(${x}px)`,
         flexShrink: 0,
+        transition: "all 0.2s ease-in-out",
+        backgroundColor: playerColors[player],
+        opacity: 0.3,
       };
 
-      cardEls.push(
-        <Square
-          style={squareStyle}
-          key={`${i}`}
-          card={card}
-          draggable={
-            card
-              ? {
-                  index: i,
-                  player,
-                }
-              : null
-          }
-        />,
-      );
+      cardEls.push(<Square style={squareStyle} key={`ghost-${i}`} />);
+
+      if (card) {
+        cardEls.push(
+          <Square
+            style={{ ...squareStyle, opacity: 1, zIndex: 10 }}
+            key={card ? card.id : `${i}`}
+            card={card}
+            draggable={
+              card
+                ? {
+                    index: i,
+                    player,
+                  }
+                : null
+            }
+          />,
+        );
+      }
     }
 
     return (

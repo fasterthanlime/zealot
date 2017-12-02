@@ -1,7 +1,7 @@
 import styled from "./styles";
 import * as React from "react";
 import * as classNames from "classnames";
-import { Color, Card, cardGraphics, playerColors } from "../types/index";
+import { Color, cardGraphics, playerColors, ICard } from "../types/index";
 import { connect } from "./connect";
 
 import * as actions from "../actions";
@@ -43,8 +43,8 @@ class Square extends React.PureComponent<IProps & IDerivedProps> {
       ...this.props.style,
     };
 
-    if (card > Card.None) {
-      const bgName = cardGraphics[card];
+    if (card) {
+      const bgName = cardGraphics[card.suit];
       if (bgName) {
         style.backgroundImage = `url(${bgName})`;
       }
@@ -101,7 +101,7 @@ class Square extends React.PureComponent<IProps & IDerivedProps> {
 interface IProps {
   style?: React.CSSProperties;
   color?: Color;
-  card?: Card;
+  card?: ICard;
 
   draggable?: {
     player: Color;

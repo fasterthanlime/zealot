@@ -63,7 +63,12 @@ export interface IControlsState {
 }
 
 export interface IDeck {
-  cards: Card[];
+  cards: ICard[];
+}
+
+export interface ICard {
+  id: string;
+  suit: Suit;
 }
 
 export interface IBoard {
@@ -107,7 +112,7 @@ export function withChangedSquare(
 
 export interface ISquare {
   color: Color;
-  card: Card;
+  card: ICard;
 }
 
 export enum Color {
@@ -116,7 +121,7 @@ export enum Color {
   Blue = 2,
 }
 
-export enum Card {
+export enum Suit {
   None = 0,
 
   Peasant = 1,
@@ -134,29 +139,29 @@ export enum Card {
 }
 
 export const cardGraphics = {
-  [Card.Peasant]: require("../images/cards/peasant.png").default,
+  [Suit.Peasant]: require("../images/cards/peasant.png").default,
 
-  [Card.Martyr]: require("../images/cards/martyr.png").default,
-  [Card.Monk]: require("../images/cards/monk.png").default,
-  [Card.MarksmanL]: require("../images/cards/marksmanl.png").default,
-  [Card.MarksmanR]: require("../images/cards/marksmanr.png").default,
+  [Suit.Martyr]: require("../images/cards/martyr.png").default,
+  [Suit.Monk]: require("../images/cards/monk.png").default,
+  [Suit.MarksmanL]: require("../images/cards/marksmanl.png").default,
+  [Suit.MarksmanR]: require("../images/cards/marksmanr.png").default,
 
-  [Card.Priest]: require("../images/cards/priest.png").default,
-  [Card.Goblin]: require("../images/cards/goblin.png").default,
-  [Card.Necromancer]: require("../images/cards/necromancer.png").default,
+  [Suit.Priest]: require("../images/cards/priest.png").default,
+  [Suit.Goblin]: require("../images/cards/goblin.png").default,
+  [Suit.Necromancer]: require("../images/cards/necromancer.png").default,
 };
 
 export const cardCounts = {
-  [Card.Peasant]: 10,
+  [Suit.Peasant]: 10,
 
-  [Card.Martyr]: 3,
-  [Card.Monk]: 3,
-  [Card.MarksmanL]: 2,
-  [Card.MarksmanR]: 2,
+  [Suit.Martyr]: 3,
+  [Suit.Monk]: 3,
+  [Suit.MarksmanL]: 2,
+  [Suit.MarksmanR]: 2,
 
-  [Card.Priest]: 4,
-  [Card.Goblin]: 2,
-  [Card.Necromancer]: 4,
+  [Suit.Priest]: 4,
+  [Suit.Goblin]: 2,
+  [Suit.Necromancer]: 4,
 };
 
 export const playerColors = {

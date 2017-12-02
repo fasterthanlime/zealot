@@ -3,15 +3,17 @@ import {
   IGameState,
   withChangedSquare,
   Color,
-  Card,
+  Suit,
   IDeck,
   getSquare,
   cardCounts,
   deckSize,
+  ICard,
 } from "../types/index";
 import derivedReducer from "./derived-reducer";
 import * as actions from "../actions";
-import { sample } from "underscore";
+import { sample, map } from "underscore";
+import { genid } from "../util/genid";
 
 const initialState: IGameState = {
   board: null,
@@ -32,7 +34,7 @@ const initialReducer = reducer<Partial<IGameState>>(initialState, on => {
       for (let row = 0; row < board.numRows; row++) {
         const square = {
           color: Color.Neutral,
-          card: Card.None,
+          card: null,
         };
 
         board = withChangedSquare(board, col, row, square);
@@ -40,16 +42,19 @@ const initialReducer = reducer<Partial<IGameState>>(initialState, on => {
     }
 
     const generateDeck = (): IDeck => {
-      const allCards: Card[] = [];
+      const suitPool: Suit[] = [];
       for (const card of Object.keys(cardCounts)) {
         const count = cardCounts[card];
         for (let i = 0; i < count; i++) {
-          allCards.push(parseInt(card, 10) as Card);
+          suitPool.push(parseInt(card, 10) as Suit);
         }
       }
 
       return {
-        cards: sample(allCards, deckSize),
+        cards: map(sample<Suit>(suitPool, deckSize), (suit): ICard => ({
+          id: genid(),
+          suit,
+        })),
       };
     };
 
@@ -65,7 +70,7 @@ const initialReducer = reducer<Partial<IGameState>>(initialState, on => {
   on(actions.playCard, (state, action) => {
     const { player, index, col, row } = action.payload;
 
-    let card = Card.None;
+    let card: ICard = null;
     const changeDeck = (deck: IDeck) => {
       card = deck.cards[index];
       const newCards = [...deck.cards];
