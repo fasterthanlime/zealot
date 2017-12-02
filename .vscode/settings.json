@@ -1,0 +1,21 @@
+{
+  "[typescript]": {
+    "editor.formatOnSave": true
+  },
+  "[typescriptreact]": {
+    "editor.formatOnSave": true
+  },
+  "prettier.trailingComma": "all",
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "node_modules/**": true,
+    ".fusebox/**": true,
+    ".vscode/**": true,
+    "vendor/**": true,
+    "public/**": true
+  }
+}

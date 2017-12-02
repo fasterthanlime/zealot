@@ -1,0 +1,98 @@
+@font-face {
+  font-family: 'icomoon';
+  src:  url('fonts/icomoon.eot?gp7hnj');
+  src:  url('fonts/icomoon.eot?gp7hnj#iefix') format('embedded-opentype'),
+    url('fonts/icomoon.ttf?gp7hnj') format('truetype'),
+    url('fonts/icomoon.woff?gp7hnj') format('woff'),
+    url('fonts/icomoon.svg?gp7hnj#icomoon') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+[class^="icon-"], [class*=" icon-"] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'icomoon' !important;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-feather:before {
+  content: "\e900";
+}
+.icon-stars:before {
+  content: "\e901";
+}
+.icon-arrow-up:before {
+  content: "\e902";
+}
+.icon-up:before {
+  content: "\e902";
+}
+.icon-upload:before {
+  content: "\e902";
+}
+.icon-top:before {
+  content: "\e902";
+}
+.icon-loop:before {
+  content: "\e903";
+}
+.icon-repeat:before {
+  content: "\e903";
+}
+.icon-player:before {
+  content: "\e903";
+}
+.icon-reload:before {
+  content: "\e903";
+}
+.icon-refresh:before {
+  content: "\e903";
+}
+.icon-update:before {
+  content: "\e903";
+}
+.icon-synchronize:before {
+  content: "\e903";
+}
+.icon-arrows:before {
+  content: "\e903";
+}
+.icon-compass:before {
+  content: "\e904";
+}
+.icon-direction:before {
+  content: "\e904";
+}
+.icon-location:before {
+  content: "\e904";
+}
+.icon-alarm:before {
+  content: "\e905";
+}
+.icon-time:before {
+  content: "\e905";
+}
+.icon-clock:before {
+  content: "\e905";
+}
+.icon-aid-kit:before {
+  content: "\e906";
+}
+.icon-health:before {
+  content: "\e906";
+}
+.icon-medicine:before {
+  content: "\e906";
+}
+.icon-medical:before {
+  content: "\e906";
+}
