@@ -5,11 +5,18 @@ import { connect } from "./connect";
 import styled from "./styles";
 
 import { map } from "underscore";
-import Square, { SquareSide, SquareMode } from "./square";
+import Square, { SquareSide } from "./square";
 
 const Filler = styled.div`
   height: 1px;
   flex-grow: 1;
+`;
+
+const Spacer = styled.div`
+  height: 1px;
+  flex-basis: 12px;
+  flex-grow: 0;
+  flex-shrink: 0;
 `;
 
 const DeckDiv = styled.div`
@@ -28,7 +35,7 @@ const scaleFactor = 0.8;
 
 class Deck extends React.PureComponent<IProps & IDerivedProps> {
   render() {
-    const { player, deck } = this.props;
+    const { player, count, deck } = this.props;
     const squareStyle: React.CSSProperties = {
       marginLeft: "4px",
       marginRight: "8px",
@@ -42,6 +49,8 @@ class Deck extends React.PureComponent<IProps & IDerivedProps> {
     return (
       <DeckDiv style={deckStyle}>
         <Filler />
+        Score: {count}
+        <Spacer />
         {map(deck.cards, (card, i) => (
           <Square
             style={squareStyle}
@@ -61,6 +70,7 @@ class Deck extends React.PureComponent<IProps & IDerivedProps> {
 
 interface IProps {
   player: Color;
+  count: number;
 }
 
 interface IDerivedProps {
@@ -70,5 +80,6 @@ interface IDerivedProps {
 export default connect<IProps>(Deck, {
   state: (rs: IRootState, props: IProps) => ({
     deck: props.player === Color.Red ? rs.game.deckRed : rs.game.deckBlue,
+    count: rs.game.counts[props.player],
   }),
 });

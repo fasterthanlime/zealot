@@ -28,7 +28,7 @@ class App extends React.PureComponent<IProps & IDerivedProps> {
   render() {
     const { game } = this.props;
 
-    if (!game) {
+    if (!game || !game.board) {
       return <StatusDiv>Loading game...</StatusDiv>;
     }
 

@@ -5,12 +5,19 @@ import {
   Color,
   Card,
   IDeck,
+  getSquare,
 } from "../types/index";
+import derivedReducer from "./derived-reducer";
 import * as actions from "../actions";
 
-const initialState: IGameState = null;
+const initialState: IGameState = {
+  board: null,
+  deckRed: null,
+  deckBlue: null,
+  counts: null,
+};
 
-export default reducer<IGameState>(initialState, on => {
+const initialReducer = reducer<Partial<IGameState>>(initialState, on => {
   on(actions.newGame, (state, action) => {
     let board = {
       numCols: 5,
@@ -81,4 +88,32 @@ export default reducer<IGameState>(initialState, on => {
 
     return state;
   });
+});
+
+export default derivedReducer(initialReducer, (state: IGameState) => {
+  if (!state || !state.board) {
+    return state;
+  }
+
+  const { board } = state;
+  let counts = {
+    [Color.Red]: 0,
+    [Color.Blue]: 0,
+  };
+
+  for (let col = 0; col < board.numCols; col++) {
+    for (let row = 0; row < board.numRows; row++) {
+      const square = getSquare(board, col, row);
+      if (square) {
+        if (counts.hasOwnProperty(square.color)) {
+          counts[square.color]++;
+        }
+      }
+    }
+  }
+
+  return {
+    ...state,
+    counts,
+  };
 });

@@ -39,6 +39,9 @@ export interface IGameState {
   board: IBoard;
   deckBlue: IDeck;
   deckRed: IDeck;
+  counts: {
+    [color: number]: number;
+  };
 }
 
 export interface IControlsState {
