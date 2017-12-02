@@ -1,13 +1,21 @@
 import Square, { SquareSide } from "./square";
 import * as React from "react";
 
-import styled from "./styles";
+import styled, { animations } from "./styles";
 import { getSquare, IRootState, IBoard } from "../types/index";
 import { connect } from "./connect";
+import * as classNames from "classnames";
 const margin = 10;
 
 const BoardDiv = styled.div`
   position: relative;
+`;
+
+const SquareContainer = styled.div`
+  &.vibrating {
+    animation: ${animations.shake} 0.82s cubic-bezier(0.36, 0.07, 0.19, 0.97)
+      both;
+  }
 `;
 
 class Board extends React.PureComponent<IProps & IDerivedProps> {
@@ -26,17 +34,23 @@ class Board extends React.PureComponent<IProps & IDerivedProps> {
             position: "absolute",
             transform: `translate(${x}px, ${y}px)`,
           };
+          const className = classNames({
+            vibrating: !!square.vibrating,
+          });
+
           children.push(
-            <Square
-              dropTarget={{
-                col,
-                row,
-              }}
-              key={`${col}-${row}`}
-              style={style}
-              color={square.color}
-              card={square.card}
-            />,
+            <SquareContainer className={className}>
+              <Square
+                dropTarget={{
+                  col,
+                  row,
+                }}
+                key={`${col}-${row}`}
+                style={style}
+                color={square.color}
+                card={square.card}
+              />
+            </SquareContainer>,
           );
         }
       }

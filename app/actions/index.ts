@@ -45,6 +45,9 @@ export const types = mirror({
   PASS: null,
 
   MOUSE_MOVE: null,
+
+  INVALID_MOVE: null,
+  CLEAR_EFFECTS: null,
 });
 
 export const boot = createAction<{}>(types.BOOT);
@@ -84,3 +87,10 @@ export const mouseMove = createAction<{
   x: number;
   y: number;
 }>(types.MOUSE_MOVE);
+
+export const invalidMove = createAction<{
+  col: number;
+  row: number;
+}>(types.INVALID_MOVE);
+
+export const clearEffects = createAction<{}>(types.CLEAR_EFFECTS);

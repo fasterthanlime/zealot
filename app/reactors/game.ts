@@ -36,6 +36,9 @@ export default function(watcher: Watcher) {
         );
         if (dropSquare && dropSquare.card) {
           store.dispatch(
+            actions.invalidMove({ col: dropTarget.col, row: dropTarget.row }),
+          );
+          store.dispatch(
             warning({
               title: "Invalid move",
               message: `Can only place ${suitName(
@@ -43,6 +46,8 @@ export default function(watcher: Watcher) {
               )} (a civilian) on empty squares!`,
             }),
           );
+          await delay(animDuration);
+          store.dispatch(actions.clearEffects({}));
           return;
         }
       }
@@ -70,6 +75,7 @@ async function delay(ms: number): Promise<void> {
 
 async function doNextTurn(store: IStore, previousPlayer: Color) {
   await delay(animDuration);
+  store.dispatch(actions.clearEffects({}));
 
   const rs = store.getState();
   if (hasEmptyDeck(rs, Color.Red) && hasEmptyDeck(rs, Color.Blue)) {

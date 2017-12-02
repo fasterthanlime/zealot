@@ -117,6 +117,7 @@ export function withChangedSquare(
 export interface ISquare {
   color: Color;
   card: ICard;
+  vibrating?: boolean;
 }
 
 export enum Color {

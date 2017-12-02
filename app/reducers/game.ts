@@ -67,6 +67,38 @@ const initialReducer = reducer<Partial<IGameState>>(initialState, on => {
     };
   });
 
+  on(actions.invalidMove, (state, action) => {
+    let board = state.board;
+
+    const { col, row } = action.payload;
+    const square = getSquare(board, col, row);
+    board = withChangedSquare(board, col, row, {
+      ...square,
+      vibrating: true,
+    });
+
+    return {
+      ...state,
+      board,
+    };
+  });
+
+  on(actions.clearEffects, (state, action) => {
+    let board = state.board;
+    board = {
+      ...board,
+      squares: map(board.squares, square => ({
+        ...square,
+        vibrating: false,
+      })),
+    };
+
+    return {
+      ...state,
+      board,
+    };
+  });
+
   on(actions.playCard, (state, action) => {
     const { player, index, col, row } = action.payload;
     let card: ICard = null;
