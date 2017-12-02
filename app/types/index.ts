@@ -37,11 +37,14 @@ export interface ISystemState {
 
 export interface IGameState {
   board: IBoard;
-  deckBlue: IDeck;
-  deckRed: IDeck;
+  decks: IDecks;
   counts: {
     [color: number]: number;
   };
+}
+
+export interface IDecks {
+  [color: number]: IDeck;
 }
 
 export interface IControlsState {
@@ -143,8 +146,23 @@ export const cardGraphics = {
   [Card.Necromancer]: require("../images/cards/necromancer.png").default,
 };
 
+export const cardCounts = {
+  [Card.Peasant]: 10,
+
+  [Card.Martyr]: 3,
+  [Card.Monk]: 3,
+  [Card.MarksmanL]: 2,
+  [Card.MarksmanR]: 2,
+
+  [Card.Priest]: 4,
+  [Card.Goblin]: 2,
+  [Card.Necromancer]: 4,
+};
+
 export const playerColors = {
   [Color.Red]: "#930132",
   [Color.Blue]: "#225e93",
   default: "black",
 };
+
+export const deckSize = 12;

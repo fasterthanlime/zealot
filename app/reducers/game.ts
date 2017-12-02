@@ -6,14 +6,16 @@ import {
   Card,
   IDeck,
   getSquare,
+  cardCounts,
+  deckSize,
 } from "../types/index";
 import derivedReducer from "./derived-reducer";
 import * as actions from "../actions";
+import { sample } from "underscore";
 
 const initialState: IGameState = {
   board: null,
-  deckRed: null,
-  deckBlue: null,
+  decks: null,
   counts: null,
 };
 
@@ -21,7 +23,7 @@ const initialReducer = reducer<Partial<IGameState>>(initialState, on => {
   on(actions.newGame, (state, action) => {
     let board = {
       numCols: 5,
-      numRows: 5,
+      numRows: 4,
       squares: [],
     };
     board.squares.length = board.numCols * board.numRows;
@@ -32,22 +34,30 @@ const initialReducer = reducer<Partial<IGameState>>(initialState, on => {
           color: Color.Neutral,
           card: Card.None,
         };
-        if (Math.random() >= 0.8) {
-          square.card = Math.floor(1 + Math.random() * (Card.MAX_CARD - 1));
-          square.color = Math.random() >= 0.5 ? Color.Red : Color.Blue;
-        }
 
         board = withChangedSquare(board, col, row, square);
       }
     }
 
+    const generateDeck = (): IDeck => {
+      const allCards: Card[] = [];
+      for (const card of Object.keys(cardCounts)) {
+        const count = cardCounts[card];
+        for (let i = 0; i < count; i++) {
+          allCards.push(parseInt(card, 10) as Card);
+        }
+      }
+
+      return {
+        cards: sample(allCards, deckSize),
+      };
+    };
+
     return {
       board,
-      deckBlue: {
-        cards: [Card.Goblin, Card.Peasant, Card.Peasant, Card.MarksmanL],
-      },
-      deckRed: {
-        cards: [Card.Peasant, Card.Peasant, Card.Peasant, Card.Peasant],
+      decks: {
+        [Color.Blue]: generateDeck(),
+        [Color.Red]: generateDeck(),
       },
     };
   });
@@ -66,17 +76,13 @@ const initialReducer = reducer<Partial<IGameState>>(initialState, on => {
       };
     };
 
-    if (player === Color.Red) {
-      state = {
-        ...state,
-        deckRed: changeDeck(state.deckRed),
-      };
-    } else {
-      state = {
-        ...state,
-        deckBlue: changeDeck(state.deckBlue),
-      };
-    }
+    state = {
+      ...state,
+      decks: {
+        ...state.decks,
+        [player]: changeDeck(state.decks[player]),
+      },
+    };
 
     state = {
       ...state,

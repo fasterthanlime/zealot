@@ -14,11 +14,9 @@ const SquareDiv = styled.div`
   width: ${SquareSide}px;
   height: ${SquareSide}px;
   border-radius: 4px;
-  background-color: black;
   background-size: cover;
   border-style: dashed;
-
-  transition: all 0.2s;
+  opacity: 0.4;
 
   &.draggable {
     opacity: 0.7;
@@ -31,6 +29,7 @@ const SquareDiv = styled.div`
 
   &.dropTarget {
     opacity: 1;
+    border-opacity: 0.5;
   }
 `;
 
