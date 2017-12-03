@@ -14,6 +14,7 @@ import {
   IControlsState,
   ICard,
   getSquare,
+  forEachAreaSquare,
 } from "../types/index";
 import { connect } from "./connect";
 
@@ -21,6 +22,7 @@ import { map } from "underscore";
 
 import Square, { SquareWidth, SquareHeight } from "./square";
 import Slot from "./slot";
+import Highlight from "./highlight";
 
 const ReactHintFactory = require("react-hint");
 const ReactHint = ReactHintFactory(React);
@@ -55,12 +57,29 @@ class PlayArea extends React.PureComponent<IProps & IDerivedProps> {
         [key: string]: JSX.Element;
       } = {};
       let slots: JSX.Element[] = [];
+      let highlights: JSX.Element[] = [];
 
       let draggedCard: ICard = null;
       const { controls } = this.props;
+      let litSquares = [];
+      let invalidDropTarget = false;
       if (controls.draggable) {
         const { draggable } = controls;
         draggedCard = game.decks[draggable.player].cards[draggable.index];
+
+        const cdt = controls.dropTarget;
+        if (cdt) {
+          invalidDropTarget = !cdt.valid;
+          forEachAreaSquare(
+            game.board,
+            cdt.col,
+            cdt.row,
+            cdt.areaType,
+            (col, row, square) => {
+              litSquares.push(square);
+            },
+          );
+        }
       }
 
       for (const color of [Color.Red, Color.Blue]) {
@@ -132,18 +151,30 @@ class PlayArea extends React.PureComponent<IProps & IDerivedProps> {
           );
 
           const square = getSquare(board, col, row);
-          if (square && square.card) {
-            const { card, color } = square;
+          if (square) {
+            if (square.card) {
+              const { card, color } = square;
 
-            cards[card.id] = (
-              <Square
-                key={card.id}
-                style={cardStyle}
-                onBoard
-                color={color}
-                card={card}
-              />
-            );
+              cards[card.id] = (
+                <Square
+                  key={card.id}
+                  style={cardStyle}
+                  onBoard
+                  color={color}
+                  card={card}
+                />
+              );
+            }
+
+            if (litSquares.indexOf(square) !== -1) {
+              highlights.push(
+                <Highlight
+                  key={`highlight-${col}-${row}`}
+                  style={cardStyle}
+                  invalid={invalidDropTarget}
+                />,
+              );
+            }
           }
         }
       }
@@ -152,6 +183,7 @@ class PlayArea extends React.PureComponent<IProps & IDerivedProps> {
         <WrapperDiv style={wrapperStyle}>
           {slots}
           {map(Object.keys(cards).sort(), key => cards[key])}
+          {highlights}
         </WrapperDiv>
       );
     }
