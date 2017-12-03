@@ -13,6 +13,8 @@ import {
   forEachAreaSquare,
   swapColor,
   IDeal,
+  setSquare,
+  ISquare,
 } from "../types/index";
 import derivedReducer from "./derived-reducer";
 import * as actions from "../actions";
@@ -154,6 +156,19 @@ const initialReducer = reducer<Partial<IGameState>>(initialState, on => {
 
     const previousSquare = getSquare(board, col, row);
 
+    let trashPile = state.trashPile;
+    let discard = (sq: ISquare) => {
+      if (sq && sq.card) {
+        trashPile = [
+          ...trashPile,
+          {
+            color: sq.color,
+            card: sq.card,
+          },
+        ];
+      }
+    };
+
     if (card.suit === Suit.Necromancer) {
       if (previousSquare.card) {
         let newCards = [...state.decks[player].cards, previousSquare.card];
@@ -172,14 +187,18 @@ const initialReducer = reducer<Partial<IGameState>>(initialState, on => {
       board = withChangedSquare(board, col, row, {
         ...makeNeutralSquare(),
       });
+      trashPile = [...trashPile, { color: player, card }];
     } else {
+      discard(previousSquare);
+
       const areaType = getCardAreaType(previousSquare.card);
       forEachAreaSquare(board, col, row, areaType, (col, row, square) => {
         switch (card.suit) {
           case Suit.Goblin:
             // destroy all the things!
-            board = withChangedSquare(board, col, row, {
-              ...makeNeutralSquare(),
+            board = setSquare(board, col, row, oldSquare => {
+              discard(oldSquare);
+              return makeNeutralSquare();
             });
             break;
           case Suit.Priest:
@@ -201,6 +220,7 @@ const initialReducer = reducer<Partial<IGameState>>(initialState, on => {
     state = {
       ...state,
       board,
+      trashPile,
     };
 
     return state;

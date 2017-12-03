@@ -133,6 +133,15 @@ export function withChangedSquare(
   row: number,
   square: ISquare,
 ): IBoard {
+  return setSquare(board, col, row, oldsquare => square);
+}
+
+export function setSquare(
+  board: IBoard,
+  col: number,
+  row: number,
+  cb: (square: ISquare) => ISquare,
+): IBoard {
   if (col < 0 || col >= board.numCols) {
     return board;
   }
@@ -144,7 +153,7 @@ export function withChangedSquare(
     ...board,
     squares: [...board.squares],
   };
-  copy.squares[index] = square;
+  copy.squares[index] = cb(copy.squares[index]);
 
   return copy;
 }
