@@ -20,6 +20,7 @@ import { connect } from "./connect";
 import { map } from "underscore";
 
 import Square, { SquareWidth, SquareHeight } from "./square";
+import Slot from "./slot";
 
 const ReactHintFactory = require("react-hint");
 const ReactHint = ReactHintFactory(React);
@@ -53,6 +54,7 @@ class PlayArea extends React.PureComponent<IProps & IDerivedProps> {
       let cards: {
         [key: string]: JSX.Element;
       } = {};
+      let slots: JSX.Element[] = [];
 
       let draggedCard: ICard = null;
       const { controls } = this.props;
@@ -118,15 +120,15 @@ class PlayArea extends React.PureComponent<IProps & IDerivedProps> {
           const cardStyle: React.CSSProperties = {
             transform: `translate(${x}px, ${y}px) rotateX(0deg)`,
           };
-          cards[`target-${col}-${row}`] = (
-            <Square
-              key={`target-${col}-${row}`}
+          slots.push(
+            <Slot
+              key={`slot-${col}-${row}`}
               style={cardStyle}
               dropTarget={{
                 col,
                 row,
               }}
-            />
+            />,
           );
 
           const square = getSquare(board, col, row);
@@ -148,6 +150,7 @@ class PlayArea extends React.PureComponent<IProps & IDerivedProps> {
 
       return (
         <WrapperDiv style={wrapperStyle}>
+          {slots}
           {map(Object.keys(cards).sort(), key => cards[key])}
         </WrapperDiv>
       );

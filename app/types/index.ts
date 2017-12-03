@@ -76,6 +76,8 @@ export interface IControlsState {
   dropTarget?: {
     col: number;
     row: number;
+    valid: boolean;
+    areaType: AreaType;
   };
   mouse: {
     x: number;

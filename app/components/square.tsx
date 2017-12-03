@@ -35,15 +35,6 @@ const SquareDiv = styled.div`
     }
   }
 
-  &.dropTarget {
-    border: 1px dashed rgba(255, 255, 255, 0.2);
-
-    &:hover {
-      border-color: rgba(255, 255, 255, 0.7);
-      cursor: grabbing;
-    }
-  }
-
   &.lit {
     animation: ${animations.lighting} 0.5s both;
   }
@@ -59,16 +50,7 @@ const SquareDiv = styled.div`
 
 class Square extends React.PureComponent<IProps & IDerivedProps> {
   render() {
-    let {
-      color,
-      card,
-      draggable,
-      dropTarget,
-      lit,
-      exploding,
-      onBoard,
-      rhAt,
-    } = this.props;
+    let { color, card, draggable, lit, exploding, onBoard, rhAt } = this.props;
     let style: React.CSSProperties = {
       ...this.props.style,
     };
@@ -86,7 +68,6 @@ class Square extends React.PureComponent<IProps & IDerivedProps> {
 
     const className = classNames({
       draggable: !!draggable,
-      dropTarget: !!dropTarget,
       lit: !!lit,
       exploding: !!exploding,
       onBoard: !!onBoard,
@@ -98,8 +79,6 @@ class Square extends React.PureComponent<IProps & IDerivedProps> {
         data-rh-at={rhAt}
         className={className}
         onDragStart={this.onDragStart}
-        onMouseEnter={this.onMouseEnter}
-        onMouseLeave={this.onMouseLeave}
         onMouseDown={this.onMouseDown}
         style={style}
       />
@@ -116,20 +95,6 @@ class Square extends React.PureComponent<IProps & IDerivedProps> {
       this.props.dragStart(draggable);
     }
   };
-
-  onMouseEnter = e => {
-    const { dropTarget } = this.props;
-    if (dropTarget) {
-      this.props.tryEnterSquare(dropTarget);
-    }
-  };
-
-  onMouseLeave = e => {
-    const { dropTarget } = this.props;
-    if (dropTarget) {
-      this.props.exitSquare({});
-    }
-  };
 }
 
 interface IProps {
@@ -140,11 +105,6 @@ interface IProps {
   draggable?: {
     player: Color;
     index: number;
-  };
-
-  dropTarget?: {
-    col: number;
-    row: number;
   };
 
   lit?: boolean;
