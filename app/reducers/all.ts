@@ -16,7 +16,7 @@ const initialReducer = combineReducers<IRootState>({
   metrics: (state = {}) => state,
 });
 
-export default derivedReducer(initialReducer, state => {
+export default derivedReducer<IRootState>(initialReducer, state => {
   const metrics = getMetrics(state);
   return {
     ...state,
