@@ -3,13 +3,13 @@ import {
   IOffset,
   Color,
   IDeckMetrics,
-  deckSize,
   IMetricsState,
 } from "../types/index";
 import { SquareHeight, SquareWidth } from "../components/square";
 
 const deckMargin = 10;
 const playAreaMargin = 10;
+const globalMargin = 20;
 
 export function getMetrics(rs: IRootState): IMetricsState {
   const { board, decks } = rs.game;
@@ -25,7 +25,7 @@ export function getMetrics(rs: IRootState): IMetricsState {
 
   const topDeckOffset: IOffset = {
     x: deckCardStart,
-    y: 0,
+    y: globalMargin,
   };
 
   const playAreaIncrement: IOffset = {
@@ -38,17 +38,17 @@ export function getMetrics(rs: IRootState): IMetricsState {
 
   const playAreaOffset: IOffset = {
     x: playAreaX,
-    y: topDeckOffset.y + deckHeight,
+    y: topDeckOffset.y + globalMargin + deckHeight,
   };
 
   const bottomDeckOffset: IOffset = {
     x: deckCardStart,
-    y: playAreaOffset.y + playAreaHeight,
+    y: playAreaOffset.y + globalMargin + playAreaHeight,
   };
 
   const countCards = (color: Color): number => {
     let numCards = 0;
-    const { cards } = decks[Color.Red];
+    const { cards } = decks[color];
     for (let i = 0; i < cards.length; i++) {
       if (cards[i]) {
         numCards++;
@@ -58,23 +58,26 @@ export function getMetrics(rs: IRootState): IMetricsState {
   };
 
   const layoutDeck = (color: Color, deckOffset: IOffset): IDeckMetrics => {
-    let cardOffsets: IOffset[] = [];
     let numCards = countCards(color);
-    numCards = numCards;
     let margin = 10;
 
-    for (let i = 0; i < deckSize; i++) {
-      const cardOffset: IOffset = {
-        x: deckOffset.x + (SquareWidth + margin) * i,
-        y: deckOffset.y,
-      };
-      cardOffsets.push(cardOffset);
+    let increment = SquareWidth + margin;
+    const maxDeckWidth = clientWidth - 80;
+    let maxTries = 20;
+    while (increment * (numCards + 2) > maxDeckWidth) {
+      increment *= 0.93;
+      if (maxTries-- <= 0) {
+        break;
+      }
     }
 
     return {
       offset: deckOffset,
-      cardOffsets,
       height: deckHeight,
+      increment: {
+        x: increment,
+        y: 0,
+      },
     };
   };
 

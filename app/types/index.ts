@@ -50,7 +50,7 @@ export interface IMetricsState {
 export interface IDeckMetrics {
   offset: IOffset;
   height: number;
-  cardOffsets: IOffset[];
+  increment: IOffset;
 }
 
 export interface IOffset {

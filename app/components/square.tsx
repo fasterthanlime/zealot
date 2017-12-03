@@ -40,7 +40,7 @@ const SquareDiv = styled.div`
 
     &:hover {
       border-color: rgba(255, 255, 255, 0.7);
-      cursor: s-resize;
+      cursor: grabbing;
     }
   }
 

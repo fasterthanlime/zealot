@@ -32,7 +32,8 @@ const PlayAreaDiv = styled.div`
 
 const WrapperDiv = styled.div`
   position: relative;
-  perspective: 400px;
+  perspective: 600px;
+  transform-style: preserve-3d;
 `;
 
 class PlayArea extends React.PureComponent<IProps & IDerivedProps> {
@@ -70,20 +71,25 @@ class PlayArea extends React.PureComponent<IProps & IDerivedProps> {
           if (!card) {
             continue;
           }
-          const cardOffset = deckMetrics.cardOffsets[metricIndex++];
           const cardStyle: React.CSSProperties = {
-            transform: `translate(${cardOffset.x}px, ${
-              cardOffset.y
-            }px) rotateX(${color === Color.Red ? 3 : -3}deg)`,
+            transform: `translate3d(${deckMetrics.offset.x +
+              deckMetrics.increment.x * metricIndex}px, ${
+              deckMetrics.offset.y
+            }px, ${metricIndex * 0.2}px) rotateX(${
+              color === Color.Red ? 3 : -3
+            }deg)`,
           };
+          metricIndex++;
 
           if (draggedCard && draggedCard.id === card.id) {
             const { mouse } = controls;
             const x = mouse.x - SquareWidth * 0.5;
             const y = mouse.y - SquareHeight * 0.5;
-            cardStyle.transform = `translate(${x}px, ${y}px) rotateX(0deg)`;
-            cardStyle.opacity = 0.6;
+            cardStyle.transform = `translate3d(${x}px, ${
+              y
+            }px, 40px) rotateX(0deg)`;
             cardStyle.transition = "initial";
+            cardStyle.pointerEvents = "none";
           }
 
           const draggable: IDraggable = {
