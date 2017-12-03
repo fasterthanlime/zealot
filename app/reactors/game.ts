@@ -69,8 +69,6 @@ export default function(watcher: Watcher) {
   });
 
   watcher.on(actions.dragEnd, async (store, action) => {
-    playCardPlace();
-
     const { controls, game } = store.getState();
     store.dispatch(actions.dragClear({}));
 
@@ -106,6 +104,7 @@ export default function(watcher: Watcher) {
 
       store.dispatch(actions.endTurn({}));
 
+      playCardPlace();
       store.dispatch(
         actions.playCard({
           player: draggable.player,
