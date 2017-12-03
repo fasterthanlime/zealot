@@ -28,6 +28,13 @@ const fuse = FuseBox.init({
       "global-styles.css",
       CSSPlugin()
     ],
+    ["node_modules/react-hint/css/*.css",
+      CSSResourcePlugin({
+          dist: outFolder + "/css2",
+          resolve: (f) => `/css2/${f}`,
+      }),
+      CSSPlugin()
+    ],
     [
       "icomoon/style.css",
       CSSResourcePlugin({

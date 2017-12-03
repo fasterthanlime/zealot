@@ -314,3 +314,35 @@ export function isCivilian(suit: Suit): boolean {
       return false;
   }
 }
+
+export function tipForCard(card: ICard): string {
+  if (!card) {
+    return null;
+  }
+
+  switch (card.suit) {
+    case Suit.Peasant:
+      return "[Peasant] Must be placed on empty space.";
+
+    case Suit.Monk:
+      return "[Monk] 3x3 square AOE. Must be placed on empty space.";
+
+    case Suit.MarksmanL:
+      return "[Marksman] Area effect: all cards to the left.";
+
+    case Suit.MarksmanR:
+      return "[Marksman] Area effect: all cards to the right.";
+
+    case Suit.Priest:
+      return "[Priest] Inverts card colors.";
+
+    case Suit.Goblin:
+      return "[Goblin] Blows up cards.";
+
+    case Suit.Necromancer:
+      return "[Necromancer] Steal a card.";
+
+    default:
+      return `${suitName(card.suit)}: TODO`;
+  }
+}

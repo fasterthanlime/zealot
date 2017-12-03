@@ -6,6 +6,9 @@ import Draggerino from "./draggerino";
 import styled from "./styles";
 import { Color } from "../types/index";
 
+const ReactHintFactory = require("react-hint");
+const ReactHint = ReactHintFactory(React);
+
 const PlayAreaDiv = styled.div`
   display: flex;
   flex-direction: column;
@@ -16,6 +19,7 @@ export default class PlayArea extends React.PureComponent<{}> {
   render() {
     return (
       <PlayAreaDiv>
+        <ReactHint events delay={100} />
         <Draggerino />
         <Deck player={Color.Red} />
         <Board />

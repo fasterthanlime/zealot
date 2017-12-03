@@ -118,6 +118,7 @@ class Deck extends React.PureComponent<IProps & IDerivedProps> {
               opacity: i === invisibleIndex ? 0 : 1,
               zIndex: 10,
             }}
+            rhAt={player === Color.Red ? "bottom" : "top"}
             key={card ? card.id : `${i}`}
             card={card}
             draggable={

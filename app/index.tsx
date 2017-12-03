@@ -11,6 +11,7 @@ import { playSound } from "./util/sounds";
 
 require("./global-styles.css");
 require("./icomoon/style.css");
+require("react-hint/css/index.css");
 
 function main() {
   const appDiv = document.querySelector("#app");

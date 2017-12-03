@@ -34,3 +34,7 @@ html, body, #app {
   background-color: #5f5f5f;
   outline: 1px solid #636363;
 }
+
+.react-hint {
+  min-width: 280px !important;
+}

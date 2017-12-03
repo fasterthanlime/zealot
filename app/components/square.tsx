@@ -1,7 +1,13 @@
 import styled, { animations } from "./styles";
 import * as React from "react";
 import * as classNames from "classnames";
-import { Color, cardGraphics, playerColors, ICard } from "../types/index";
+import {
+  Color,
+  cardGraphics,
+  playerColors,
+  ICard,
+  tipForCard,
+} from "../types/index";
 import { connect } from "./connect";
 
 import * as actions from "../actions";
@@ -47,7 +53,15 @@ const SquareDiv = styled.div`
 
 class Square extends React.PureComponent<IProps & IDerivedProps> {
   render() {
-    let { color, card, draggable, dropTarget, lit, exploding } = this.props;
+    let {
+      color,
+      card,
+      draggable,
+      dropTarget,
+      lit,
+      exploding,
+      rhAt,
+    } = this.props;
     let style: React.CSSProperties = {
       ...this.props.style,
     };
@@ -73,6 +87,8 @@ class Square extends React.PureComponent<IProps & IDerivedProps> {
 
     return (
       <SquareDiv
+        data-rh={tipForCard(card)}
+        data-rh-at={rhAt}
         className={className}
         onDragStart={this.onDragStart}
         onMouseEnter={this.onMouseEnter}
@@ -126,6 +142,7 @@ interface IProps {
 
   lit?: boolean;
   exploding?: boolean;
+  rhAt?: string;
 }
 
 interface IDerivedProps {
