@@ -18,7 +18,8 @@ export const SquareHeight = 110;
 const SquareDiv = styled.div`
   position: absolute;
   user-select: none;
-  border: 1px solid black;
+  border: 1px solid #343434;
+  box-shadow: 0 0 1px solid #616161;
   width: ${SquareWidth}px;
   height: ${SquareHeight}px;
   border-radius: 4px;
@@ -26,7 +27,7 @@ const SquareDiv = styled.div`
   background-position: 50% 50%;
   background-repeat: no-repeat;
   opacity: 1;
-  transition: transform 0.32s;
+  transition: transform 0.4s;
 
   &.draggable {
     &:hover {

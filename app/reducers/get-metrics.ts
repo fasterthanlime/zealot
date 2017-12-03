@@ -41,6 +41,19 @@ export function getMetrics(rs: IRootState): IMetricsState {
     y: topDeckOffset.y + globalMargin + deckHeight,
   };
 
+  const pileDimensions: IOffset = {
+    x: SquareWidth + globalMargin * 2,
+    y: SquareHeight + globalMargin * 2,
+  };
+  const dealPileOffset: IOffset = {
+    x: playAreaOffset.x - pileDimensions.x - globalMargin,
+    y: playAreaOffset.y + playAreaHeight * 0.5 - pileDimensions.y * 0.5,
+  };
+  const trashPileOffset: IOffset = {
+    x: playAreaOffset.x + playAreaWidth + pileDimensions.x + globalMargin,
+    y: playAreaOffset.y + playAreaHeight * 0.5 - pileDimensions.y * 0.5,
+  };
+
   const bottomDeckOffset: IOffset = {
     x: deckCardStart,
     y: playAreaOffset.y + globalMargin + playAreaHeight,
@@ -84,6 +97,8 @@ export function getMetrics(rs: IRootState): IMetricsState {
   const metrics: IMetricsState = {
     playAreaOffset,
     playAreaIncrement,
+    dealPileOffset,
+    trashPileOffset,
     decks: {
       [Color.Red]: layoutDeck(Color.Red, topDeckOffset),
       [Color.Blue]: layoutDeck(Color.Blue, bottomDeckOffset),

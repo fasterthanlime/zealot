@@ -42,6 +42,8 @@ export interface ISystemState {
 export interface IMetricsState {
   playAreaOffset: IOffset;
   playAreaIncrement: IOffset;
+  dealPileOffset: IOffset;
+  trashPileOffset: IOffset;
   decks: {
     [color: number]: IDeckMetrics;
   };
@@ -60,10 +62,20 @@ export interface IOffset {
 
 export interface IGameState {
   board: IBoard;
+  dealPile: IDealPile;
   decks: IDecks;
   counts: {
     [color: number]: number;
   };
+}
+
+export interface IDealPile {
+  deals: IDeal[];
+}
+
+export interface IDeal {
+  color: Color;
+  card: ICard;
 }
 
 export interface IDecks {

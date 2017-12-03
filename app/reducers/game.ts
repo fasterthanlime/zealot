@@ -12,16 +12,18 @@ import {
   getCardAreaType,
   forEachAreaSquare,
   swapColor,
+  IDeal,
 } from "../types/index";
 import derivedReducer from "./derived-reducer";
 import * as actions from "../actions";
-import { sample, map } from "underscore";
+import { sample, map, shuffle } from "underscore";
 import { genid } from "../util/genid";
 
 const initialState: IGameState = {
   board: null,
   decks: null,
   counts: null,
+  dealPile: null,
 };
 
 const initialReducer = reducer<Partial<IGameState>>(initialState, on => {
@@ -41,7 +43,7 @@ const initialReducer = reducer<Partial<IGameState>>(initialState, on => {
       }
     }
 
-    const generateDeck = (): IDeck => {
+    const generateDeck = (color: Color): IDeal[] => {
       const suitPool: Suit[] = [];
       for (const card of Object.keys(cardCounts)) {
         const count = cardCounts[card];
@@ -49,20 +51,53 @@ const initialReducer = reducer<Partial<IGameState>>(initialState, on => {
           suitPool.push(parseInt(card, 10) as Suit);
         }
       }
-      return {
-        cards: map(sample<Suit>(suitPool, deckSize), (suit): ICard => ({
+      return map(sample<Suit>(suitPool, deckSize), (suit): IDeal => ({
+        color,
+        card: {
           id: genid(),
           suit,
-        })),
-      };
+        },
+      }));
     };
+
+    let deals = shuffle<IDeal>([
+      ...generateDeck(Color.Blue),
+      ...generateDeck(Color.Red),
+    ]);
 
     return {
       board,
+      dealPile: { deals },
       decks: {
-        [Color.Blue]: generateDeck(),
-        [Color.Red]: generateDeck(),
+        [Color.Blue]: { cards: [] },
+        [Color.Red]: { cards: [] },
       },
+    };
+  });
+
+  on(actions.dealNext, (state, action) => {
+    let { dealPile, decks } = state;
+    let [toDeal, ...rest] = dealPile.deals;
+
+    let deck = decks[toDeal.color];
+    deck = {
+      ...deck,
+      cards: [...deck.cards, toDeal.card],
+    };
+    decks = {
+      ...decks,
+      [toDeal.color]: deck,
+    };
+
+    dealPile = {
+      ...dealPile,
+      deals: rest,
+    };
+
+    return {
+      ...state,
+      decks,
+      dealPile,
     };
   });
 

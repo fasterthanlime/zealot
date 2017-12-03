@@ -17,10 +17,24 @@ import {
 import { warning, info } from "react-notification-system-redux";
 import { playCardFlick, playCardPlace } from "../util/sounds";
 
+const dealWait = 80;
 const animDuration = 600;
 const clearDuration = 1000;
 
 export default function(watcher: Watcher) {
+  watcher.on(actions.newGame, async (store, action) => {
+    while (true) {
+      const { deals } = store.getState().game.dealPile;
+      if (deals.length === 0) {
+        store.dispatch(actions.doneDealing({}));
+        return;
+      }
+
+      await delay(dealWait);
+      store.dispatch(actions.dealNext({}));
+    }
+  });
+
   watcher.on(actions.pass, async (store, action) => {
     const { controls } = store.getState();
     store.dispatch(actions.endTurn({}));

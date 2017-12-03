@@ -47,7 +47,7 @@ const PassDiv = styled.div`
 
 const CoverDiv = styled.div`
   position: absolute;
-  background: rgba(12, 12, 12, 0.8);
+  background: rgba(12, 12, 12, 0.5);
   transition: transform 0.32s, opacity 0.32s;
 `;
 
@@ -177,6 +177,21 @@ class PlayArea extends React.PureComponent<IProps & IDerivedProps> {
         );
         deckMetrics.offset.y;
       }
+    }
+
+    const { deals } = game.dealPile;
+    const dpo = metrics.dealPileOffset;
+    for (let i = 0; i < deals.length; i++) {
+      const deal = deals[i];
+      const { card, color } = deal;
+
+      const cardStyle: React.CSSProperties = {
+        transform: `translate3d(${dpo.x}px, ${dpo.y}px, ${deals.length -
+          i}px) rotateX(0deg)`,
+      };
+      cards[card.id] = (
+        <Square key={card.id} style={cardStyle} card={card} color={color} />
+      );
     }
 
     const { board } = game;

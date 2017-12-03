@@ -18,6 +18,11 @@ export default reducer<IControlsState>(initialState, on => {
   on(actions.newGame, (state, action) => {
     return {
       ...initialState,
+    };
+  });
+  on(actions.doneDealing, (state, action) => {
+    return {
+      ...state,
       awaitingInput: true,
     };
   });

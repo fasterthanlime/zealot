@@ -51,6 +51,9 @@ export const types = mirror({
   CLEAR_EFFECTS: null,
 
   VIEWPORT_RESIZED: null,
+
+  DEAL_NEXT: null,
+  DONE_DEALING: null,
 });
 
 export const boot = createAction<{}>(types.BOOT);
@@ -123,3 +126,6 @@ export const viewportResized = createAction<{
   clientWidth: number;
   clientHeight: number;
 }>(types.VIEWPORT_RESIZED);
+
+export const dealNext = createAction<{}>(types.DEAL_NEXT);
+export const doneDealing = createAction<{}>(types.DONE_DEALING);
