@@ -11,6 +11,7 @@ import {
 } from "../types/index";
 
 import { warning, info } from "react-notification-system-redux";
+import { playCardFlick, playCardPlace } from "../util/sounds";
 
 const animDuration = 400;
 const clearDuration = 1000;
@@ -22,7 +23,13 @@ export default function(watcher: Watcher) {
     await doNextTurn(store, controls.turnPlayer);
   });
 
+  watcher.on(actions.dragStart, async (store, action) => {
+    playCardFlick();
+  });
+
   watcher.on(actions.dragEnd, async (store, action) => {
+    playCardPlace();
+
     const { controls, game } = store.getState();
     store.dispatch(actions.dragClear({}));
 

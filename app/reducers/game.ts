@@ -18,7 +18,6 @@ import derivedReducer from "./derived-reducer";
 import * as actions from "../actions";
 import { sample, map } from "underscore";
 import { genid } from "../util/genid";
-import { playSound } from "../util/sounds";
 
 const initialState: IGameState = {
   board: null,
@@ -128,30 +127,6 @@ const initialReducer = reducer<Partial<IGameState>>(initialState, on => {
     let board = state.board;
 
     const previousSquare = getSquare(board, col, row);
-    switch (card.suit) {
-      case Suit.Necromancer:
-        playSound("Necromance");
-        break;
-      case Suit.Goblin:
-        playSound("Goblin");
-        break;
-      case Suit.MarksmanL:
-      case Suit.MarksmanR:
-        playSound("Marksman");
-        break;
-      case Suit.Peasant:
-        playSound("Peasant");
-        break;
-      case Suit.Monk:
-        playSound("Monk");
-        break;
-      case Suit.Priest:
-        playSound("Priest");
-        break;
-      case Suit.Martyr:
-        playSound("Martyr");
-        break;
-    }
 
     if (card.suit === Suit.Necromancer) {
       console.log("necromancing!");

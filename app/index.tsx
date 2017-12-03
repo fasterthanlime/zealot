@@ -7,12 +7,14 @@ import { theme, ThemeProvider } from "./components/styles";
 import store from "./store";
 import { Provider } from "react-redux";
 import * as actions from "./actions";
+import { playSound } from "./util/sounds";
 
 require("./global-styles.css");
 require("./icomoon/style.css");
 
 function main() {
   const appDiv = document.querySelector("#app");
+  playSound("birds", 1);
 
   ReactDOM.render(
     <Provider store={store}>

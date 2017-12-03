@@ -182,16 +182,18 @@ export const cardGraphics = {
 };
 
 export const cardCounts = {
-  [Suit.Peasant]: 10,
+  [Suit.Peasant]: 15,
 
-  [Suit.Martyr]: 3,
-  [Suit.Monk]: 3,
+  // This card is kinda useless :o
+  // [Suit.Martyr]: 3,
+
+  [Suit.Monk]: 2,
   [Suit.MarksmanL]: 2,
   [Suit.MarksmanR]: 2,
 
   [Suit.Priest]: 4,
-  [Suit.Goblin]: 2,
-  [Suit.Necromancer]: 4,
+  [Suit.Goblin]: 3,
+  [Suit.Necromancer]: 3,
 };
 
 export const playerColors = {
