@@ -182,7 +182,7 @@ export const cardGraphics = {
 };
 
 export const cardCounts = {
-  [Suit.Peasant]: 15,
+  [Suit.Peasant]: 20,
 
   // This card is kinda useless :o
   // [Suit.Martyr]: 3,
@@ -191,9 +191,9 @@ export const cardCounts = {
   [Suit.MarksmanL]: 2,
   [Suit.MarksmanR]: 2,
 
-  [Suit.Priest]: 4,
-  [Suit.Goblin]: 3,
-  [Suit.Necromancer]: 3,
+  [Suit.Priest]: 3,
+  [Suit.Goblin]: 2,
+  [Suit.Necromancer]: 2,
 };
 
 export const playerColors = {
@@ -202,7 +202,7 @@ export const playerColors = {
   default: "black",
 };
 
-export const deckSize = 12;
+export const deckSize = 24;
 
 export enum AreaType {
   Single = 1,

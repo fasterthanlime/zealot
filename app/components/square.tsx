@@ -12,18 +12,20 @@ import { connect } from "./connect";
 
 import * as actions from "../actions";
 
-export const SquareSide = 100;
+export const SquareWidth = 90;
+export const SquareHeight = 110;
 
 const SquareDiv = styled.div`
   user-select: none;
-  border: 3px solid white;
-  width: ${SquareSide}px;
-  height: ${SquareSide}px;
+  border: 1px solid transparent;
+  width: ${SquareWidth}px;
+  height: ${SquareHeight}px;
   border-radius: 4px;
-  background-size: cover;
-  border-style: dashed;
+  background-size: 90% auto;
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
   opacity: 1;
-  transition: background-color 0.4s;
+  transition: all 0.4s;
 
   &.draggable {
     opacity: 0.7;
@@ -35,10 +37,10 @@ const SquareDiv = styled.div`
   }
 
   &.dropTarget {
-    border-color: rgba(255, 255, 255, 0.2);
+    border: 1px dashed rgba(255, 255, 255, 0.2);
 
     &:hover {
-      border-color: white;
+      border-color: rgba(255, 255, 255, 0.7);
     }
   }
 
@@ -75,7 +77,6 @@ class Square extends React.PureComponent<IProps & IDerivedProps> {
       if (color) {
         style.backgroundColor = playerColors[color];
       }
-      style.borderStyle = "solid";
     }
 
     const className = classNames({

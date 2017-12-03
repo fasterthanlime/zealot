@@ -1,4 +1,4 @@
-import Square, { SquareSide } from "./square";
+import Square, { SquareWidth, SquareHeight } from "./square";
 import * as React from "react";
 
 import styled, { animations } from "./styles";
@@ -32,8 +32,8 @@ class Board extends React.PureComponent<IProps & IDerivedProps> {
       for (let col = 0; col < numCols; col++) {
         const square = getSquare(board, col, row);
         if (square) {
-          const x = margin + (margin + SquareSide) * col;
-          const y = margin + (margin + SquareSide) * row;
+          const x = margin + (margin + SquareWidth) * col;
+          const y = margin + (margin + SquareHeight) * row;
           const style: React.CSSProperties = {
             position: "absolute",
             transform: `translate(${x}px, ${y}px)`,
@@ -63,8 +63,8 @@ class Board extends React.PureComponent<IProps & IDerivedProps> {
       }
     }
 
-    const boardWidth = numCols * (margin + SquareSide) + margin;
-    const boardHeight = numRows * (margin + SquareSide) + margin;
+    const boardWidth = numCols * (margin + SquareWidth) + margin;
+    const boardHeight = numRows * (margin + SquareHeight) + margin;
     const boardStyle = {
       width: boardWidth,
       height: boardHeight,

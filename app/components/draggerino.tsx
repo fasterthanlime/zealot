@@ -26,6 +26,7 @@ class Draggerino extends React.PureComponent<IProps & IDerivedProps> {
       const card = deck.cards[draggable.index];
       const squareStyle: React.CSSProperties = {
         transform: "translate(-50%, -50%)",
+        border: "1px solid rgba(255, 255, 255, 0.4)",
       };
       square = (
         <Square color={draggable.player} card={card} style={squareStyle} />

@@ -13,12 +13,12 @@ import * as actions from "../actions";
 
 import styled from "./styles";
 
-import Square, { SquareSide } from "./square";
+import Square, { SquareWidth, SquareHeight } from "./square";
 
 const margin = 4;
 const CardsDiv = styled.div`
-  width: ${margin * 2 + deckSize * (margin + SquareSide)}px;
-  height: ${SquareSide + margin * 2}px;
+  width: ${margin * 2 + deckSize * (margin + SquareWidth)}px;
+  height: ${SquareHeight + margin * 2}px;
   position: relative;
 `;
 
@@ -92,25 +92,34 @@ class Deck extends React.PureComponent<IProps & IDerivedProps> {
     const cardEls: JSX.Element[] = [];
     let totalCards = 0;
 
+    let numCards = 0;
+    for (let i = 0; i < deckSize; i++) {
+      if (deck.cards[i]) {
+        numCards++;
+      }
+    }
+    let overlap = 0.5 + Math.min(4 / numCards, 0.5);
+
     for (let i = 0; i < deckSize; i++) {
       const card = deck.cards[i];
-      const x = margin + i * (SquareSide + margin);
+      const x = margin + i * (SquareWidth * overlap + margin);
 
       const squareStyle: React.CSSProperties = {
         position: "absolute",
-        transform: `translateX(${x}px)`,
+        transform: `translate(${x}px, 0)`,
         flexShrink: 0,
         transition: "transform 0.2s ease-in-out",
         backgroundColor: bgColor,
         opacity: 0.3,
+        boxShadow: "0 0 8px black",
       };
 
-      cardEls.push(<Square style={squareStyle} key={`ghost-${i}`} />);
+      // cardEls.push(<Square style={squareStyle} key={`ghost-${i}`} />);
       if (card) {
         totalCards++;
       }
 
-      if (card && ourTurn) {
+      if (card /* && ourTurn */) {
         cardEls.push(
           <Square
             style={{
