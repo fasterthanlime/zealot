@@ -50,7 +50,7 @@ const SquareDiv = styled.div`
 
 class Square extends React.PureComponent<IProps & IDerivedProps> {
   render() {
-    let { color, card, draggable, lit, exploding, onBoard, rhAt } = this.props;
+    let { color, card, draggable, lit, exploding, onBoard } = this.props;
     let style: React.CSSProperties = {
       ...this.props.style,
     };
@@ -76,7 +76,7 @@ class Square extends React.PureComponent<IProps & IDerivedProps> {
     return (
       <SquareDiv
         data-rh={tipForCard(card)}
-        data-rh-at={rhAt}
+        data-rh-at={color === Color.Red ? "bottom" : "top"}
         className={className}
         onDragStart={this.onDragStart}
         onMouseDown={this.onMouseDown}
@@ -109,7 +109,6 @@ interface IProps {
 
   lit?: boolean;
   exploding?: boolean;
-  rhAt?: string;
   onBoard?: boolean;
 }
 
