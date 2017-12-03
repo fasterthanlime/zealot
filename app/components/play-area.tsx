@@ -17,6 +17,8 @@ import {
 } from "../types/index";
 import { connect } from "./connect";
 
+import { map } from "underscore";
+
 import Square, { SquareWidth, SquareHeight } from "./square";
 
 const ReactHintFactory = require("react-hint");
@@ -30,13 +32,7 @@ const PlayAreaDiv = styled.div`
 
 const WrapperDiv = styled.div`
   position: relative;
-  border: 2px solid red;
   perspective: 400px;
-`;
-
-const Info = styled.div`
-  background: rgba(255, 255, 255, 0.4);
-  position: absolute;
 `;
 
 class PlayArea extends React.PureComponent<IProps & IDerivedProps> {
@@ -53,7 +49,9 @@ class PlayArea extends React.PureComponent<IProps & IDerivedProps> {
         width: `${clientWidth}px`,
         height: `${clientHeight}px`,
       };
-      const cards = [];
+      let cards: {
+        [key: string]: JSX.Element;
+      } = {};
 
       let draggedCard: ICard = null;
       const { controls } = this.props;
@@ -92,14 +90,14 @@ class PlayArea extends React.PureComponent<IProps & IDerivedProps> {
             index: i,
             player: color,
           };
-          cards.push(
+          cards[card.id] = (
             <Square
               key={card.id}
               style={cardStyle}
               card={card}
               draggable={draggable}
               color={color}
-            />,
+            />
           );
         }
       }
@@ -114,7 +112,7 @@ class PlayArea extends React.PureComponent<IProps & IDerivedProps> {
           const cardStyle: React.CSSProperties = {
             transform: `translate(${x}px, ${y}px) rotateX(0deg)`,
           };
-          cards.push(
+          cards[`target-${col}-${row}`] = (
             <Square
               key={`target-${col}-${row}`}
               style={cardStyle}
@@ -122,21 +120,21 @@ class PlayArea extends React.PureComponent<IProps & IDerivedProps> {
                 col,
                 row,
               }}
-            />,
+            />
           );
 
           const square = getSquare(board, col, row);
           if (square && square.card) {
             const { card, color } = square;
 
-            cards.push(
+            cards[card.id] = (
               <Square
                 key={card.id}
                 style={cardStyle}
                 onBoard
                 color={color}
                 card={card}
-              />,
+              />
             );
           }
         }
@@ -144,10 +142,7 @@ class PlayArea extends React.PureComponent<IProps & IDerivedProps> {
 
       return (
         <WrapperDiv style={wrapperStyle}>
-          <Info>
-            client size: {clientWidth}x{clientHeight}
-          </Info>
-          {cards}
+          {map(Object.keys(cards).sort(), key => cards[key])}
         </WrapperDiv>
       );
     }

@@ -12,6 +12,8 @@ html, body, #app {
 
   background: #171717;
   color: white;
+
+  overflow: hidden;
 }
 
 * {

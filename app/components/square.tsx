@@ -26,7 +26,7 @@ const SquareDiv = styled.div`
   background-position: 50% 50%;
   background-repeat: no-repeat;
   opacity: 1;
-  transition: all 0.4s;
+  transition: all 0.32s;
 
   &.draggable {
     &:hover {
