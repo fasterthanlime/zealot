@@ -48,6 +48,8 @@ export const types = mirror({
 
   INVALID_MOVE: null,
   CLEAR_EFFECTS: null,
+
+  VIEWPORT_RESIZED: null,
 });
 
 export const boot = createAction<{}>(types.BOOT);
@@ -94,3 +96,8 @@ export const invalidMove = createAction<{
 }>(types.INVALID_MOVE);
 
 export const clearEffects = createAction<{}>(types.CLEAR_EFFECTS);
+
+export const viewportResized = createAction<{
+  clientWidth: number;
+  clientHeight: number;
+}>(types.VIEWPORT_RESIZED);

@@ -17,6 +17,19 @@ function main() {
   const appDiv = document.querySelector("#app");
   playSound("birds", 1);
 
+  const updateSize = () => {
+    const { clientWidth, clientHeight } = document.body;
+    const { system } = store.getState();
+    if (
+      system.clientWidth != clientWidth ||
+      system.clientHeight != clientHeight
+    ) {
+      store.dispatch(actions.viewportResized({ clientWidth, clientHeight }));
+    }
+  };
+  updateSize();
+  setInterval(updateSize, 1000);
+
   ReactDOM.render(
     <Provider store={store}>
       <ThemeProvider theme={theme}>

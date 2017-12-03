@@ -16,6 +16,7 @@ export const SquareWidth = 90;
 export const SquareHeight = 110;
 
 const SquareDiv = styled.div`
+  position: absolute;
   user-select: none;
   border: 1px solid transparent;
   width: ${SquareWidth}px;
@@ -51,6 +52,10 @@ const SquareDiv = styled.div`
   &.exploding {
     animation: ${animations.exploding} 0.5s both;
   }
+
+  &.onBoard {
+    pointer-events: none;
+  }
 `;
 
 class Square extends React.PureComponent<IProps & IDerivedProps> {
@@ -62,6 +67,7 @@ class Square extends React.PureComponent<IProps & IDerivedProps> {
       dropTarget,
       lit,
       exploding,
+      onBoard,
       rhAt,
     } = this.props;
     let style: React.CSSProperties = {
@@ -84,6 +90,7 @@ class Square extends React.PureComponent<IProps & IDerivedProps> {
       dropTarget: !!dropTarget,
       lit: !!lit,
       exploding: !!exploding,
+      onBoard: !!onBoard,
     });
 
     return (
@@ -144,6 +151,7 @@ interface IProps {
   lit?: boolean;
   exploding?: boolean;
   rhAt?: string;
+  onBoard?: boolean;
 }
 
 interface IDerivedProps {

@@ -29,11 +29,33 @@ export interface IRootState {
   system: ISystemState;
   game: IGameState;
   controls: IControlsState;
+  metrics: IMetricsState;
   notifications: any;
 }
 
 export interface ISystemState {
   booted: boolean;
+  clientWidth: number;
+  clientHeight: number;
+}
+
+export interface IMetricsState {
+  playAreaOffset: IOffset;
+  playAreaIncrement: IOffset;
+  decks: {
+    [color: number]: IDeckMetrics;
+  };
+}
+
+export interface IDeckMetrics {
+  offset: IOffset;
+  height: number;
+  cardOffsets: IOffset[];
+}
+
+export interface IOffset {
+  x: number;
+  y: number;
 }
 
 export interface IGameState {

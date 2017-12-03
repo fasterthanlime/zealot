@@ -4,6 +4,8 @@ import * as actions from "../actions";
 
 const initialState: ISystemState = {
   booted: false,
+  clientWidth: 0,
+  clientHeight: 0,
 };
 
 export default reducer<ISystemState>(initialState, on => {
@@ -11,6 +13,16 @@ export default reducer<ISystemState>(initialState, on => {
     return {
       ...state,
       booted: true,
+    };
+  });
+
+  on(actions.viewportResized, (state, action) => {
+    const { clientWidth, clientHeight } = action.payload;
+
+    return {
+      ...state,
+      clientWidth,
+      clientHeight,
     };
   });
 });
