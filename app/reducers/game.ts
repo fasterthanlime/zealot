@@ -23,7 +23,8 @@ const initialState: IGameState = {
   board: null,
   decks: null,
   counts: null,
-  dealPile: null,
+  dealPile: [],
+  trashPile: [],
 };
 
 const initialReducer = reducer<Partial<IGameState>>(initialState, on => {
@@ -66,8 +67,10 @@ const initialReducer = reducer<Partial<IGameState>>(initialState, on => {
     ]);
 
     return {
+      ...initialState,
       board,
-      dealPile: { deals },
+      dealPile: deals,
+      trashPile: [],
       decks: {
         [Color.Blue]: { cards: [] },
         [Color.Red]: { cards: [] },
@@ -77,7 +80,7 @@ const initialReducer = reducer<Partial<IGameState>>(initialState, on => {
 
   on(actions.dealNext, (state, action) => {
     let { dealPile, decks } = state;
-    let [toDeal, ...rest] = dealPile.deals;
+    let [toDeal, ...rest] = dealPile;
 
     let deck = decks[toDeal.color];
     deck = {
@@ -89,15 +92,10 @@ const initialReducer = reducer<Partial<IGameState>>(initialState, on => {
       [toDeal.color]: deck,
     };
 
-    dealPile = {
-      ...dealPile,
-      deals: rest,
-    };
-
     return {
       ...state,
       decks,
-      dealPile,
+      dealPile: rest,
     };
   });
 

@@ -179,14 +179,29 @@ class PlayArea extends React.PureComponent<IProps & IDerivedProps> {
       }
     }
 
-    const { deals } = game.dealPile;
+    const { dealPile } = game;
     const dpo = metrics.dealPileOffset;
-    for (let i = 0; i < deals.length; i++) {
-      const deal = deals[i];
+    for (let i = 0; i < dealPile.length; i++) {
+      const deal = dealPile[i];
       const { card, color } = deal;
 
       const cardStyle: React.CSSProperties = {
-        transform: `translate3d(${dpo.x}px, ${dpo.y}px, ${deals.length -
+        transform: `translate3d(${dpo.x}px, ${dpo.y}px, ${dealPile.length -
+          i}px) rotateX(0deg)`,
+      };
+      cards[card.id] = (
+        <Square key={card.id} style={cardStyle} card={card} color={color} />
+      );
+    }
+
+    const { trashPile } = game;
+    const tpo = metrics.trashPileOffset;
+    for (let i = 0; i < trashPile.length; i++) {
+      const deal = trashPile[i];
+      const { card, color } = deal;
+
+      const cardStyle: React.CSSProperties = {
+        transform: `translate3d(${tpo.x}px, ${tpo.y}px, ${trashPile.length -
           i}px) rotateX(0deg)`,
       };
       cards[card.id] = (

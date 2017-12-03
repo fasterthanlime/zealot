@@ -24,8 +24,8 @@ const clearDuration = 1000;
 export default function(watcher: Watcher) {
   watcher.on(actions.newGame, async (store, action) => {
     while (true) {
-      const { deals } = store.getState().game.dealPile;
-      if (deals.length === 0) {
+      const { dealPile } = store.getState().game;
+      if (dealPile.length === 0) {
         store.dispatch(actions.doneDealing({}));
         return;
       }
