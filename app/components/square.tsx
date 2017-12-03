@@ -116,9 +116,6 @@ interface IProps {
 interface IDerivedProps {
   dragStart: typeof actions.dragStart;
   dragEnd: typeof actions.dragEnd;
-
-  tryEnterSquare: typeof actions.tryEnterSquare;
-  exitSquare: typeof actions.exitSquare;
 }
 
 export enum SquareMode {
@@ -131,8 +128,5 @@ export default connect<IProps>(Square, {
   actions: {
     dragStart: actions.dragStart,
     dragEnd: actions.dragEnd,
-
-    tryEnterSquare: actions.tryEnterSquare,
-    exitSquare: actions.exitSquare,
   },
 });
