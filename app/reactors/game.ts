@@ -11,6 +11,7 @@ import {
   AreaType,
   getDraggedCard,
   getCardAreaType,
+  colorName,
 } from "../types/index";
 
 import { warning, info } from "react-notification-system-redux";
@@ -137,11 +138,6 @@ async function doNextTurn(
     }
   }, clearDuration);
 
-  if (swapPlayers) {
-    // double delay!
-    await delay(animDuration * 2);
-  }
-
   const rs = store.getState();
   if (hasEmptyDeck(rs, Color.Red) && hasEmptyDeck(rs, Color.Blue)) {
     const r = rs.game.counts[Color.Red];
@@ -149,9 +145,13 @@ async function doNextTurn(
     let message = `It's a draw! (${r} vs ${b})`;
 
     if (r < b) {
-      message = `Player red has won! (${r} vs ${b} for blue)`;
+      message = `Player ${colorName(Color.Red)} has won! (${r} vs ${
+        b
+      } for blue)`;
     } else if (b < r) {
-      message = `Player blue has won! (${b} vs ${r} for red)`;
+      message = `Player ${colorName(Color.Blue)} has won! (${b} vs ${
+        r
+      } for red)`;
     }
 
     store.dispatch(
@@ -161,13 +161,29 @@ async function doNextTurn(
       }),
     );
 
-    await delay(animDuration);
+    await delay(animDuration * 2);
     store.dispatch(actions.newGame({}));
+    return;
+  }
+
+  if (swapPlayers) {
+    // double delay!
+    await delay(animDuration * 2);
+  }
+  let nextPlayer = swapPlayers ? swapColor(previousPlayer) : previousPlayer;
+  if (hasEmptyDeck(rs, nextPlayer)) {
+    store.dispatch(
+      info({
+        title: "Passing",
+        message: `${colorName(nextPlayer)} has no cards left.`,
+      }),
+    );
+    nextPlayer = swapColor(nextPlayer);
   }
 
   store.dispatch(
     actions.nextTurn({
-      turnPlayer: swapPlayers ? swapColor(previousPlayer) : previousPlayer,
+      turnPlayer: nextPlayer,
     }),
   );
 }

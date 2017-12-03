@@ -194,6 +194,16 @@ export function suitName(suit: Suit): string {
   }
 }
 
+export function colorName(color: Color): string {
+  switch (color) {
+    case Color.Red:
+      return "Orange";
+    case Color.Blue:
+      return "Green";
+  }
+  return "Neutral";
+}
+
 export const cardGraphics = {
   [Suit.Peasant]: require("../images/cards/peasant.png").default,
 
@@ -228,8 +238,6 @@ export const playerColors = {
   [Color.Neutral]: "#101010", // pretty much black
   default: "black",
 };
-
-export const deckSize = 24;
 
 export enum AreaType {
   Single = 1,

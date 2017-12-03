@@ -20,6 +20,7 @@ import { map } from "underscore";
 import Square, { SquareWidth, SquareHeight } from "./square";
 import Slot from "./slot";
 import Highlight from "./highlight";
+import * as actions from "../actions";
 
 const ReactHintFactory = require("react-hint");
 const ReactHint = ReactHintFactory(React);
@@ -28,6 +29,26 @@ const WrapperDiv = styled.div`
   position: relative;
   perspective: 600px;
   transform-style: preserve-3d;
+`;
+
+const PassDiv = styled.div`
+  position: absolute;
+  font-size: 28px;
+  padding: 12px;
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-radius: 4px;
+
+  &:hover {
+    cursor: pointer;
+    border-color: rgba(255, 255, 255, 0.9);
+  }
+`;
+
+const CoverDiv = styled.div`
+  position: absolute;
+  background: rgba(12, 12, 12, 0.8);
+  transition: transform 0.32s, opacity 0.32s;
 `;
 
 class PlayArea extends React.PureComponent<IProps & IDerivedProps> {
@@ -45,6 +66,8 @@ class PlayArea extends React.PureComponent<IProps & IDerivedProps> {
     let cards: {
       [key: string]: JSX.Element;
     } = {};
+    let passes: JSX.Element[] = [];
+    let covers: JSX.Element[] = [];
     let slots: JSX.Element[] = [];
     let highlights: JSX.Element[] = [];
 
@@ -75,24 +98,41 @@ class PlayArea extends React.PureComponent<IProps & IDerivedProps> {
       const ourTurn = color === controls.turnPlayer;
       const deck = game.decks[color];
       const deckMetrics = metrics.decks[color];
+      const xAngle = color === Color.Red ? 3 : -3;
+
+      if (true) {
+        const hiding = !(ourTurn && controls.awaitingInput);
+        let z = -4;
+        if (hiding) {
+          z = 4;
+        }
+        const x = 0;
+        const y = deckMetrics.offset.y;
+        const coverStyle: React.CSSProperties = {
+          transform: `translate3d(${x}px, ${y - 10}px, ${z}px) rotateX(${
+            xAngle
+          }deg)`,
+          width: "100%",
+          height: `${deckMetrics.height + 20}px`,
+          opacity: hiding ? 1 : 0,
+        };
+        covers.push(<CoverDiv style={coverStyle} />);
+      }
 
       let metricIndex = 0;
+      let numCards = 0;
       for (let i = 0; i < deck.cards.length; i++) {
         const card = deck.cards[i];
         if (!card) {
           continue;
         }
+        numCards++;
         const cardStyle: React.CSSProperties = {
           transform: `translate3d(${deckMetrics.offset.x +
             deckMetrics.increment.x * metricIndex}px, ${
             deckMetrics.offset.y
-          }px, ${metricIndex * 0.2}px) rotateX(${
-            color === Color.Red ? 3 : -3
-          }deg)`,
+          }px, ${metricIndex * 0.2}px) rotateX(${xAngle}deg)`,
         };
-        if (!ourTurn) {
-          cardStyle.opacity = 0;
-        }
         metricIndex++;
 
         if (draggedCard && draggedCard.id === card.id) {
@@ -122,6 +162,20 @@ class PlayArea extends React.PureComponent<IProps & IDerivedProps> {
             color={color}
           />
         );
+      }
+
+      if (numCards === 0 && ourTurn && controls.awaitingInput) {
+        const passStyle: React.CSSProperties = {
+          transform: `translate(${deckMetrics.offset.x}px, ${
+            deckMetrics.offset.y
+          }px)`,
+        };
+        passes.push(
+          <PassDiv style={passStyle} onClick={this.onPass}>
+            Pass
+          </PassDiv>,
+        );
+        deckMetrics.offset.y;
       }
     }
 
@@ -178,10 +232,16 @@ class PlayArea extends React.PureComponent<IProps & IDerivedProps> {
         {slots}
         {map(Object.keys(cards).sort(), key => cards[key])}
         {highlights}
+        {passes}
+        {covers}
         <ReactHint persist events />
       </WrapperDiv>
     );
   }
+
+  onPass = () => {
+    this.props.pass({});
+  };
 }
 
 interface IProps {}
@@ -191,6 +251,8 @@ interface IDerivedProps {
   metrics: IMetricsState;
   game: IGameState;
   controls: IControlsState;
+
+  pass: typeof actions.pass;
 }
 
 export default connect<IProps>(PlayArea, {
@@ -200,4 +262,7 @@ export default connect<IProps>(PlayArea, {
     game: rs.game,
     controls: rs.controls,
   }),
+  actions: {
+    pass: actions.pass,
+  },
 });

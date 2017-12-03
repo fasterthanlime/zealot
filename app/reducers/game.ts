@@ -7,7 +7,6 @@ import {
   IDeck,
   getSquare,
   cardCounts,
-  deckSize,
   ICard,
   makeNeutralSquare,
   getCardAreaType,
@@ -27,9 +26,10 @@ const initialState: IGameState = {
 
 const initialReducer = reducer<Partial<IGameState>>(initialState, on => {
   on(actions.newGame, (state, action) => {
+    const deckSize = 12;
     let board = {
       numCols: 6,
-      numRows: 4,
+      numRows: 3,
       squares: [],
     };
     board.squares.length = board.numCols * board.numRows;
@@ -49,7 +49,6 @@ const initialReducer = reducer<Partial<IGameState>>(initialState, on => {
           suitPool.push(parseInt(card, 10) as Suit);
         }
       }
-
       return {
         cards: map(sample<Suit>(suitPool, deckSize), (suit): ICard => ({
           id: genid(),
@@ -109,7 +108,6 @@ const initialReducer = reducer<Partial<IGameState>>(initialState, on => {
       card = deck.cards[index];
       const newCards = [...deck.cards];
       newCards.splice(index, 1);
-      newCards.length = deckSize;
       return {
         ...deck,
         cards: newCards,
@@ -129,17 +127,8 @@ const initialReducer = reducer<Partial<IGameState>>(initialState, on => {
     const previousSquare = getSquare(board, col, row);
 
     if (card.suit === Suit.Necromancer) {
-      console.log("necromancing!");
       if (previousSquare.card) {
-        console.log("necromancing ", previousSquare.card);
-        let newCards = [...state.decks[player].cards];
-        for (let i = 0; i < newCards.length; i++) {
-          if (!newCards[i]) {
-            console.log("putting it at", i);
-            newCards[i] = previousSquare.card;
-            break;
-          }
-        }
+        let newCards = [...state.decks[player].cards, previousSquare.card];
         state = {
           ...state,
           decks: {
