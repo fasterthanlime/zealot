@@ -16,14 +16,14 @@ import {
 import { warning, info } from "react-notification-system-redux";
 import { playCardFlick, playCardPlace } from "../util/sounds";
 
-const animDuration = 400;
+const animDuration = 600;
 const clearDuration = 1000;
 
 export default function(watcher: Watcher) {
   watcher.on(actions.pass, async (store, action) => {
     const { controls } = store.getState();
     store.dispatch(actions.endTurn({}));
-    await doNextTurn(store, controls.turnPlayer);
+    await doNextTurn(store, controls.turnPlayer, true);
   });
 
   watcher.on(actions.dragStart, async (store, action) => {
@@ -76,6 +76,7 @@ export default function(watcher: Watcher) {
     const { draggable, dropTarget } = controls;
     if (draggable && dropTarget) {
       const card = game.decks[draggable.player].cards[draggable.index];
+      let swapPlayers = false;
       if (isCivilian(card.suit)) {
         const dropSquare = getSquare(
           game.board,
@@ -98,6 +99,8 @@ export default function(watcher: Watcher) {
           store.dispatch(actions.clearEffects({}));
           return;
         }
+      } else {
+        swapPlayers = true;
       }
 
       store.dispatch(actions.endTurn({}));
@@ -110,7 +113,7 @@ export default function(watcher: Watcher) {
           row: dropTarget.row,
         }),
       );
-      await doNextTurn(store, controls.turnPlayer);
+      await doNextTurn(store, controls.turnPlayer, swapPlayers);
     }
   });
 }
@@ -121,7 +124,11 @@ async function delay(ms: number): Promise<void> {
   });
 }
 
-async function doNextTurn(store: IStore, previousPlayer: Color) {
+async function doNextTurn(
+  store: IStore,
+  previousPlayer: Color,
+  swapPlayers: boolean,
+) {
   setTimeout(() => {
     try {
       store.dispatch(actions.clearEffects({}));
@@ -129,7 +136,11 @@ async function doNextTurn(store: IStore, previousPlayer: Color) {
       // meh
     }
   }, clearDuration);
-  await delay(animDuration);
+
+  if (swapPlayers) {
+    // double delay!
+    await delay(animDuration * 2);
+  }
 
   const rs = store.getState();
   if (hasEmptyDeck(rs, Color.Red) && hasEmptyDeck(rs, Color.Blue)) {
@@ -156,7 +167,7 @@ async function doNextTurn(store: IStore, previousPlayer: Color) {
 
   store.dispatch(
     actions.nextTurn({
-      turnPlayer: swapColor(previousPlayer),
+      turnPlayer: swapPlayers ? swapColor(previousPlayer) : previousPlayer,
     }),
   );
 }

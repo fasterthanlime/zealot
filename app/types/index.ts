@@ -84,6 +84,7 @@ export interface IControlsState {
     y: number;
   };
   turnPlayer: Color;
+  awaitingInput: boolean;
 }
 
 export interface IDraggable {
@@ -224,6 +225,7 @@ export const cardCounts = {
 export const playerColors = {
   [Color.Red]: "#c5632d", // actually orange
   [Color.Blue]: "#3e5a1e", // actually green
+  [Color.Neutral]: "#101010", // pretty much black
   default: "black",
 };
 

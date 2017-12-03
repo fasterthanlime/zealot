@@ -72,6 +72,7 @@ class PlayArea extends React.PureComponent<IProps & IDerivedProps> {
     }
 
     for (const color of [Color.Red, Color.Blue]) {
+      const ourTurn = color === controls.turnPlayer;
       const deck = game.decks[color];
       const deckMetrics = metrics.decks[color];
 
@@ -89,6 +90,9 @@ class PlayArea extends React.PureComponent<IProps & IDerivedProps> {
             color === Color.Red ? 3 : -3
           }deg)`,
         };
+        if (!ourTurn) {
+          cardStyle.opacity = 0;
+        }
         metricIndex++;
 
         if (draggedCard && draggedCard.id === card.id) {
@@ -102,10 +106,13 @@ class PlayArea extends React.PureComponent<IProps & IDerivedProps> {
           cardStyle.pointerEvents = "none";
         }
 
-        const draggable: IDraggable = {
-          index: i,
-          player: color,
-        };
+        let draggable: IDraggable;
+        if (ourTurn && controls.awaitingInput) {
+          draggable = {
+            index: i,
+            player: color,
+          };
+        }
         cards[card.id] = (
           <Square
             key={card.id}

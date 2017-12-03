@@ -11,22 +11,27 @@ const initialState: IControlsState = {
     y: 0,
   },
   turnPlayer: Color.Red,
+  awaitingInput: false,
 };
 
 export default reducer<IControlsState>(initialState, on => {
   on(actions.newGame, (state, action) => {
-    return initialState;
+    return {
+      ...initialState,
+      awaitingInput: true,
+    };
   });
   on(actions.endTurn, (state, action) => {
     return {
       ...state,
-      turnPlayer: Color.Neutral,
+      awaitingInput: false,
     };
   });
   on(actions.nextTurn, (state, action) => {
     return {
       ...state,
       turnPlayer: action.payload.turnPlayer,
+      awaitingInput: true,
     };
   });
   on(actions.dragStart, (state, action) => {
@@ -46,14 +51,13 @@ export default reducer<IControlsState>(initialState, on => {
   on(actions.enterSquare, (state, action) => {
     const { dropTarget, seq } = action.payload;
     if (state.dropSeq > seq) {
-      console.log(`dropping `, action.payload);
       return state;
     }
 
     return {
       ...state,
       dropTarget,
-      droPSeq: seq,
+      dropSeq: seq,
     };
   });
   on(actions.exitSquare, (state, action) => {

@@ -83,7 +83,7 @@ export const enterSquare = createAction<{
   dropTarget: {
     col: number;
     row: number;
-    valid?: boolean;
+    valid: boolean;
     areaType: AreaType;
   };
 }>(types.ENTER_SQUARE);
