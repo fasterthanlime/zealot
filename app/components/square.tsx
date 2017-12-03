@@ -26,7 +26,7 @@ const SquareDiv = styled.div`
   background-position: 50% 50%;
   background-repeat: no-repeat;
   opacity: 1;
-  transition: all 0.32s;
+  transition: transform 0.32s;
 
   &.draggable {
     &:hover {
@@ -120,7 +120,7 @@ class Square extends React.PureComponent<IProps & IDerivedProps> {
   onMouseEnter = e => {
     const { dropTarget } = this.props;
     if (dropTarget) {
-      this.props.enterSquare(dropTarget);
+      this.props.tryEnterSquare(dropTarget);
     }
   };
 
@@ -157,7 +157,7 @@ interface IDerivedProps {
   dragStart: typeof actions.dragStart;
   dragEnd: typeof actions.dragEnd;
 
-  enterSquare: typeof actions.enterSquare;
+  tryEnterSquare: typeof actions.tryEnterSquare;
   exitSquare: typeof actions.exitSquare;
 }
 
@@ -172,7 +172,7 @@ export default connect<IProps>(Square, {
     dragStart: actions.dragStart,
     dragEnd: actions.dragEnd,
 
-    enterSquare: actions.enterSquare,
+    tryEnterSquare: actions.tryEnterSquare,
     exitSquare: actions.exitSquare,
   },
 });

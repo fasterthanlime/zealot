@@ -72,6 +72,7 @@ export interface IDecks {
 
 export interface IControlsState {
   draggable?: IDraggable;
+  dropSeq: number;
   dropTarget?: {
     col: number;
     row: number;
@@ -367,4 +368,15 @@ export function tipForCard(card: ICard): string {
     default:
       return `${suitName(card.suit)}: TODO`;
   }
+}
+
+export function getDraggedCard(rs: IRootState): ICard {
+  const { controls, game } = rs;
+  if (!controls.draggable) {
+    return null;
+  }
+
+  const { player, index } = controls.draggable;
+  const deck = game.decks[player];
+  return deck.cards[index];
 }

@@ -8,6 +8,9 @@ import {
   IStore,
   Color,
   IRootState,
+  AreaType,
+  getDraggedCard,
+  getCardAreaType,
 } from "../types/index";
 
 import { warning, info } from "react-notification-system-redux";
@@ -25,6 +28,43 @@ export default function(watcher: Watcher) {
 
   watcher.on(actions.dragStart, async (store, action) => {
     playCardFlick();
+  });
+
+  watcher.on(actions._tryEnterSquare, async (store, action) => {
+    const rs = store.getState();
+    const draggedCard = getDraggedCard(rs);
+    if (!draggedCard) {
+      // why bother?
+      return;
+    }
+
+    const { board } = rs.game;
+    const { col, row } = action.payload;
+    const sq = getSquare(board, col, row);
+
+    let valid = true;
+    let areaType = AreaType.Single;
+
+    if (sq && sq.card) {
+      if (isCivilian(draggedCard.suit)) {
+        // civilians can only go on empty squares
+        valid = false;
+      } else {
+        areaType = getCardAreaType(sq.card);
+      }
+    }
+
+    store.dispatch(
+      actions.enterSquare({
+        seq: action.payload.seq,
+        dropTarget: {
+          col,
+          row,
+          valid,
+          areaType,
+        },
+      }),
+    );
   });
 
   watcher.on(actions.dragEnd, async (store, action) => {

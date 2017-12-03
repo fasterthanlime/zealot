@@ -4,6 +4,7 @@ import reducer from "./reducer";
 
 const initialState: IControlsState = {
   draggable: null,
+  dropSeq: -1,
   dropTarget: null,
   mouse: {
     x: 0,
@@ -43,9 +44,16 @@ export default reducer<IControlsState>(initialState, on => {
     };
   });
   on(actions.enterSquare, (state, action) => {
+    const { dropTarget, seq } = action.payload;
+    if (state.dropSeq > seq) {
+      console.log(`dropping `, action.payload);
+      return state;
+    }
+
     return {
       ...state,
-      dropTarget: action.payload,
+      dropTarget,
+      droPSeq: seq,
     };
   });
   on(actions.exitSquare, (state, action) => {

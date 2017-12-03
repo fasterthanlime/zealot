@@ -1,4 +1,4 @@
-import { IAction, Color } from "../types/index";
+import { IAction, Color, AreaType } from "../types/index";
 
 export function createAction<PayloadType>(type: string) {
   if (typeof type !== "string" || type.length === 0) {
@@ -36,6 +36,7 @@ export const types = mirror({
   DRAG_END: null,
   DRAG_CLEAR: null,
 
+  TRY_ENTER_SQUARE: null,
   ENTER_SQUARE: null,
   EXIT_SQUARE: null,
 
@@ -62,10 +63,31 @@ export const dragStart = createAction<{
 export const dragEnd = createAction<{}>(types.DRAG_END);
 export const dragClear = createAction<{}>(types.DRAG_CLEAR);
 
-export const enterSquare = createAction<{
+interface IEnterSquarePayload {
   col: number;
   row: number;
+}
+
+let enterSquareSeqSeed = 0;
+export const _tryEnterSquare = createAction<
+  {
+    seq: number;
+  } & IEnterSquarePayload
+>(types.TRY_ENTER_SQUARE);
+
+export const tryEnterSquare = (pl: IEnterSquarePayload) =>
+  _tryEnterSquare({ ...pl, seq: enterSquareSeqSeed++ });
+
+export const enterSquare = createAction<{
+  seq: number;
+  dropTarget: {
+    col: number;
+    row: number;
+    valid?: boolean;
+    areaType: AreaType;
+  };
 }>(types.ENTER_SQUARE);
+
 export const exitSquare = createAction<{}>(types.EXIT_SQUARE);
 
 interface IPlayCardPayload {
