@@ -18,6 +18,7 @@ export function getMetrics(rs: IRootState): IMetricsState {
     return null;
   }
 
+  const { clientWidth } = rs.system;
   const deckHeight = SquareHeight + deckMargin * 2;
 
   const deckCardStart = 80;
@@ -31,9 +32,12 @@ export function getMetrics(rs: IRootState): IMetricsState {
     x: SquareWidth + playAreaMargin,
     y: SquareHeight + playAreaMargin,
   };
-  const playAreaHeight = playAreaIncrement.y * board.numCols;
+  const playAreaWidth = playAreaIncrement.x * board.numCols;
+  const playAreaHeight = playAreaIncrement.y * board.numRows;
+  const playAreaX = clientWidth * 0.5 - playAreaWidth * 0.5;
+
   const playAreaOffset: IOffset = {
-    x: topDeckOffset.x,
+    x: playAreaX,
     y: topDeckOffset.y + deckHeight,
   };
 
