@@ -311,16 +311,34 @@ export function playAI(store: IStore, game: IGameState, player: Color): MCNode {
 
     // playing on an empty square
     if (card.suit === Suit.Goblin) {
-      if (bcard) {
+      let gain = 0;
+      const at = getCardAreaType(bcard);
+      gain += countCards(col, row, at, player);
+      gain -= countCards(col, row, at, swapColor(player));
+
+      if (gain < 2) {
+        if (gain < 1) {
+          // wasting a goblin isn't cool
+          score -= 4;
+        }
       } else {
-        // wasting a goblin is a little naughty
-        score -= 4;
+        // kaboom
+        score = (gain - 2) * 1.5;
       }
     } else if (card.suit === Suit.Priest) {
-      if (bcard) {
+      let gain = 0;
+      const at = getCardAreaType(bcard);
+      gain += countCards(col, row, at, player);
+      gain -= countCards(col, row, at, swapColor(player));
+
+      if (gain < 2) {
+        if (gain < 1) {
+          // wasting a priest is really not cool
+          score -= 6;
+        }
       } else {
-        // wasting a priest is medium naughty
-        score -= 6;
+        // aw yeah
+        score = (gain - 2) * 1.8;
       }
     } else if (card.suit === Suit.Necromancer) {
       if (bcard) {
@@ -330,6 +348,30 @@ export function playAI(store: IStore, game: IGameState, player: Color): MCNode {
         } else if (bcard.suit === Suit.Goblin) {
           // well that's cool too
           score += 5;
+        } else if (bcard.suit === Suit.MarksmanL) {
+          // well, how much is it worth?
+          let theirCardCount = countCards(
+            col,
+            row,
+            AreaType.RayLeft,
+            swapColor(player),
+          );
+          if (theirCardCount > 1) {
+            // i'll allow it
+            score += (theirCardCount - 1) * 2.1;
+          }
+        } else if (bcard.suit === Suit.MarksmanR) {
+          // well, how much is it worth?
+          let theirCardCount = countCards(
+            col,
+            row,
+            AreaType.RayRight,
+            swapColor(player),
+          );
+          if (theirCardCount > 1) {
+            // i'll allow it
+            score += (theirCardCount - 1) * 2.1;
+          }
         }
       } else {
         // wasting a necromancer is extremely naughty
@@ -489,7 +531,7 @@ export function playAI(store: IStore, game: IGameState, player: Color): MCNode {
         let plays = legalPlays(currentGame, nextPlayer);
         let scoredPlays = _.map(plays, p => ({ p, s: H(currentGame, p) }));
         scoredPlays = _.sortBy(scoredPlays, p => -p.s);
-        const maxBestPlays = Math.ceil(plays.length / 3);
+        const maxBestPlays = Math.max(10, Math.ceil(plays.length / 8));
         plays = _.map(_.first(scoredPlays, maxBestPlays), p => p.p);
 
         node.children = [];
@@ -539,11 +581,11 @@ export function playAI(store: IStore, game: IGameState, player: Color): MCNode {
   const perSec = (iterations / 1000 / (totalTime / 1000)).toFixed(1);
   console.log(`${perSec}K iterations/s (${iterations} iterations total)`);
 
-  let mostPlays = 0;
+  let mostWins = 0;
   let bestNode: MCNode = null;
   for (const child of root.children) {
-    if (child.plays > mostPlays) {
-      mostPlays = child.plays;
+    if (child.wins > mostWins) {
+      mostWins = child.wins;
       bestNode = child;
     }
   }
