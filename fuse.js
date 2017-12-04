@@ -57,7 +57,6 @@ const fuse = FuseBox.init({
     !isDevelopment &&
       QuantumPlugin({
         target: "browser",
-        uglify: true,
       }),
   ],
 });
