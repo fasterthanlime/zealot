@@ -12,17 +12,19 @@ import {
   setSquare,
   forEachAreaSquare,
   swapColor,
+  Color,
+  suitName,
+  colorName,
 } from "../types/index";
 import { IPlayCardPayload } from "../actions/index";
 
 export function isValidMove(
-  game: IGameState,
-  card: ICard,
-  col: number,
-  row: number,
+  state: IGameState,
+  play: IPlayCardPayload,
 ): boolean {
-  const { board } = game;
-  const sq = getSquare(board, col, row);
+  const { board } = state;
+  let card = state.decks[play.player].cards[play.index];
+  const sq = getSquare(board, play.col, play.row);
 
   let valid = true;
 
@@ -131,4 +133,66 @@ export function applyMove(
   };
 
   return state;
+}
+
+export function computeBenefit(
+  game1: IGameState,
+  game2: IGameState,
+  color: Color,
+): number {
+  const opponentColor = swapColor(color);
+  const before =
+    computeScore(game1, color) - computeScore(game1, opponentColor);
+  const after = computeScore(game2, color) - computeScore(game2, opponentColor);
+
+  const pointsGain = after - before;
+  return -pointsGain; // since we ant to minimize
+}
+
+export function computeScore(game: IGameState, color: Color): number {
+  let score = 0;
+
+  const { board } = game;
+  for (let col = 0; col < board.numCols; col++) {
+    for (let row = 0; row < board.numRows; row++) {
+      const sq = getSquare(board, col, row);
+      if (sq.card && sq.color === color) {
+        score++;
+      }
+    }
+  }
+
+  return score;
+}
+
+// AI stuff!
+
+export interface IPotentialPlay {
+  play: IPlayCardPayload;
+  benefit: number;
+}
+
+function formatCard(card: ICard, color: Color): string {
+  if (!card) {
+    return "<empty>";
+  }
+
+  return `${colorName(color)} ${suitName(card.suit)}`;
+}
+
+export function printPlays(game: IGameState, plays: IPotentialPlay[]) {
+  const { board, decks } = game;
+
+  console.log(`best ${plays.length} plays considered: `);
+  for (const play of plays) {
+    const { col, row, index, player } = play.play;
+    const card = decks[player].cards[index];
+    const sq = getSquare(board, col, row);
+
+    console.log(
+      `${formatCard(card, player)} on ${formatCard(sq.card, sq.color)} at ${
+        col
+      },${row} for ${play.benefit}`,
+    );
+  }
 }

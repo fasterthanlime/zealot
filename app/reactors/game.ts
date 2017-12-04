@@ -16,8 +16,15 @@ import {
 
 import { warning, info } from "react-notification-system-redux";
 import { playCardFlick, playCardPlace } from "../util/sounds";
-import { isValidMove } from "../util/rules";
-import { random } from "underscore";
+import {
+  isValidMove,
+  applyMove,
+  computeBenefit,
+  IPotentialPlay,
+  printPlays,
+} from "../util/rules";
+import { random, sortBy, first } from "underscore";
+import { IPlayCardPayload } from "../actions";
 
 const dealWait = 80;
 const animDuration = 600;
@@ -31,22 +38,40 @@ export default function(watcher: Watcher) {
     if (action.payload.turnPlayer === aiColor) {
       await delay(aiThinkTime);
 
+      const player = aiColor;
       const rs = store.getState();
+      let { game } = rs;
       const deck = rs.game.decks[aiColor];
       const { cards } = deck;
-      let cardIndex = random(0, cards.length - 1);
-      const card = deck.cards[cardIndex];
-      const col = random(0, rs.game.board.numCols - 1);
-      const row = random(0, rs.game.board.numRows - 1);
-      if (isValidMove(rs.game, card, col, row)) {
-        store.dispatch(
-          actions.playCard({
-            col,
-            row,
-            index: cardIndex,
-            player: aiColor,
-          }),
-        );
+
+      let validPlays: IPotentialPlay[] = [];
+      let tries = 100;
+
+      for (let k = 0; k < tries; k++) {
+        let index = random(0, cards.length - 1);
+        const col = random(0, rs.game.board.numCols - 1);
+        const row = random(0, rs.game.board.numRows - 1);
+        let play: IPlayCardPayload = {
+          col,
+          row,
+          index,
+          player,
+        };
+
+        if (isValidMove(game, play)) {
+          const nextGame = applyMove(game, play);
+          validPlays.push({
+            play,
+            benefit: computeBenefit(game, nextGame, aiColor),
+          });
+        }
+      }
+
+      if (validPlays.length > 0) {
+        validPlays = sortBy(validPlays, vp => -vp.benefit);
+        validPlays = first(validPlays, 5);
+        printPlays(game, validPlays);
+        store.dispatch(actions.playCard(validPlays[0].play));
       } else {
         store.dispatch(actions.pass({}));
       }
