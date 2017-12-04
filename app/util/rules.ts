@@ -5,11 +5,12 @@ import {
   IGameState,
   Suit,
   getCardAreaType,
-  forEachAreaSquare,
   swapColor,
   Color,
   IStore,
   suitName,
+  forEachAreaSquare,
+  AreaType,
 } from "../types/index";
 import * as actions from "../actions";
 import { IPlayCardPayload } from "../actions";
@@ -279,15 +280,32 @@ export function playAI(store: IStore, game: IGameState, player: Color): MCNode {
   let firstTries = 0;
   let weightedTries = 0;
 
-  const scoreScale = 10 / 80;
+  const scoreWeight = 2;
   const H = (game: IGameState, play: IPlayCardPayload): number => {
     if (!play) {
       return 0;
     }
 
     // phew, ok, there we go - let's grade this play!
-    const card = game.decks[play.player][play.index];
-    const bcard = getSquare(game.board, play.col, play.row);
+    const { board } = game;
+    const { col, row, player } = play;
+    const card = game.decks[player][play.index];
+    const bcard = getSquare(board, col, row);
+
+    const countCards = (
+      col: number,
+      row: number,
+      at: AreaType,
+      color: Color,
+    ): number => {
+      let count = 0;
+      forEachAreaSquare(board, col, row, at, (col, row, bcard) => {
+        if (bcard && bcard.color === color) {
+          count++;
+        }
+      });
+      return count;
+    };
 
     let score = 0;
 
@@ -296,96 +314,85 @@ export function playAI(store: IStore, game: IGameState, player: Color): MCNode {
       if (bcard) {
       } else {
         // wasting a goblin is a little naughty
-        score -= 20;
+        score -= 4;
       }
     } else if (card.suit === Suit.Priest) {
-      if (!bcard) {
+      if (bcard) {
       } else {
         // wasting a priest is medium naughty
-        score -= 30;
+        score -= 6;
       }
     } else if (card.suit === Suit.Necromancer) {
       if (bcard) {
         if (bcard.suit === Suit.Priest) {
           // stealing a priest is hella cool
-          score += 50;
+          score += 10;
         } else if (bcard.suit === Suit.Goblin) {
           // well that's cool too
-          score += 30;
+          score += 5;
         }
       } else {
         // wasting a necromancer is extremely naughty
-        score -= 50;
+        score -= 10;
       }
     } else if (card.suit === Suit.MarksmanL) {
-      let ourCardCount = 0;
-      for (let col = play.col - 1; col >= 0; col--) {
-        const bcard = getSquare(game.board, play.col, play.row);
-        if (bcard && bcard.color === play.player) {
-          ourCardCount++;
-        }
-      }
-      score += ourCardCount * 4;
+      let ourCardCount = countCards(col, row, AreaType.RayLeft, player);
+      score += ourCardCount * 2;
 
       if (ourCardCount > 0) {
         const distanceFromBorder = play.col;
         score += distanceFromBorder * 0.2;
       }
     } else if (card.suit === Suit.MarksmanR) {
-      let ourCardCount = 0;
-      for (let col = play.col + 1; col < game.board.numCols; col++) {
-        const bcard = getSquare(game.board, play.col, play.row);
-        if (bcard && bcard.color === play.player) {
-          ourCardCount++;
-        }
-      }
-      score += ourCardCount * 4;
+      let ourCardCount = countCards(col, row, AreaType.RayRight, player);
+      score += ourCardCount * 2;
 
       if (ourCardCount > 0) {
-        const distanceFromBorder = game.board.numCols - play.col;
+        const distanceFromBorder = board.numCols - play.col;
         score += distanceFromBorder * 0.2;
       }
     } else if (card.suit === Suit.Monk) {
-      let ourCardCount = 0;
-      let tryCard = (dc: number, dr: number) => {
-        let ccol = play.col + dc;
-        let crow = play.row + dr;
-        if (
-          ccol >= 0 &&
-          ccol < game.board.numCols &&
-          crow >= 0 &&
-          crow < game.board.numRows
-        ) {
-          const bcard = getSquare(game.board, ccol, crow);
-          if (bcard && bcard.color === play.player) {
-            ourCardCount++;
-          }
-        }
-      };
-      tryCard(-1, -1);
-      tryCard(0, -1);
-      tryCard(1, -1);
-      tryCard(1, 0);
-      tryCard(1, 1);
-      tryCard(0, 1);
-      tryCard(-1, 1);
-      tryCard(-1, 0);
-      score += ourCardCount * 10;
+      let ourCardCount = countCards(col, row, AreaType.Square, player);
+      score += ourCardCount * 2;
     } else if (card.suit === Suit.Peasant) {
       // getting rid of peasants is a neat idea
-      score += 1;
+      score += 0.1;
 
-      const leftCard = getSquare(game.board, play.col - 1, play.row);
+      forEachAreaSquare(
+        board,
+        col,
+        row,
+        AreaType.RayLeft,
+        (col, row, bcard) => {
+          if (bcard && bcard.suit === Suit.MarksmanR) {
+            score += 1; // ooh yeah
+          }
+        },
+      );
+
+      forEachAreaSquare(
+        board,
+        col,
+        row,
+        AreaType.RayRight,
+        (col, row, bcard) => {
+          if (bcard && bcard.suit === Suit.MarksmanL) {
+            score += 1; // ooh yeah
+          }
+        },
+      );
+
+      const leftCard = getSquare(board, play.col - 1, play.row);
       let adjacencyCount = 0;
       if (leftCard && leftCard.color === player) {
         // ok yes that's generally good
-        score += 2;
+        score += 0.25;
         adjacencyCount++;
       }
-      const rightCard = getSquare(game.board, play.col - 1, play.row);
+      const rightCard = getSquare(board, play.col - 1, play.row);
       if (rightCard && rightCard.color === player) {
         // ok yes that's good too
-        score += 2;
+        score += 0.25;
         adjacencyCount++;
       }
 
@@ -394,7 +401,7 @@ export function playAI(store: IStore, game: IGameState, player: Color): MCNode {
       }
     }
 
-    return score * scoreScale;
+    return score * scoreWeight;
   };
 
   const select = (root: MCNode): MCPath => {
@@ -451,7 +458,7 @@ export function playAI(store: IStore, game: IGameState, player: Color): MCNode {
     }
   };
 
-  let deadline = 3000;
+  let deadline = 5000;
   let startTime = Date.now();
   let iterations = 0;
   while (true) {
@@ -480,11 +487,10 @@ export function playAI(store: IStore, game: IGameState, player: Color): MCNode {
       if (outcome === Outcome.Neutral) {
         let nextPlayer = swapColor(node.player);
         let plays = legalPlays(currentGame, nextPlayer);
-        // let scoredPlays = _.map(plays, p => ({ p, s: H(currentGame, p) }));
-        // scoredPlays = _.sortBy(scoredPlays, p => -p.s);
-        // // keep the 40 best plays!
-        // const maxBestPlays = 40;
-        // plays = _.map(_.first(scoredPlays, maxBestPlays), p => p.p);
+        let scoredPlays = _.map(plays, p => ({ p, s: H(currentGame, p) }));
+        scoredPlays = _.sortBy(scoredPlays, p => -p.s);
+        const maxBestPlays = Math.ceil(plays.length / 3);
+        plays = _.map(_.first(scoredPlays, maxBestPlays), p => p.p);
 
         node.children = [];
         for (const play of plays) {
@@ -533,11 +539,11 @@ export function playAI(store: IStore, game: IGameState, player: Color): MCNode {
   const perSec = (iterations / 1000 / (totalTime / 1000)).toFixed(1);
   console.log(`${perSec}K iterations/s (${iterations} iterations total)`);
 
-  let bestWins = 0;
+  let mostPlays = 0;
   let bestNode: MCNode = null;
   for (const child of root.children) {
-    if (child.wins > bestWins) {
-      bestWins = child.wins;
+    if (child.plays > mostPlays) {
+      mostPlays = child.plays;
       bestNode = child;
     }
   }
