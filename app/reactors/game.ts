@@ -32,8 +32,6 @@ export default function(watcher: Watcher) {
       const rs = store.getState();
       let { game } = rs;
 
-      let startTime = Date.now();
-
       const node = playAI(game, aiColor);
       store.dispatch(
         actions.updateAi({
@@ -42,9 +40,6 @@ export default function(watcher: Watcher) {
         }),
       );
       store.dispatch(actions.playCard(node.play));
-
-      let endTime = Date.now();
-      console.log(`executed AI in ${endTime - startTime}ms`);
     }
   });
 

@@ -382,7 +382,7 @@ export function playAI(game: IGameState, player: Color): MCNode {
     }
   };
 
-  let deadline = 1000;
+  let deadline = 1500;
   let startTime = Date.now();
   let iterations = 0;
   while (true) {
@@ -451,14 +451,15 @@ export function playAI(game: IGameState, player: Color): MCNode {
       }
     }
   }
+  let totalTime = Date.now() - startTime;
 
-  console.log(`tree (${iterations} iterations):`, root);
+  const perSec = (iterations / 1000 / (totalTime / 1000)).toFixed(1);
+  console.log(`${perSec}K iterations/s (${iterations} iterations total)`);
 
   let bestWins = 0;
   let bestNode: MCNode = null;
   for (const child of root.children) {
     if (child.wins > bestWins) {
-      console.log(`${child.wins} > ${bestWins}, play wins:`, child.play);
       bestWins = child.wins;
       bestNode = child;
     }

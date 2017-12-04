@@ -184,8 +184,6 @@ export enum Suit {
   Priest = 6,
   Goblin = 7,
   Necromancer = 8,
-
-  MAX_CARD = 8,
 }
 
 export function suitName(suit: Suit): string {
