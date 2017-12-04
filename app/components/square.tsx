@@ -48,12 +48,7 @@ const SquareDiv = styled.div`
     backface-visibility: hidden;
   }
 
-  .front {
-    background-color: ${playerColors[Color.Red]};
-  }
-
   .back {
-    background-color: ${playerColors[Color.Blue]};
     transform: rotateY(180deg);
   }
 
@@ -86,13 +81,12 @@ class Square extends React.PureComponent<IProps & IDerivedProps> {
     let style: React.CSSProperties = {
       ...this.props.style,
     };
-    let faceStyle: React.CSSProperties = {};
+    let frontStyle: React.CSSProperties = {};
+    let backStyle: React.CSSProperties = {};
 
     if (card) {
-      const bgName = cardGraphics[card.suit];
-      if (bgName) {
-        faceStyle.backgroundImage = `url(${bgName})`;
-      }
+      frontStyle.backgroundImage = `url(${cardGraphics[Color.Red][card.suit]})`;
+      backStyle.backgroundImage = `url(${cardGraphics[Color.Blue][card.suit]})`;
     }
 
     let turnerStyle: React.CSSProperties = {};
@@ -118,8 +112,8 @@ class Square extends React.PureComponent<IProps & IDerivedProps> {
         style={style}
       >
         <div className="turner" style={turnerStyle}>
-          <div className="front" style={faceStyle} />
-          <div className="back" style={faceStyle} />
+          <div className="front" style={frontStyle} />
+          <div className="back" style={backStyle} />
         </div>
       </SquareDiv>
     );

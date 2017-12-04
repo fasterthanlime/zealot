@@ -3,6 +3,7 @@ import reducer from "./reducer";
 import * as actions from "../actions";
 
 const initialState: IAIState = {
+  thinking: false,
   winChance: 0,
 };
 
