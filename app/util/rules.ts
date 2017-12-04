@@ -146,7 +146,25 @@ export function computeBenefit(
   const after = computeScore(game2, color) - computeScore(game2, opponentColor);
 
   const pointsGain = after - before;
-  return -pointsGain; // since we ant to minimize
+  return -pointsGain; // since we want to minimize
+}
+
+function suitPotential(suit: Suit): number {
+  switch (suit) {
+    case Suit.Priest:
+    case Suit.Goblin:
+      return 3;
+
+    case Suit.MarksmanL:
+    case Suit.MarksmanR:
+      return 2;
+
+    case Suit.Necromancer:
+    case Suit.Monk:
+      return 1;
+  }
+
+  return 0;
 }
 
 export function computeScore(game: IGameState, color: Color): number {
@@ -162,7 +180,16 @@ export function computeScore(game: IGameState, color: Color): number {
     }
   }
 
-  return score;
+  let deckPotential = 0;
+  let cards = game.decks[color].cards;
+  for (let i = 0; i < cards.length; i++) {
+    const card = cards[i];
+    if (card) {
+      deckPotential += suitPotential(card.suit);
+    }
+  }
+
+  return score - deckPotential;
 }
 
 // AI stuff!
