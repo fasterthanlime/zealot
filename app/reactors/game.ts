@@ -22,12 +22,15 @@ import { random } from "underscore";
 const dealWait = 80;
 const animDuration = 600;
 const clearDuration = 1000;
+const aiThinkTime = 1000;
 
 const aiColor = Color.Red;
 
 export default function(watcher: Watcher) {
   watcher.on(actions.nextTurn, async (store, action) => {
     if (action.payload.turnPlayer === aiColor) {
+      await delay(aiThinkTime);
+
       const rs = store.getState();
       const deck = rs.game.decks[aiColor];
       const { cards } = deck;
