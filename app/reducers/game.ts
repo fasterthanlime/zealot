@@ -7,6 +7,7 @@ import {
   getSquare,
   cardCounts,
   ICard,
+  specialCardCounts,
 } from "../types/index";
 import derivedReducer from "./derived-reducer";
 import * as actions from "../actions";
@@ -24,7 +25,8 @@ const initialState: IGameState = {
 
 const initialReducer = reducer<IGameState>(initialState, on => {
   on(actions.newGame, (state, action) => {
-    const deckSize = 10;
+    const deckSize = 7;
+    const specialDeckSize = 3;
     let board = {
       numCols: 5,
       numRows: 3,
@@ -43,11 +45,34 @@ const initialReducer = reducer<IGameState>(initialState, on => {
           suitPool.push(parseInt(card, 10) as Suit);
         }
       }
-      return map(sample<Suit>(suitPool, deckSize), (suit): ICard => ({
-        id: genid(),
-        color,
-        suit,
-      }));
+
+      let normalCards = map(
+        sample<Suit>(suitPool, deckSize),
+        (suit): ICard => ({
+          id: genid(),
+          color,
+          suit,
+        }),
+      );
+
+      const specialSuitPool: Suit[] = [];
+      for (const card of Object.keys(specialCardCounts)) {
+        const count = specialCardCounts[card];
+        for (let i = 0; i < count; i++) {
+          specialSuitPool.push(parseInt(card, 10) as Suit);
+        }
+      }
+
+      let specialCards = map(
+        sample<Suit>(specialSuitPool, specialDeckSize),
+        (suit): ICard => ({
+          id: genid(),
+          color,
+          suit,
+        }),
+      );
+
+      return shuffle<ICard>([...normalCards, ...specialCards]);
     };
 
     let deals = shuffle<ICard>([

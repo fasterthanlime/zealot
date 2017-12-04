@@ -250,14 +250,12 @@ export const cardGraphics = {
 
 export const cardCounts = {
   [Suit.Peasant]: 12,
-
-  // This card is kinda useless :o
-  // [Suit.Martyr]: 3,
-
   [Suit.Monk]: 2,
   [Suit.MarksmanL]: 2,
   [Suit.MarksmanR]: 2,
+};
 
+export const specialCardCounts = {
   [Suit.Priest]: 3,
   [Suit.Goblin]: 2,
   [Suit.Necromancer]: 2,

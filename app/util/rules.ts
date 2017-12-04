@@ -275,6 +275,9 @@ export function playAI(store: IStore, game: IGameState, player: Color): MCNode {
     children: null,
   };
 
+  let firstTries = 0;
+  let weightedTries = 0;
+
   const select = (root: MCNode): MCPath => {
     let path: MCPath = [];
     let n = root;
@@ -315,7 +318,10 @@ export function playAI(store: IStore, game: IGameState, player: Color): MCNode {
 
       // if any were untried, pick one at random
       if (untriedIndices.length > 0) {
+        firstTries++;
         bestIndex = _.sample(untriedIndices);
+      } else {
+        weightedTries++;
       }
 
       n = n.children[bestIndex];
@@ -323,7 +329,7 @@ export function playAI(store: IStore, game: IGameState, player: Color): MCNode {
     }
   };
 
-  let deadline = 3000;
+  let deadline = 6000;
   let startTime = Date.now();
   let iterations = 0;
   while (true) {
@@ -352,6 +358,7 @@ export function playAI(store: IStore, game: IGameState, player: Color): MCNode {
       if (outcome === Outcome.Neutral) {
         let nextPlayer = swapColor(node.player);
         let plays = legalPlays(currentGame, nextPlayer);
+
         node.children = new Array(plays.length);
         let i = 0;
         for (const play of plays) {
@@ -412,6 +419,7 @@ export function playAI(store: IStore, game: IGameState, player: Color): MCNode {
     console.warn(`has no best node, had to pick at random`);
     bestNode = _.sample(root.children);
   }
+  console.warn(`first tries: ${firstTries}, weighted tries: ${weightedTries}`);
 
   console.log(
     `best node leads to ${bestNode.wins}/${bestNode.plays} wins (${
