@@ -75,7 +75,7 @@ export function getMetrics(rs: IRootState): IMetricsState {
     let margin = 10;
 
     let increment = SquareWidth + margin;
-    const maxDeckWidth = clientWidth - 80;
+    const maxDeckWidth = Math.min(1200, clientWidth - 80);
     let maxTries = 20;
     while (increment * (numCards + 2) > maxDeckWidth) {
       increment *= 0.93;
@@ -83,6 +83,8 @@ export function getMetrics(rs: IRootState): IMetricsState {
         break;
       }
     }
+    let deckWidth = increment * (numCards + 2);
+    deckOffset.x += clientWidth * 0.5 - deckWidth * 0.5;
 
     return {
       offset: deckOffset,
