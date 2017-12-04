@@ -13,6 +13,7 @@ import {
   getSquare,
   forEachAreaSquare,
   IAIState,
+  playerColors,
 } from "../types/index";
 import { connect } from "./connect";
 
@@ -73,7 +74,7 @@ const PassDiv = styled.div`
 
 const CoverDiv = styled.div`
   position: absolute;
-  background: rgba(12, 12, 12, 0.5);
+  background: rgba(12, 12, 12, 1);
   transition: transform 0.32s, opacity 0.32s;
 `;
 
@@ -145,8 +146,11 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
       const deckMetrics = metrics.decks[color];
       const xAngle = color === Color.Red ? 3 : -3;
 
-      if (true) {
-        const hiding = !(ourTurn && controls.awaitingInput);
+      {
+        let hiding = !(ourTurn && controls.awaitingInput);
+        if (color === Color.Red) {
+          hiding = true;
+        }
         let z = -4;
         if (hiding) {
           z = 4;
@@ -160,6 +164,7 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
           width: "100%",
           height: `${deckMetrics.height + 20}px`,
           opacity: hiding ? 1 : 0,
+          backgroundColor: playerColors[color],
         };
         covers.push(<CoverDiv key={`cover-${color}`} style={coverStyle} />);
       }

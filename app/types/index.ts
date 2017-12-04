@@ -407,3 +407,8 @@ export function getDraggedCard(rs: IRootState): ICard {
   const { player, index } = controls.draggable;
   return game.decks[player][index];
 }
+
+export const playerColors = {
+  [Color.Blue]: "#233f45",
+  [Color.Red]: "#46150d",
+};
