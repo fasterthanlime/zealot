@@ -232,7 +232,7 @@ export const cardGraphics = {
 };
 
 export const cardCounts = {
-  [Suit.Peasant]: 20,
+  [Suit.Peasant]: 12,
 
   // This card is kinda useless :o
   // [Suit.Martyr]: 3,

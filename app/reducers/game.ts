@@ -191,6 +191,11 @@ const initialReducer = reducer<Partial<IGameState>>(initialState, on => {
     } else {
       discard(previousSquare);
 
+      board = withChangedSquare(board, col, row, {
+        card,
+        color: player,
+      });
+
       const areaType = getCardAreaType(previousSquare.card);
       forEachAreaSquare(board, col, row, areaType, (col, row, square) => {
         switch (card.suit) {
@@ -209,11 +214,6 @@ const initialReducer = reducer<Partial<IGameState>>(initialState, on => {
             });
             break;
         }
-      });
-
-      board = withChangedSquare(board, col, row, {
-        card,
-        color: player,
       });
     }
 
