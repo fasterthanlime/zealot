@@ -57,45 +57,9 @@ const initialReducer = reducer<IGameState>(initialState, on => {
       }));
     };
 
-    let aiDeck: IDeal[] = [
-      {
-        color: Color.Red,
-        card: {
-          id: genid(),
-          suit: Suit.MarksmanR,
-        },
-      },
-      {
-        color: Color.Red,
-        card: {
-          id: genid(),
-          suit: Suit.Priest,
-        },
-      },
-    ];
-
-    let myDeck: IDeal[] = [
-      {
-        color: Color.Blue,
-        card: {
-          id: genid(),
-          suit: Suit.Peasant,
-        },
-      },
-      {
-        color: Color.Blue,
-        card: {
-          id: genid(),
-          suit: Suit.Priest,
-        },
-      },
-    ];
-
     let deals = shuffle<IDeal>([
       ...generateDeck(Color.Red),
       ...generateDeck(Color.Blue),
-      // ...aiDeck,
-      // ...myDeck,
     ]);
 
     return {
@@ -104,8 +68,8 @@ const initialReducer = reducer<IGameState>(initialState, on => {
       dealPile: deals,
       trashPile: [],
       decks: {
-        [Color.Blue]: { cards: [] },
-        [Color.Red]: { cards: [] },
+        [Color.Blue]: [],
+        [Color.Red]: [],
       },
     };
   });
@@ -115,10 +79,7 @@ const initialReducer = reducer<IGameState>(initialState, on => {
     let [toDeal, ...rest] = dealPile;
 
     let deck = decks[toDeal.color];
-    deck = {
-      ...deck,
-      cards: [...deck.cards, toDeal.card],
-    };
+    deck = [...deck, toDeal.card];
     decks = {
       ...decks,
       [toDeal.color]: deck,

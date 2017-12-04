@@ -117,7 +117,7 @@ export default function(watcher: Watcher) {
 
     const { draggable, dropTarget } = controls;
     if (draggable && dropTarget) {
-      const card = game.decks[draggable.player].cards[draggable.index];
+      const card = game.decks[draggable.player][draggable.index];
       if (isCivilian(card.suit)) {
         const dropSquare = getSquare(
           game.board,
@@ -214,11 +214,5 @@ async function doNextTurn(
 }
 
 function hasEmptyDeck(rs: IRootState, color: Color): boolean {
-  const { cards } = rs.game.decks[color];
-  for (const card of cards) {
-    if (card) {
-      return false;
-    }
-  }
-  return true;
+  return rs.game.decks[color].length == 0;
 }

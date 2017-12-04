@@ -3,7 +3,6 @@ import {
   isCivilian,
   getSquare,
   IGameState,
-  IDeck,
   ISquare,
   Suit,
   withChangedSquare,
@@ -23,7 +22,7 @@ export function isValidMove(
   play: IPlayCardPayload,
 ): boolean {
   const { board } = state;
-  let card = state.decks[play.player].cards[play.index];
+  let card = state.decks[play.player][play.index];
   const sq = getSquare(board, play.col, play.row);
 
   let valid = true;
@@ -46,22 +45,16 @@ export function applyMove(
   }
 
   const { player, index, col, row } = play;
-  let card: ICard = null;
-  const changeDeck = (deck: IDeck) => {
-    card = deck.cards[index];
-    const newCards = [...deck.cards];
-    newCards.splice(index, 1);
-    return {
-      ...deck,
-      cards: newCards,
-    };
-  };
+  const deck = state.decks[player];
+  let card = deck[index];
+  const newDeck = [...deck];
+  newDeck.splice(index, 1);
 
   state = {
     ...state,
     decks: {
       ...state.decks,
-      [player]: changeDeck(state.decks[player]),
+      [player]: newDeck,
     },
   };
 
@@ -84,15 +77,12 @@ export function applyMove(
 
   if (card.suit === Suit.Necromancer) {
     if (previousSquare.card) {
-      let newCards = [...state.decks[player].cards, previousSquare.card];
+      let newCards = [...state.decks[player], previousSquare.card];
       state = {
         ...state,
         decks: {
           ...state.decks,
-          [player]: {
-            ...state.decks[player],
-            cards: newCards,
-          },
+          [player]: newCards,
         },
       };
     }
@@ -193,7 +183,7 @@ export function printGames(game: IGameState, pgs: IPotentialGame[]) {
   console.log(`best ${pgs.length} games considered: `);
   for (const pg of pgs) {
     const { col, row, index, player } = pg.play;
-    const card = decks[player].cards[index];
+    const card = decks[player][index];
     const sq = getSquare(board, col, row);
 
     console.log(
@@ -234,8 +224,8 @@ export function swapOutcome(outcome: Outcome): Outcome {
 
 export function computeOutcome(game: IGameState, player: Color): Outcome {
   for (const color of [Color.Red, Color.Blue]) {
-    const { cards } = game.decks[color];
-    if (cards.length > 0) {
+    const deck = game.decks[color];
+    if (deck.length > 0) {
       // cards left in play!
       return Outcome.Neutral;
     }
@@ -253,7 +243,7 @@ export function computeOutcome(game: IGameState, player: Color): Outcome {
 }
 
 export function randomPlay(game: IGameState, player: Color): IPlayCardPayload {
-  const cards = game.decks[player].cards;
+  const cards = game.decks[player];
   let tries = 20;
   let play: IPlayCardPayload = null;
   while (tries-- > 0 && cards.length > 0) {
@@ -280,7 +270,7 @@ export function legalPlays(
 ): IPlayCardPayload[] {
   // pass is always part of the legal plays
   let plays: IPlayCardPayload[] = [];
-  const cards = game.decks[player].cards;
+  const cards = game.decks[player];
   for (let index = 0; index < cards.length; index++) {
     for (let col = 0; col < game.board.numCols; col++) {
       for (let row = 0; row < game.board.numRows; row++) {

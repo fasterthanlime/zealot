@@ -108,7 +108,7 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
     let invalidDropTarget = false;
     if (controls.draggable) {
       const { draggable } = controls;
-      draggedCard = game.decks[draggable.player].cards[draggable.index];
+      draggedCard = game.decks[draggable.player][draggable.index];
 
       const cdt = controls.dropTarget;
       if (cdt) {
@@ -152,8 +152,8 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
 
       let metricIndex = 0;
       let numCards = 0;
-      for (let i = 0; i < deck.cards.length; i++) {
-        const card = deck.cards[i];
+      for (let i = 0; i < deck.length; i++) {
+        const card = deck[i];
         if (!card) {
           continue;
         }

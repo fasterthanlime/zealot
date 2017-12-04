@@ -82,7 +82,7 @@ export interface IDeal {
 }
 
 export interface IDecks {
-  [color: number]: IDeck;
+  [color: number]: ICard[];
 }
 
 export interface IControlsState {
@@ -101,10 +101,6 @@ export interface IControlsState {
 export interface IDraggable {
   player: Color;
   index: number;
-}
-
-export interface IDeck {
-  cards: ICard[];
 }
 
 export interface ICard {
@@ -425,6 +421,5 @@ export function getDraggedCard(rs: IRootState): ICard {
   }
 
   const { player, index } = controls.draggable;
-  const deck = game.decks[player];
-  return deck.cards[index];
+  return game.decks[player][index];
 }

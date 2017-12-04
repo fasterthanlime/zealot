@@ -59,19 +59,8 @@ export function getMetrics(rs: IRootState): IMetricsState {
     y: playAreaOffset.y + globalMargin + playAreaHeight,
   };
 
-  const countCards = (color: Color): number => {
-    let numCards = 0;
-    const { cards } = decks[color];
-    for (let i = 0; i < cards.length; i++) {
-      if (cards[i]) {
-        numCards++;
-      }
-    }
-    return numCards;
-  };
-
   const layoutDeck = (color: Color, deckOffset: IOffset): IDeckMetrics => {
-    let numCards = countCards(color);
+    let numCards = decks[color].length;
     let margin = 10;
 
     let increment = SquareWidth + margin;
