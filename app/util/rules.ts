@@ -272,7 +272,7 @@ export function playAI(store: IStore, game: IGameState, player: Color): MCNode {
     player: swapColor(player),
     wins: 0,
     plays: 0,
-    children: [],
+    children: null,
   };
 
   const select = (root: MCNode): MCPath => {
@@ -281,7 +281,7 @@ export function playAI(store: IStore, game: IGameState, player: Color): MCNode {
 
     while (true) {
       // leaf node!
-      if (n.children.length === 0) {
+      if (!n.children) {
         return path;
       }
 
@@ -352,15 +352,17 @@ export function playAI(store: IStore, game: IGameState, player: Color): MCNode {
       if (outcome === Outcome.Neutral) {
         let nextPlayer = swapColor(node.player);
         let plays = legalPlays(currentGame, nextPlayer);
+        node.children = new Array(plays.length);
+        let i = 0;
         for (const play of plays) {
           let childNode: MCNode = {
             play,
             player: nextPlayer,
             plays: 0,
             wins: 0,
-            children: [],
+            children: null,
           };
-          node.children.push(childNode);
+          node.children[i++] = childNode;
         }
         let chosenChildIndex = _.random(0, node.children.length - 1);
         path.push(chosenChildIndex);

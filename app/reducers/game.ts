@@ -24,10 +24,10 @@ const initialState: IGameState = {
 
 const initialReducer = reducer<IGameState>(initialState, on => {
   on(actions.newGame, (state, action) => {
-    const deckSize = 12;
+    const deckSize = 10;
     let board = {
-      numCols: 6,
-      numRows: 4,
+      numCols: 5,
+      numRows: 3,
       cards: [],
     };
     board.cards.length = board.numCols * board.numRows;
