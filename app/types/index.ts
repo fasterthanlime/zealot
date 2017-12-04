@@ -213,9 +213,9 @@ export function suitName(suit: Suit): string {
 export function colorName(color: Color): string {
   switch (color) {
     case Color.Red:
-      return "Orange";
+      return "Red";
     case Color.Blue:
-      return "Green";
+      return "Blue";
   }
   return "Neutral";
 }
@@ -256,15 +256,6 @@ export const cardCounts = {
   [Suit.Priest]: 3,
   [Suit.Goblin]: 2,
   [Suit.Necromancer]: 2,
-};
-
-export const playerColors = {
-  // [Color.Red]: "#c5632d", // actually orange
-  [Color.Red]: "#ff9861", // actually orange
-  // [Color.Blue]: "#3e5a1e", // actually green
-  [Color.Blue]: "#8ec44f", // actually green
-  [Color.Neutral]: "#101010", // pretty much black
-  default: "black",
 };
 
 export enum AreaType {

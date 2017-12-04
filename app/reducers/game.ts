@@ -25,9 +25,9 @@ const initialState: IGameState = {
 
 const initialReducer = reducer<IGameState>(initialState, on => {
   on(actions.newGame, (state, action) => {
-    const deckSize = 12;
+    const deckSize = 8;
     let board = {
-      numCols: 5,
+      numCols: 4,
       numRows: 3,
       squares: [],
     };

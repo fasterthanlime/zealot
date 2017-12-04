@@ -1,13 +1,7 @@
 import styled, { animations } from "./styles";
 import * as React from "react";
 import * as classNames from "classnames";
-import {
-  Color,
-  cardGraphics,
-  playerColors,
-  ICard,
-  tipForCard,
-} from "../types/index";
+import { Color, cardGraphics, ICard, tipForCard, Suit } from "../types/index";
 import { connect } from "./connect";
 
 import * as actions from "../actions";
@@ -32,6 +26,67 @@ const SquareDiv = styled.div`
     height: 100%;
     transition: transform 0.4s;
     transform-style: preserve-3d;
+
+    &.Peasant {
+      .front { background-image: url('${
+        cardGraphics[Color.Red][Suit.Peasant]
+      }') }
+      .back  { background-image: url('${
+        cardGraphics[Color.Blue][Suit.Peasant]
+      }') }
+    }
+    &.Martyr {
+      .front { background-image: url('${
+        cardGraphics[Color.Red][Suit.Martyr]
+      }') }
+      .back  { background-image: url('${
+        cardGraphics[Color.Blue][Suit.Martyr]
+      }') }
+    }
+    &.Monk {
+      .front { background-image: url('${cardGraphics[Color.Red][Suit.Monk]}') }
+      .back  { background-image: url('${cardGraphics[Color.Blue][Suit.Monk]}') }
+    }
+    &.MarksmanL {
+      .front { background-image: url('${
+        cardGraphics[Color.Red][Suit.MarksmanL]
+      }') }
+      .back  { background-image: url('${
+        cardGraphics[Color.Blue][Suit.MarksmanL]
+      }') }
+    }
+    &.MarksmanR {
+      .front { background-image: url('${
+        cardGraphics[Color.Red][Suit.MarksmanR]
+      }') }
+      .back  { background-image: url('${
+        cardGraphics[Color.Blue][Suit.MarksmanR]
+      }') }
+    }
+    &.Priest {
+      .front { background-image: url('${
+        cardGraphics[Color.Red][Suit.Priest]
+      }') }
+      .back  { background-image: url('${
+        cardGraphics[Color.Blue][Suit.Priest]
+      }') }
+    }
+    &.Goblin {
+      .front { background-image: url('${
+        cardGraphics[Color.Red][Suit.Goblin]
+      }') }
+      .back  { background-image: url('${
+        cardGraphics[Color.Blue][Suit.Goblin]
+      }') }
+    }
+    &.Necromancer {
+      .front { background-image: url('${
+        cardGraphics[Color.Red][Suit.Necromancer]
+      }') }
+      .back  { background-image: url('${
+        cardGraphics[Color.Blue][Suit.Necromancer]
+      }') }
+    }
   }
 
   .front,
@@ -60,14 +115,6 @@ const SquareDiv = styled.div`
         border-color: white;
       }
     }
-  }
-
-  &.lit {
-    animation: ${animations.lighting} 0.5s both;
-  }
-
-  &.exploding {
-    animation: ${animations.exploding} 0.5s both;
   }
 
   &.onBoard {
@@ -102,6 +149,8 @@ class Square extends React.PureComponent<IProps & IDerivedProps> {
       onBoard: !!onBoard,
     });
 
+    let suitClass = card ? Suit[card.suit] : "";
+
     return (
       <SquareDiv
         data-rh={tipForCard(card)}
@@ -111,9 +160,9 @@ class Square extends React.PureComponent<IProps & IDerivedProps> {
         onMouseDown={this.onMouseDown}
         style={style}
       >
-        <div className="turner" style={turnerStyle}>
-          <div className="front" style={frontStyle} />
-          <div className="back" style={backStyle} />
+        <div className={`turner ${suitClass}`} style={turnerStyle}>
+          <div className="front" />
+          <div className="back" />
         </div>
       </SquareDiv>
     );

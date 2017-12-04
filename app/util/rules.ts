@@ -382,7 +382,7 @@ export function playAI(game: IGameState, player: Color): MCNode {
     }
   };
 
-  let deadline = 5000;
+  let deadline = 1000;
   let startTime = Date.now();
   let iterations = 0;
   while (true) {
