@@ -1,6 +1,8 @@
 import { Store, Action } from "redux";
 import { Watcher } from "../reactors/watcher";
 
+const cardPngs = require(`../images/cards/*.png`);
+
 export interface IStore extends Store<IRootState> {
   watcher: Watcher;
 }
@@ -218,7 +220,6 @@ export function colorName(color: Color): string {
   return "Neutral";
 }
 
-const cardPngs = require(`../images/cards/*.png`);
 console.log(`cardPngs = `, cardPngs);
 
 export const cardGraphics = {
