@@ -63,8 +63,8 @@ export interface IOffset {
 
 export interface IGameState {
   board: IBoard;
-  dealPile: IDeal[];
-  trashPile: IDeal[];
+  dealPile: ICard[];
+  trashPile: ICard[];
   decks: IDecks;
   counts: {
     [color: number]: number;
@@ -74,11 +74,6 @@ export interface IGameState {
 export interface IAIState {
   thinking: boolean;
   winChance: number;
-}
-
-export interface IDeal {
-  color: Color;
-  card: ICard;
 }
 
 export interface IDecks {
@@ -106,15 +101,16 @@ export interface IDraggable {
 export interface ICard {
   id: string;
   suit: Suit;
+  color: Color;
 }
 
 export interface IBoard {
   numCols: number;
   numRows: number;
-  squares: ISquare[];
+  cards: ICard[];
 }
 
-export function getSquare(board: IBoard, col: number, row: number): ISquare {
+export function getSquare(board: IBoard, col: number, row: number): ICard {
   if (col < 0 || col >= board.numCols) {
     return null;
   }
@@ -122,14 +118,14 @@ export function getSquare(board: IBoard, col: number, row: number): ISquare {
     return null;
   }
   const index = row * board.numCols + col;
-  return board.squares[index];
+  return board.cards[index];
 }
 
 export function withChangedSquare(
   board: IBoard,
   col: number,
   row: number,
-  square: ISquare,
+  square: ICard,
 ): IBoard {
   return setSquare(board, col, row, oldsquare => square);
 }
@@ -138,7 +134,7 @@ export function setSquare(
   board: IBoard,
   col: number,
   row: number,
-  cb: (square: ISquare) => ISquare,
+  cb: (square: ICard) => ICard,
 ): IBoard {
   if (col < 0 || col >= board.numCols) {
     return board;
@@ -149,16 +145,11 @@ export function setSquare(
   const index = row * board.numCols + col;
   const copy = {
     ...board,
-    squares: [...board.squares],
+    squares: [...board.cards],
   };
   copy.squares[index] = cb(copy.squares[index]);
 
   return copy;
-}
-
-export interface ISquare {
-  color: Color;
-  card: ICard;
 }
 
 export enum Color {
@@ -304,17 +295,16 @@ export function forEachAreaSquare(
   col: number,
   row: number,
   at: AreaType,
-  cb: (col: number, row: number, square: ISquare) => void,
+  cb: (col: number, row: number, square: ICard) => void,
 ) {
   const originalCol = col;
   const originalRow = row;
 
   const tryCell = function(col: number, row: number) {
-    const sq = getSquare(board, col, row);
-    if (sq) {
-      // if we got a square, we're in the board!
-      // if we're in the board, cb will want to know about it!
-      cb(col, row, sq);
+    if (col >= 0 && col < board.numCols && row >= 0 && row < board.numRows) {
+      // we're on the board!
+      let index = col + row * board.numCols;
+      cb(col, row, board.cards[index]);
     }
   };
 
@@ -362,13 +352,6 @@ export function swapColor(color: Color): Color {
     return Color.Red;
   }
   return color; // /shrug
-}
-
-export function makeNeutralSquare(): ISquare {
-  return {
-    color: Color.Neutral,
-    card: null,
-  };
 }
 
 export function isCivilian(suit: Suit): boolean {

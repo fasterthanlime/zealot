@@ -85,6 +85,7 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
 
   render() {
     const { system, metrics, game } = this.props;
+    const { board } = game;
     if (!metrics.decks) {
       return <div>Loading...</div>;
     }
@@ -104,7 +105,7 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
 
     let draggedCard: ICard = null;
     const { controls } = this.props;
-    let litSquares = [];
+    let litSquares: any = {};
     let invalidDropTarget = false;
     if (controls.draggable) {
       const { draggable } = controls;
@@ -118,8 +119,8 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
           cdt.col,
           cdt.row,
           cdt.areaType,
-          (col, row, square) => {
-            litSquares.push(square);
+          (col, row, card) => {
+            litSquares[row * board.numCols + col] = true;
           },
         );
       }
@@ -193,7 +194,6 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
             card={card}
             draggable={draggable}
             dragged={dragged}
-            color={color}
           />
         );
       }
@@ -216,34 +216,27 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
     const { dealPile } = game;
     const dpo = metrics.dealPileOffset;
     for (let i = 0; i < dealPile.length; i++) {
-      const deal = dealPile[i];
-      const { card, color } = deal;
+      const card = dealPile[i];
 
       const cardStyle: React.CSSProperties = {
         transform: `translate3d(${dpo.x}px, ${dpo.y}px, ${dealPile.length -
           i}px) rotateX(0deg)`,
       };
-      cards[card.id] = (
-        <Square key={card.id} style={cardStyle} card={card} color={color} />
-      );
+      cards[card.id] = <Square key={card.id} style={cardStyle} card={card} />;
     }
 
     const { trashPile } = game;
     const tpo = metrics.trashPileOffset;
     for (let i = 0; i < trashPile.length; i++) {
-      const deal = trashPile[i];
-      const { card, color } = deal;
+      const card = trashPile[i];
 
       const cardStyle: React.CSSProperties = {
         transform: `translate3d(${tpo.x}px, ${tpo.y}px, ${trashPile.length -
           i}px) rotateX(0deg)`,
       };
-      cards[card.id] = (
-        <Square key={card.id} style={cardStyle} card={card} color={color} />
-      );
+      cards[card.id] = <Square key={card.id} style={cardStyle} card={card} />;
     }
 
-    const { board } = game;
     for (let col = 0; col < board.numCols; col++) {
       for (let row = 0; row < board.numRows; row++) {
         const x = metrics.playAreaOffset.x + col * metrics.playAreaIncrement.x;
@@ -262,31 +255,23 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
           />,
         );
 
-        const square = getSquare(board, col, row);
-        if (square) {
-          if (square.card) {
-            const { card, color } = square;
+        const bcard = getSquare(board, col, row);
+        if (bcard) {
+          cards[bcard.id] = (
+            <Square key={bcard.id} style={cardStyle} card={bcard} onBoard />
+          );
+        }
 
-            cards[card.id] = (
-              <Square
-                key={card.id}
-                style={cardStyle}
-                onBoard
-                color={color}
-                card={card}
-              />
-            );
-          }
-
-          if (litSquares.indexOf(square) !== -1) {
-            highlights.push(
-              <Highlight
-                key={`highlight-${col}-${row}`}
-                style={cardStyle}
-                invalid={invalidDropTarget}
-              />,
-            );
-          }
+        // FIXME: better lookup
+        let index = col + row * board.numCols;
+        if (litSquares[index]) {
+          highlights.push(
+            <Highlight
+              key={`highlight-${index}`}
+              style={cardStyle}
+              invalid={invalidDropTarget}
+            />,
+          );
         }
       }
     }

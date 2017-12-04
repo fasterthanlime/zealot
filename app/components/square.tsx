@@ -124,7 +124,7 @@ const SquareDiv = styled.div`
 
 class Square extends React.PureComponent<IProps & IDerivedProps> {
   render() {
-    let { color, card, draggable, dragged, onBoard } = this.props;
+    let { card, draggable, dragged, onBoard } = this.props;
     let style: React.CSSProperties = {
       ...this.props.style,
     };
@@ -137,7 +137,7 @@ class Square extends React.PureComponent<IProps & IDerivedProps> {
     }
 
     let turnerStyle: React.CSSProperties = {};
-    if (color === Color.Blue) {
+    if (card.color === Color.Blue) {
       turnerStyle.transform = `rotateY(180deg)`;
     } else {
       turnerStyle.transform = `rotateY(0deg)`;
@@ -150,11 +150,15 @@ class Square extends React.PureComponent<IProps & IDerivedProps> {
     });
 
     let suitClass = card ? Suit[card.suit] : "";
+    let rhAt: string = null;
+    if (card) {
+      rhAt = card.color === Color.Red ? "bottom" : "top";
+    }
 
     return (
       <SquareDiv
         data-rh={tipForCard(card)}
-        data-rh-at={color === Color.Red ? "bottom" : "top"}
+        data-rh-at={rhAt}
         className={className}
         onDragStart={this.onDragStart}
         onMouseDown={this.onMouseDown}
@@ -182,7 +186,6 @@ class Square extends React.PureComponent<IProps & IDerivedProps> {
 
 interface IProps {
   style?: React.CSSProperties;
-  color?: Color;
   card?: ICard;
 
   draggable?: {

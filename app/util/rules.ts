@@ -3,17 +3,11 @@ import {
   isCivilian,
   getSquare,
   IGameState,
-  ISquare,
   Suit,
-  withChangedSquare,
-  makeNeutralSquare,
   getCardAreaType,
-  setSquare,
   forEachAreaSquare,
   swapColor,
   Color,
-  suitName,
-  colorName,
 } from "../types/index";
 import { IPlayCardPayload } from "../actions/index";
 
@@ -23,11 +17,11 @@ export function isValidMove(
 ): boolean {
   const { board } = state;
   let card = state.decks[play.player][play.index];
-  const sq = getSquare(board, play.col, play.row);
+  const bcard = getSquare(board, play.col, play.row);
 
   let valid = true;
 
-  if (sq && sq.card) {
+  if (bcard) {
     if (isCivilian(card.suit)) {
       // civilians can only go on empty squares
       valid = false;
@@ -60,24 +54,22 @@ export function applyMove(
 
   let board = state.board;
 
-  const previousSquare = getSquare(board, col, row);
+  const bcard = getSquare(board, col, row);
 
   let trashPile = state.trashPile;
-  let discard = (sq: ISquare) => {
-    if (sq && sq.card) {
-      trashPile = [
-        ...trashPile,
-        {
-          color: sq.color,
-          card: sq.card,
-        },
-      ];
+  let discard = (card: ICard) => {
+    if (card) {
+      trashPile = [...trashPile, card];
     }
   };
 
   if (card.suit === Suit.Necromancer) {
-    if (previousSquare.card) {
-      let newCards = [...state.decks[player], previousSquare.card];
+    if (bcard) {
+      let convertedCard: ICard = {
+        ...bcard,
+        color: player,
+      };
+      let newCards = [...state.decks[player], convertedCard];
       state = {
         ...state,
         decks: {
@@ -89,32 +81,37 @@ export function applyMove(
 
     board = {
       ...board,
-      squares: [...board.squares],
+      cards: [...board.cards],
     };
-    board.squares[row * board.numCols + col] = makeNeutralSquare();
+    board.cards[row * board.numCols + col] = null;
 
-    trashPile = [...trashPile, { color: player, card }];
+    trashPile = [...trashPile, card];
   } else {
-    discard(previousSquare);
+    discard(bcard);
 
     board = {
       ...board,
-      squares: [...board.squares],
+      cards: [...board.cards],
     };
-    board.squares[row * board.numCols + col] = { card, color: player };
+    board.cards[row * board.numCols + col] = card;
 
-    const areaType = getCardAreaType(previousSquare.card);
-    forEachAreaSquare(board, col, row, areaType, (col, row, square) => {
+    const areaType = getCardAreaType(bcard);
+    forEachAreaSquare(board, col, row, areaType, (col, row, bcard) => {
+      if (!bcard) {
+        // oh, nothing to do.
+        return;
+      }
+
       switch (card.suit) {
         case Suit.Goblin:
           // destroy all the things!
-          board.squares[row * board.numCols + col] = makeNeutralSquare();
+          board.cards[row * board.numCols + col] = null;
           break;
         case Suit.Priest:
           // swap all the things!
-          board.squares[row * board.numCols + col] = {
-            card: square.card,
-            color: swapColor(square.color),
+          board.cards[row * board.numCols + col] = {
+            ...bcard,
+            color: swapColor(bcard.color),
           };
           break;
       }
@@ -134,12 +131,10 @@ export function computeScore(game: IGameState, color: Color): number {
   let score = 0;
 
   const { board } = game;
-  for (let col = 0; col < board.numCols; col++) {
-    for (let row = 0; row < board.numRows; row++) {
-      const sq = getSquare(board, col, row);
-      if (sq.card && sq.color === color) {
-        score++;
-      }
+  for (let i = 0; i < board.cards.length; i++) {
+    let card = board.cards[i];
+    if (card && card.color === color) {
+      score++;
     }
   }
   return score;
@@ -147,53 +142,12 @@ export function computeScore(game: IGameState, color: Color): number {
 
 // AI stuff!
 
-function formatCard(card: ICard, color: Color): string {
-  if (!card) {
-    return "<empty>";
-  }
-
-  return `${colorName(color)} ${suitName(card.suit)}`;
-}
-
-function potentialGameLength(pg: IPotentialGame) {
-  let length = 1;
-  while (pg.next) {
-    length++;
-    pg = pg.next;
-  }
-  return length;
-}
-
-export function printGames(game: IGameState, pgs: IPotentialGame[]) {
-  const { board, decks } = game;
-
-  console.log(`best ${pgs.length} games considered: `);
-  for (const pg of pgs) {
-    const { col, row, index, player } = pg.play;
-    const card = decks[player][index];
-    const sq = getSquare(board, col, row);
-
-    console.log(
-      `${formatCard(card, player)} on ${formatCard(sq.card, sq.color)} at ${
-        col
-      },${row}, ${Outcome[pg.outcome]} in ${potentialGameLength(pg)}`,
-    );
-  }
-}
-
 export enum Outcome {
   // from worst to best
   Loss = 0,
   Neutral = 1,
   Draw = 2,
   Win = 3,
-}
-
-export interface IPotentialGame {
-  outcome: Outcome;
-  game: IGameState;
-  play: IPlayCardPayload;
-  next: IPotentialGame;
 }
 
 import { random } from "underscore";

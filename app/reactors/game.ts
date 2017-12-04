@@ -84,17 +84,17 @@ export default function(watcher: Watcher) {
 
     const { board } = rs.game;
     const { col, row } = action.payload;
-    const sq = getSquare(board, col, row);
+    const bcard = getSquare(board, col, row);
 
     let valid = true;
     let areaType = AreaType.Single;
 
-    if (sq && sq.card) {
+    if (bcard) {
       if (isCivilian(draggedCard.suit)) {
         // civilians can only go on empty squares
         valid = false;
       } else {
-        areaType = getCardAreaType(sq.card);
+        areaType = getCardAreaType(bcard);
       }
     }
 
@@ -119,12 +119,8 @@ export default function(watcher: Watcher) {
     if (draggable && dropTarget) {
       const card = game.decks[draggable.player][draggable.index];
       if (isCivilian(card.suit)) {
-        const dropSquare = getSquare(
-          game.board,
-          dropTarget.col,
-          dropTarget.row,
-        );
-        if (dropSquare && dropSquare.card) {
+        const bcard = getSquare(game.board, dropTarget.col, dropTarget.row);
+        if (bcard) {
           store.dispatch(
             actions.invalidMove({ col: dropTarget.col, row: dropTarget.row }),
           );

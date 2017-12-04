@@ -6,8 +6,7 @@ import {
   Suit,
   getSquare,
   cardCounts,
-  makeNeutralSquare,
-  IDeal,
+  ICard,
 } from "../types/index";
 import derivedReducer from "./derived-reducer";
 import * as actions from "../actions";
@@ -29,18 +28,14 @@ const initialReducer = reducer<IGameState>(initialState, on => {
     let board = {
       numCols: 4,
       numRows: 3,
-      squares: [],
+      cards: [],
     };
-    board.squares.length = board.numCols * board.numRows;
-
-    for (let col = 0; col < board.numCols; col++) {
-      for (let row = 0; row < board.numRows; row++) {
-        const square = makeNeutralSquare();
-        board = withChangedSquare(board, col, row, square);
-      }
+    board.cards.length = board.numCols * board.numRows;
+    for (let i = 0; i < board.cards.length; i++) {
+      board.cards[i] = null;
     }
 
-    const generateDeck = (color: Color): IDeal[] => {
+    const generateDeck = (color: Color): ICard[] => {
       const suitPool: Suit[] = [];
       for (const card of Object.keys(cardCounts)) {
         const count = cardCounts[card];
@@ -48,16 +43,14 @@ const initialReducer = reducer<IGameState>(initialState, on => {
           suitPool.push(parseInt(card, 10) as Suit);
         }
       }
-      return map(sample<Suit>(suitPool, deckSize), (suit): IDeal => ({
+      return map(sample<Suit>(suitPool, deckSize), (suit): ICard => ({
+        id: genid(),
         color,
-        card: {
-          id: genid(),
-          suit,
-        },
+        suit,
       }));
     };
 
-    let deals = shuffle<IDeal>([
+    let deals = shuffle<ICard>([
       ...generateDeck(Color.Red),
       ...generateDeck(Color.Blue),
     ]);
@@ -79,7 +72,7 @@ const initialReducer = reducer<IGameState>(initialState, on => {
     let [toDeal, ...rest] = dealPile;
 
     let deck = decks[toDeal.color];
-    deck = [...deck, toDeal.card];
+    deck = [...deck, toDeal];
     decks = {
       ...decks,
       [toDeal.color]: deck,
@@ -111,7 +104,7 @@ const initialReducer = reducer<IGameState>(initialState, on => {
     let board = state.board;
     board = {
       ...board,
-      squares: map(board.squares, square => ({
+      cards: map(board.cards, square => ({
         ...square,
       })),
     };
