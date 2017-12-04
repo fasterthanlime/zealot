@@ -18,7 +18,8 @@ import { warning, info } from "react-notification-system-redux";
 import { playCardFlick, playCardPlace } from "../util/sounds";
 import { playAI } from "../util/rules";
 
-const dealWait = 80;
+// const dealWait = 80;
+const dealWait = 0;
 const animDuration = 600;
 
 const aiColor = Color.Red;
@@ -189,7 +190,7 @@ async function doNextTurn(
   }
 
   if (swapPlayers) {
-    await delay(animDuration);
+    // await delay(animDuration);
   }
   let nextPlayer = swapPlayers ? swapColor(previousPlayer) : previousPlayer;
   if (hasEmptyDeck(rs, nextPlayer)) {

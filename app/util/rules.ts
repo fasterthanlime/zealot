@@ -230,12 +230,19 @@ export function legalPlays(
 }
 
 export function simulateGame(game: IGameState, player: Color): Outcome {
-  const nextGame = applyMove(game, randomPlay(game, player));
-  const outcome = computeOutcome(nextGame, player);
-  if (outcome === Outcome.Neutral) {
-    return swapOutcome(simulateGame(nextGame, swapColor(player)));
-  } else {
-    return outcome;
+  let swap = false;
+  let currentGame = game;
+
+  while (true) {
+    currentGame = applyMove(currentGame, randomPlay(currentGame, player));
+    const outcome = computeOutcome(currentGame, player);
+    if (outcome === Outcome.Neutral) {
+      player = swapColor(player);
+      swap = !swap;
+      continue;
+    }
+
+    return swap ? swapOutcome(outcome) : outcome;
   }
 }
 
