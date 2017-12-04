@@ -51,6 +51,16 @@ const CoverDiv = styled.div`
   transition: transform 0.32s, opacity 0.32s;
 `;
 
+export const globalMouse = {
+  clientX: 0,
+  clientY: 0,
+};
+
+document.addEventListener("mousemove", e => {
+  globalMouse.clientX = e.clientX;
+  globalMouse.clientY = e.clientY;
+});
+
 class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
   constructor(props, context) {
     super(props, context);
@@ -143,6 +153,7 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
         };
         metricIndex++;
 
+        let dragged = false;
         if (draggedCard && draggedCard.id === card.id) {
           const { clientX, clientY } = this.state;
           const x = clientX - SquareWidth * 0.5;
@@ -152,6 +163,7 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
           }px, 40px) rotateX(0deg)`;
           cardStyle.transition = "initial";
           cardStyle.pointerEvents = "none";
+          dragged = true;
         }
 
         let draggable: IDraggable;
@@ -167,6 +179,7 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
             style={cardStyle}
             card={card}
             draggable={draggable}
+            dragged={dragged}
             color={color}
           />
         );
@@ -292,6 +305,10 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
         // TODO: set initial clientX/clientY
         console.log("drag start!");
         document.addEventListener("mousemove", this.onMouseMove);
+        this.setState({
+          clientX: globalMouse.clientX,
+          clientY: globalMouse.clientY,
+        });
       }
     }
   }

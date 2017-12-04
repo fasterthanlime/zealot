@@ -58,7 +58,8 @@ const SquareDiv = styled.div`
   }
 
   &.draggable {
-    &:hover {
+    &:hover,
+    &.dragged {
       .turner {
         cursor: grab;
         border-color: white;
@@ -81,7 +82,7 @@ const SquareDiv = styled.div`
 
 class Square extends React.PureComponent<IProps & IDerivedProps> {
   render() {
-    let { color, card, draggable, lit, exploding, onBoard } = this.props;
+    let { color, card, draggable, dragged, onBoard } = this.props;
     let style: React.CSSProperties = {
       ...this.props.style,
     };
@@ -103,8 +104,7 @@ class Square extends React.PureComponent<IProps & IDerivedProps> {
 
     const className = classNames({
       draggable: !!draggable,
-      lit: !!lit,
-      exploding: !!exploding,
+      dragged: !!dragged,
       onBoard: !!onBoard,
     });
 
@@ -147,8 +147,7 @@ interface IProps {
     index: number;
   };
 
-  lit?: boolean;
-  exploding?: boolean;
+  dragged?: boolean;
   onBoard?: boolean;
 }
 
