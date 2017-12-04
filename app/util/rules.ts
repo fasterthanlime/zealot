@@ -261,6 +261,9 @@ export type MCPath = number[];
 
 export function bestPlay(root: MCNode) {}
 
+// exploration parameter, typically sqrt(2)
+const c = Math.sqrt(2);
+
 export function playAI(game: IGameState, player: Color): MCNode {
   let root: MCNode = {
     play: null,
@@ -269,9 +272,6 @@ export function playAI(game: IGameState, player: Color): MCNode {
     plays: 0,
     children: [],
   };
-
-  // exploration parameter, typically sqrt(2)
-  const c = Math.sqrt(2);
 
   const select = (root: MCNode): MCPath => {
     let path: MCPath = [];
@@ -291,6 +291,7 @@ export function playAI(game: IGameState, player: Color): MCNode {
       for (const child of n.children) {
         Ni += child.plays;
       }
+      const logNi = Math.log(Ni);
 
       for (let index = 0; index < n.children.length; index++) {
         let child = n.children[index];
@@ -302,7 +303,7 @@ export function playAI(game: IGameState, player: Color): MCNode {
           const ni = child.plays;
 
           // see https://en.wikipedia.org/wiki/Monte_Carlo_tree_search#Exploration_and_exploitation
-          const value = wi / ni + c * Math.sqrt(Math.log(Ni) / ni);
+          const value = wi / ni + c * Math.sqrt(logNi / ni);
           if (value > bestValue) {
             bestIndex = index;
             bestValue = value;
