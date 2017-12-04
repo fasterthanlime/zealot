@@ -75,6 +75,10 @@ export interface IAIState {
   thinking: boolean;
   winChance: number;
   itersPerSec: string;
+  wins: number;
+  losses: number;
+  draws: number;
+  level: number;
 }
 
 export interface IDecks {

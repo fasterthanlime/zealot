@@ -39,13 +39,22 @@ const AIInfo = styled.div`
   padding: 12px;
   position: fixed;
   top: 40px;
-  right: 80px;
-  pointer-events: none;
+  left: 80px;
   color: white;
   background: rgba(0, 0, 0, 0.7);
   border: 1px solid rgba(255, 255, 255, 0.4);
   border-radius: 4px;
   transform: translate3d(0, 0, 40px);
+`;
+
+const AIInfo2 = styled.div`
+  position: absolute;
+  top: 80px;
+  left: 50%;
+  font-size: 80px;
+  pointer-events: none;
+  color: white;
+  transform: translate3d(-50%, 0, 80px);
 `;
 
 const Spinner = styled.div`
@@ -56,6 +65,7 @@ const Spinner = styled.div`
   animation: 1s ${animations.beating} infinite;
   display: inline-block;
   margin-right: 4px;
+  background: #171217;
 `;
 
 const PassDiv = styled.div`
@@ -302,21 +312,52 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
         {covers}
         <ReactHint persist events />
         <AIInfo>
-          {ai.thinking ? (
-            <span>
-              <Spinner />Thinking...
-            </span>
-          ) : (
-            "Idle"
-          )}
+          <div style={{ fontSize: "140%" }}>
+            AI {ai.wins}
+            {" · "}
+            You {ai.losses}
+            {" · "}
+            Draws {ai.draws}
+          </div>
+          Whoever has the least amount of cards<br />
+          on the board at the end of the game wins. Good luck!<br />
+          {ai.itersPerSec} AI win chance: {(ai.winChance * 100).toFixed()}%
           <br />
-          {ai.itersPerSec}k iters/s
-          <br />
-          AI win chance: {(ai.winChance * 100).toFixed()}%
+          {this.renderSelect(ai.level, [
+            [1, "Level 1"],
+            [2, "Level 2"],
+            [4, "Level 3"],
+            [8, "Level 4"],
+            [16, "Level 5"],
+          ])}
         </AIInfo>
+        {ai.thinking ? (
+          <AIInfo2>
+            <Spinner />
+          </AIInfo2>
+        ) : null}
       </WrapperDiv>
     );
   }
+
+  renderSelect(selectedValue: number, values: any[]): JSX.Element {
+    const options: JSX.Element[] = [];
+    for (const value of values) {
+      options.push(<option value={value[0]}>{value[1]}</option>);
+    }
+
+    return (
+      <select value={selectedValue} onChange={this.onSelectChange}>
+        {options}
+      </select>
+    );
+  }
+
+  onSelectChange = (ev: React.ChangeEvent<HTMLSelectElement>) => {
+    this.props.updateAi({
+      level: ev.currentTarget.value,
+    });
+  };
 
   onPass = () => {
     this.props.playCard(null);
@@ -363,6 +404,7 @@ interface IDerivedProps {
   ai: IAIState;
 
   playCard: typeof actions.playCard;
+  updateAi: typeof actions.updateAi;
 }
 
 export default connect<IProps>(PlayArea, {
@@ -375,5 +417,6 @@ export default connect<IProps>(PlayArea, {
   }),
   actions: {
     playCard: actions.playCard,
+    updateAi: actions.updateAi,
   },
 });

@@ -18,7 +18,6 @@ import { warning, info } from "react-notification-system-redux";
 import { playCardFlick, playCardPlace } from "../util/sounds";
 import { playAI } from "../util/rules";
 
-// const dealWait = 80;
 const dealWait = 0;
 const animDuration = 600;
 
@@ -159,16 +158,28 @@ async function doNextTurn(
   if (hasEmptyDeck(rs, Color.Red) && hasEmptyDeck(rs, Color.Blue)) {
     const r = rs.game.counts[Color.Red];
     const b = rs.game.counts[Color.Blue];
-    let message = `It's a draw! (${r} vs ${b})`;
+    let message = `It's a draw!`;
 
     if (r < b) {
-      message = `Player ${colorName(Color.Red)} has won! (${r} vs ${
-        b
-      } for ${colorName(Color.Blue)})`;
+      store.dispatch(
+        actions.updateAi({
+          wins: rs.ai.wins + 1,
+        }),
+      );
+      message = `AI won!`;
     } else if (b < r) {
-      message = `Player ${colorName(Color.Blue)} has won! (${b} vs ${
-        r
-      } for ${colorName(Color.Red)})`;
+      store.dispatch(
+        actions.updateAi({
+          losses: rs.ai.losses + 1,
+        }),
+      );
+      message = `You won!`;
+    } else {
+      store.dispatch(
+        actions.updateAi({
+          draws: rs.ai.draws + 1,
+        }),
+      );
     }
 
     store.dispatch(
@@ -183,9 +194,6 @@ async function doNextTurn(
     return;
   }
 
-  if (swapPlayers) {
-    // await delay(animDuration);
-  }
   let nextPlayer = swapPlayers ? swapColor(previousPlayer) : previousPlayer;
   if (hasEmptyDeck(rs, nextPlayer)) {
     store.dispatch(

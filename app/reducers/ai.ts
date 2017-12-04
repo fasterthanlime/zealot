@@ -5,7 +5,11 @@ import * as actions from "../actions";
 const initialState: IAIState = {
   thinking: false,
   winChance: 0,
-  itersPerSec: "?",
+  itersPerSec: "",
+  wins: 0,
+  losses: 0,
+  draws: 0,
+  level: 1,
 };
 
 export default reducer<IAIState>(initialState, on => {

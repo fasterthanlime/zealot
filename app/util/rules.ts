@@ -500,7 +500,7 @@ export function playAI(store: IStore, game: IGameState, player: Color): MCNode {
     }
   };
 
-  let deadline = 5000;
+  let deadline = store.getState().ai.level * 1000;
   let startTime = Date.now();
   let iterations = 0;
   while (true) {
@@ -618,7 +618,7 @@ export function playAI(store: IStore, game: IGameState, player: Color): MCNode {
     actions.updateAi({
       thinking: false,
       winChance: bestNode.wins / bestNode.plays,
-      itersPerSec: perSec,
+      itersPerSec: `${perSec}K iterations/s`,
     }),
   );
 
