@@ -93,7 +93,7 @@ export const enterSquare = createAction<{
 
 export const exitSquare = createAction<{}>(types.EXIT_SQUARE);
 
-interface IPlayCardPayload {
+export interface IPlayCardPayload {
   player: Color;
   index: number;
   col: number;

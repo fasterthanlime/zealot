@@ -18,21 +18,51 @@ export const SquareHeight = 110;
 const SquareDiv = styled.div`
   position: absolute;
   user-select: none;
-  border: 1px solid #343434;
-  box-shadow: 0 0 1px solid #616161;
   width: ${SquareWidth}px;
   height: ${SquareHeight}px;
-  border-radius: 4px;
-  background-size: 90% auto;
-  background-position: 50% 50%;
-  background-repeat: no-repeat;
   opacity: 1;
   transition: transform 0.4s;
 
+  .turner {
+    border: 1px solid #343434;
+    border-radius: 4px;
+    box-shadow: 0 0 1px solid #616161;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.8s;
+    transform-style: preserve-3d;
+  }
+
+  .front,
+  .back {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    transform-style: preserve-3d;
+    background-size: 90% auto;
+    background-position: 50% 50%;
+    background-repeat: no-repeat;
+    backface-visibility: hidden;
+  }
+
+  .front {
+    background-color: ${playerColors[Color.Red]};
+  }
+
+  .back {
+    background-color: ${playerColors[Color.Blue]};
+    transform: rotateY(180deg);
+  }
+
   &.draggable {
     &:hover {
-      cursor: grab;
-      border-color: white;
+      .turner {
+        cursor: grab;
+        border-color: white;
+      }
     }
   }
 
@@ -55,16 +85,20 @@ class Square extends React.PureComponent<IProps & IDerivedProps> {
     let style: React.CSSProperties = {
       ...this.props.style,
     };
+    let faceStyle: React.CSSProperties = {};
 
     if (card) {
       const bgName = cardGraphics[card.suit];
       if (bgName) {
-        style.backgroundImage = `url(${bgName})`;
+        faceStyle.backgroundImage = `url(${bgName})`;
       }
+    }
 
-      if (color) {
-        style.backgroundColor = playerColors[color];
-      }
+    let turnerStyle: React.CSSProperties = {};
+    if (color === Color.Blue) {
+      turnerStyle.transform = `rotateY(180deg)`;
+    } else {
+      turnerStyle.transform = `rotateY(0deg)`;
     }
 
     const className = classNames({
@@ -82,7 +116,12 @@ class Square extends React.PureComponent<IProps & IDerivedProps> {
         onDragStart={this.onDragStart}
         onMouseDown={this.onMouseDown}
         style={style}
-      />
+      >
+        <div className="turner" style={turnerStyle}>
+          <div className="front" style={faceStyle} />
+          <div className="back" style={faceStyle} />
+        </div>
+      </SquareDiv>
     );
   }
 

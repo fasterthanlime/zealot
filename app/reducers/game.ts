@@ -4,22 +4,16 @@ import {
   withChangedSquare,
   Color,
   Suit,
-  IDeck,
   getSquare,
   cardCounts,
-  ICard,
   makeNeutralSquare,
-  getCardAreaType,
-  forEachAreaSquare,
-  swapColor,
   IDeal,
-  setSquare,
-  ISquare,
 } from "../types/index";
 import derivedReducer from "./derived-reducer";
 import * as actions from "../actions";
 import { sample, map, shuffle } from "underscore";
 import { genid } from "../util/genid";
+import { applyMove } from "../util/rules";
 
 const initialState: IGameState = {
   board: null,
@@ -29,12 +23,12 @@ const initialState: IGameState = {
   trashPile: [],
 };
 
-const initialReducer = reducer<Partial<IGameState>>(initialState, on => {
+const initialReducer = reducer<IGameState>(initialState, on => {
   on(actions.newGame, (state, action) => {
-    const deckSize = 12;
+    const deckSize = 14;
     let board = {
       numCols: 6,
-      numRows: 3,
+      numRows: 4,
       squares: [],
     };
     board.squares.length = board.numCols * board.numRows;
@@ -132,98 +126,7 @@ const initialReducer = reducer<Partial<IGameState>>(initialState, on => {
   });
 
   on(actions.playCard, (state, action) => {
-    const { player, index, col, row } = action.payload;
-    let card: ICard = null;
-    const changeDeck = (deck: IDeck) => {
-      card = deck.cards[index];
-      const newCards = [...deck.cards];
-      newCards.splice(index, 1);
-      return {
-        ...deck,
-        cards: newCards,
-      };
-    };
-
-    state = {
-      ...state,
-      decks: {
-        ...state.decks,
-        [player]: changeDeck(state.decks[player]),
-      },
-    };
-
-    let board = state.board;
-
-    const previousSquare = getSquare(board, col, row);
-
-    let trashPile = state.trashPile;
-    let discard = (sq: ISquare) => {
-      if (sq && sq.card) {
-        trashPile = [
-          ...trashPile,
-          {
-            color: sq.color,
-            card: sq.card,
-          },
-        ];
-      }
-    };
-
-    if (card.suit === Suit.Necromancer) {
-      if (previousSquare.card) {
-        let newCards = [...state.decks[player].cards, previousSquare.card];
-        state = {
-          ...state,
-          decks: {
-            ...state.decks,
-            [player]: {
-              ...state.decks[player],
-              cards: newCards,
-            },
-          },
-        };
-      }
-
-      board = withChangedSquare(board, col, row, {
-        ...makeNeutralSquare(),
-      });
-      trashPile = [...trashPile, { color: player, card }];
-    } else {
-      discard(previousSquare);
-
-      board = withChangedSquare(board, col, row, {
-        card,
-        color: player,
-      });
-
-      const areaType = getCardAreaType(previousSquare.card);
-      forEachAreaSquare(board, col, row, areaType, (col, row, square) => {
-        switch (card.suit) {
-          case Suit.Goblin:
-            // destroy all the things!
-            board = setSquare(board, col, row, oldSquare => {
-              discard(oldSquare);
-              return makeNeutralSquare();
-            });
-            break;
-          case Suit.Priest:
-            // swap all the things!
-            board = withChangedSquare(board, col, row, {
-              card: square.card,
-              color: swapColor(square.color),
-            });
-            break;
-        }
-      });
-    }
-
-    state = {
-      ...state,
-      board,
-      trashPile,
-    };
-
-    return state;
+    return applyMove(state, action.payload);
   });
 });
 
