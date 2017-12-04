@@ -17,61 +17,53 @@ import {
 import { warning, info } from "react-notification-system-redux";
 import { playCardFlick, playCardPlace } from "../util/sounds";
 import {
-  isValidMove,
-  applyMove,
-  computeBenefit,
-  IPotentialPlay,
-  printPlays,
+  IPotentialGame,
+  simulateGame,
+  printGames,
+  Outcome,
 } from "../util/rules";
-import { random, sortBy, first } from "underscore";
-import { IPlayCardPayload } from "../actions";
+import { sortBy, first } from "underscore";
 
 const dealWait = 80;
 const animDuration = 600;
 const clearDuration = 1000;
-const aiThinkTime = 1000;
+// const aiThinkTime = 1000;
 
 const aiColor = Color.Red;
 
 export default function(watcher: Watcher) {
   watcher.on(actions.nextTurn, async (store, action) => {
     if (action.payload.turnPlayer === aiColor) {
-      await delay(aiThinkTime);
+      // await delay(aiThinkTime);
 
-      const player = aiColor;
       const rs = store.getState();
       let { game } = rs;
-      const deck = rs.game.decks[aiColor];
-      const { cards } = deck;
 
-      let validPlays: IPotentialPlay[] = [];
-      let tries = 100;
+      let potentialGames: IPotentialGame[] = [];
+      let tries = 5000;
 
       for (let k = 0; k < tries; k++) {
-        let index = random(0, cards.length - 1);
-        const col = random(0, rs.game.board.numCols - 1);
-        const row = random(0, rs.game.board.numRows - 1);
-        let play: IPlayCardPayload = {
-          col,
-          row,
-          index,
-          player,
-        };
-
-        if (isValidMove(game, play)) {
-          const nextGame = applyMove(game, play);
-          validPlays.push({
-            play,
-            benefit: computeBenefit(game, nextGame, aiColor),
-          });
+        let potentialGame = simulateGame(game, aiColor);
+        if (potentialGame) {
+          potentialGames.push(potentialGame);
         }
       }
 
-      if (validPlays.length > 0) {
-        validPlays = sortBy(validPlays, vp => -vp.benefit);
-        validPlays = first(validPlays, 5);
-        printPlays(game, validPlays);
-        store.dispatch(actions.playCard(validPlays[0].play));
+      if (potentialGames.length > 0) {
+        let outcomes: any = {};
+        for (const pg of potentialGames) {
+          const key = Outcome[pg.outcome];
+          if (!outcomes[key]) {
+            outcomes[key] = 0;
+          }
+          outcomes[key]++;
+        }
+        console.log(`number of outcomes: `, JSON.stringify(outcomes));
+
+        potentialGames = sortBy(potentialGames, pg => -pg.outcome);
+        potentialGames = first(potentialGames, 5);
+        printGames(game, potentialGames);
+        store.dispatch(actions.playCard(potentialGames[0].play));
       } else {
         store.dispatch(actions.pass({}));
       }

@@ -149,24 +149,6 @@ export function computeBenefit(
   return -pointsGain; // since we want to minimize
 }
 
-function suitPotential(suit: Suit): number {
-  switch (suit) {
-    case Suit.Priest:
-    case Suit.Goblin:
-      return 3;
-
-    case Suit.MarksmanL:
-    case Suit.MarksmanR:
-      return 2;
-
-    case Suit.Necromancer:
-    case Suit.Monk:
-      return 1;
-  }
-
-  return 0;
-}
-
 export function computeScore(game: IGameState, color: Color): number {
   let score = 0;
 
@@ -179,17 +161,7 @@ export function computeScore(game: IGameState, color: Color): number {
       }
     }
   }
-
-  let deckPotential = 0;
-  let cards = game.decks[color].cards;
-  for (let i = 0; i < cards.length; i++) {
-    const card = cards[i];
-    if (card) {
-      deckPotential += suitPotential(card.suit);
-    }
-  }
-
-  return score - deckPotential;
+  return score;
 }
 
 // AI stuff!
@@ -207,19 +179,122 @@ function formatCard(card: ICard, color: Color): string {
   return `${colorName(color)} ${suitName(card.suit)}`;
 }
 
-export function printPlays(game: IGameState, plays: IPotentialPlay[]) {
+function potentialGameLength(pg: IPotentialGame) {
+  let length = 1;
+  while (pg.next) {
+    length++;
+    pg = pg.next;
+  }
+  return length;
+}
+
+export function printGames(game: IGameState, pgs: IPotentialGame[]) {
   const { board, decks } = game;
 
-  console.log(`best ${plays.length} plays considered: `);
-  for (const play of plays) {
-    const { col, row, index, player } = play.play;
+  console.log(`best ${pgs.length} games considered: `);
+  for (const pg of pgs) {
+    const { col, row, index, player } = pg.play;
     const card = decks[player].cards[index];
     const sq = getSquare(board, col, row);
 
     console.log(
       `${formatCard(card, player)} on ${formatCard(sq.card, sq.color)} at ${
         col
-      },${row} for ${play.benefit}`,
+      },${row}, ${Outcome[pg.outcome]} in ${potentialGameLength(pg)}`,
     );
   }
+}
+
+export enum Outcome {
+  // from worst to best
+  Loss = 0,
+  Neutral = 1,
+  Draw = 2,
+  Win = 3,
+}
+
+export interface IPotentialGame {
+  outcome: Outcome;
+  game: IGameState;
+  play: IPlayCardPayload;
+  next: IPotentialGame;
+}
+
+import { random } from "underscore";
+
+export function swapOutcome(outcome: Outcome): Outcome {
+  if (outcome === Outcome.Win) {
+    return Outcome.Loss;
+  }
+  if (outcome === Outcome.Loss) {
+    return Outcome.Win;
+  }
+  return outcome;
+}
+
+export function computeOutcome(game: IGameState, player: Color): Outcome {
+  for (const color of [Color.Red, Color.Blue]) {
+    const { cards } = game.decks[color];
+    if (cards.length > 0) {
+      // cards left in play!
+      return Outcome.Neutral;
+    }
+  }
+
+  const ourScore = computeScore(game, player);
+  const theirScore = computeScore(game, swapColor(player));
+  if (ourScore < theirScore) {
+    return Outcome.Win;
+  }
+  if (theirScore < ourScore) {
+    return Outcome.Loss;
+  }
+  return Outcome.Draw;
+}
+
+export function simulateGame(game: IGameState, player: Color): IPotentialGame {
+  const cards = game.decks[player].cards;
+  if (cards.length === 0) {
+    return null;
+  }
+
+  let tries = 20;
+  let play: IPlayCardPayload;
+  while (tries-- > 0) {
+    let index = random(0, cards.length - 1);
+    const col = random(0, game.board.numCols - 1);
+    const row = random(0, game.board.numRows - 1);
+    play = {
+      col,
+      row,
+      index,
+      player,
+    };
+
+    if (isValidMove(game, play)) {
+      break;
+    }
+  }
+
+  if (!play) {
+    return null;
+  }
+
+  const nextGame = applyMove(game, play);
+  const outcome = computeOutcome(nextGame, player);
+  let pg: IPotentialGame = {
+    outcome,
+    game: nextGame,
+    play,
+    next: null,
+  };
+
+  if (outcome === Outcome.Neutral) {
+    // keep playing!
+    pg.next = simulateGame(nextGame, swapColor(player));
+    if (pg.next) {
+      pg.outcome = swapOutcome(pg.next.outcome);
+    }
+  }
+  return pg;
 }
