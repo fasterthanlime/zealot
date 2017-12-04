@@ -16,13 +16,7 @@ import {
 
 import { warning, info } from "react-notification-system-redux";
 import { playCardFlick, playCardPlace } from "../util/sounds";
-import {
-  IPotentialGame,
-  simulateGame,
-  printGames,
-  Outcome,
-} from "../util/rules";
-import { sortBy, first } from "underscore";
+import { simulateGame, Outcome, randomPlay } from "../util/rules";
 
 const dealWait = 80;
 const animDuration = 600;
@@ -40,47 +34,30 @@ export default function(watcher: Watcher) {
       const rs = store.getState();
       let { game } = rs;
 
-      let potentialGames: IPotentialGame[] = [];
       let tries = 5000;
       let startTime = Date.now();
 
+      let outcomes: any = {
+        Draw: 0,
+        Neutral: 0,
+        Loss: 0,
+        Win: 0,
+      };
+      let totalOutcomes = 0;
+
       for (let k = 0; k < tries; k++) {
-        let potentialGame = simulateGame(game, aiColor);
-        if (potentialGame) {
-          potentialGames.push(potentialGame);
-        }
+        const outcome = simulateGame(game, aiColor);
+        outcomes[Outcome[outcome]]++;
+        totalOutcomes++;
       }
 
-      if (potentialGames.length > 0) {
-        let outcomes: any = {
-          Draw: 0,
-          Neutral: 0,
-          Loss: 0,
-          Win: 0,
-        };
-        let totalOutcomes = 0;
-        for (const pg of potentialGames) {
-          const key = Outcome[pg.outcome];
-          outcomes[key]++;
-          if (pg.outcome === Outcome.Win || pg.outcome === Outcome.Loss) {
-            totalOutcomes++;
-          }
-        }
-        store.dispatch(
-          actions.updateAi({
-            thinking: false,
-            winChance: outcomes.Win / totalOutcomes,
-          }),
-        );
-        // console.log(`number of outcomes: `, JSON.stringify(outcomes));
-
-        potentialGames = sortBy(potentialGames, pg => -pg.outcome);
-        potentialGames = first(potentialGames, 5);
-        printGames(game, potentialGames);
-        store.dispatch(actions.playCard(potentialGames[0].play));
-      } else {
-        store.dispatch(actions.playCard(null));
-      }
+      store.dispatch(
+        actions.updateAi({
+          thinking: false,
+          winChance: outcomes.Win / totalOutcomes,
+        }),
+      );
+      store.dispatch(actions.playCard(randomPlay(game, aiColor)));
       let endTime = Date.now();
       console.log(`executed AI in ${endTime - startTime}ms`);
     }

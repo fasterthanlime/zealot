@@ -256,7 +256,7 @@ export function computeOutcome(game: IGameState, player: Color): Outcome {
   return Outcome.Draw;
 }
 
-export function simulateGame(game: IGameState, player: Color): IPotentialGame {
+export function randomPlay(game: IGameState, player: Color): IPlayCardPayload {
   const cards = game.decks[player].cards;
   let tries = 20;
   let play: IPlayCardPayload = null;
@@ -275,22 +275,15 @@ export function simulateGame(game: IGameState, player: Color): IPotentialGame {
       break;
     }
   }
+  return play;
+}
 
-  const nextGame = applyMove(game, play);
+export function simulateGame(game: IGameState, player: Color): Outcome {
+  const nextGame = applyMove(game, randomPlay(game, player));
   const outcome = computeOutcome(nextGame, player);
-  let pg: IPotentialGame = {
-    outcome,
-    game: nextGame,
-    play,
-    next: null,
-  };
-
   if (outcome === Outcome.Neutral) {
-    // keep playing!
-    pg.next = simulateGame(nextGame, swapColor(player));
-    if (pg.next) {
-      pg.outcome = swapOutcome(pg.next.outcome);
-    }
+    return swapOutcome(simulateGame(nextGame, swapColor(player)));
+  } else {
+    return outcome;
   }
-  return pg;
 }
