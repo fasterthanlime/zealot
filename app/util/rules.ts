@@ -8,8 +8,10 @@ import {
   forEachAreaSquare,
   swapColor,
   Color,
+  IStore,
 } from "../types/index";
-import { IPlayCardPayload } from "../actions/index";
+import * as actions from "../actions";
+import { IPlayCardPayload } from "../actions";
 
 export function isValidMove(
   state: IGameState,
@@ -264,7 +266,7 @@ export function bestPlay(root: MCNode) {}
 // exploration parameter, typically sqrt(2)
 const c = Math.sqrt(2);
 
-export function playAI(game: IGameState, player: Color): MCNode {
+export function playAI(store: IStore, game: IGameState, player: Color): MCNode {
   let root: MCNode = {
     play: null,
     player: swapColor(player),
@@ -321,7 +323,7 @@ export function playAI(game: IGameState, player: Color): MCNode {
     }
   };
 
-  let deadline = 1500;
+  let deadline = 3000;
   let startTime = Date.now();
   let iterations = 0;
   while (true) {
@@ -418,5 +420,14 @@ export function playAI(game: IGameState, player: Color): MCNode {
       100
     ).toFixed()}% wins for other player)`,
   );
+
+  store.dispatch(
+    actions.updateAi({
+      thinking: false,
+      winChance: bestNode.wins / bestNode.plays,
+      itersPerSec: perSec,
+    }),
+  );
+
   return bestNode;
 }

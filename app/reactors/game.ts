@@ -33,13 +33,7 @@ export default function(watcher: Watcher) {
       const rs = store.getState();
       let { game } = rs;
 
-      const node = playAI(game, aiColor);
-      store.dispatch(
-        actions.updateAi({
-          thinking: false,
-          winChance: node.wins / node.plays,
-        }),
-      );
+      const node = playAI(store, game, aiColor);
       store.dispatch(actions.playCard(node.play));
     }
   });

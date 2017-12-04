@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import styled from "./styles";
+import styled, { animations } from "./styles";
 import {
   Color,
   ISystemState,
@@ -33,15 +33,28 @@ const WrapperDiv = styled.div`
 `;
 
 const AIInfo = styled.div`
-  font-size: 28px;
+  font-size: 16px;
+  line-height: 1.4;
   padding: 12px;
   position: fixed;
-  top: 50%;
-  right: 40px;
+  top: 40px;
+  right: 80px;
   pointer-events: none;
   color: white;
-  background: rgba(0, 0, 0, 0.4);
-  transform: translate3d(0, -50%, 40px);
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 4px;
+  transform: translate3d(0, 0, 40px);
+`;
+
+const Spinner = styled.div`
+  width: 1em;
+  height: 1em;
+  border: 3px solid white;
+  border-radius: 50%;
+  animation: 1s ${animations.beating} infinite;
+  display: inline-block;
+  margin-right: 4px;
 `;
 
 const PassDiv = styled.div`
@@ -287,7 +300,15 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
         {covers}
         <ReactHint persist events />
         <AIInfo>
-          {ai.thinking ? "Thinking..." : "Idle"}
+          {ai.thinking ? (
+            <span>
+              <Spinner />Thinking...
+            </span>
+          ) : (
+            "Idle"
+          )}
+          <br />
+          {ai.itersPerSec}k iters/s
           <br />
           AI win chance: {(ai.winChance * 100).toFixed()}%
         </AIInfo>

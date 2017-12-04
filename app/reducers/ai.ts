@@ -5,6 +5,7 @@ import * as actions from "../actions";
 const initialState: IAIState = {
   thinking: false,
   winChance: 0,
+  itersPerSec: "?",
 };
 
 export default reducer<IAIState>(initialState, on => {

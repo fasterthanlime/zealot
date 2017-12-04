@@ -74,6 +74,7 @@ export interface IGameState {
 export interface IAIState {
   thinking: boolean;
   winChance: number;
+  itersPerSec: string;
 }
 
 export interface IDecks {
