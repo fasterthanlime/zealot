@@ -218,6 +218,9 @@ export function colorName(color: Color): string {
   return "Neutral";
 }
 
+const cardPngs = require(`~/images/cards/*.png`);
+console.log(`cardPngs = `, cardPngs);
+
 export const cardGraphics = {
   [Color.Red]: {
     [Suit.Peasant]: require("~/images/cards/Rpeasant.png").default,
