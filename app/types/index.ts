@@ -28,6 +28,7 @@ export function dispatcher<T, U>(
 export interface IRootState {
   system: ISystemState;
   game: IGameState;
+  ai: IAIState;
   controls: IControlsState;
   metrics: IMetricsState;
   notifications: any;
@@ -68,6 +69,11 @@ export interface IGameState {
   counts: {
     [color: number]: number;
   };
+}
+
+export interface IAIState {
+  thinking: boolean;
+  winChance: number;
 }
 
 export interface IDeal {

@@ -34,7 +34,8 @@ const aiColor = Color.Red;
 export default function(watcher: Watcher) {
   watcher.on(actions.nextTurn, async (store, action) => {
     if (action.payload.turnPlayer === aiColor) {
-      // await delay(aiThinkTime);
+      store.dispatch(actions.updateAi({ thinking: true }));
+      await delay(20);
 
       const rs = store.getState();
       let { game } = rs;
@@ -51,15 +52,27 @@ export default function(watcher: Watcher) {
       }
 
       if (potentialGames.length > 0) {
-        let outcomes: any = {};
+        let outcomes: any = {
+          Draw: 0,
+          Neutral: 0,
+          Loss: 0,
+          Win: 0,
+        };
+        let totalOutcomes = 0;
         for (const pg of potentialGames) {
           const key = Outcome[pg.outcome];
-          if (!outcomes[key]) {
-            outcomes[key] = 0;
-          }
           outcomes[key]++;
+          if (pg.outcome === Outcome.Win || pg.outcome === Outcome.Loss) {
+            totalOutcomes++;
+          }
         }
-        console.log(`number of outcomes: `, JSON.stringify(outcomes));
+        store.dispatch(
+          actions.updateAi({
+            thinking: false,
+            winChance: outcomes.Win / totalOutcomes,
+          }),
+        );
+        // console.log(`number of outcomes: `, JSON.stringify(outcomes));
 
         potentialGames = sortBy(potentialGames, pg => -pg.outcome);
         potentialGames = first(potentialGames, 5);

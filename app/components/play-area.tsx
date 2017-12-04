@@ -12,6 +12,7 @@ import {
   ICard,
   getSquare,
   forEachAreaSquare,
+  IAIState,
 } from "../types/index";
 import { connect } from "./connect";
 
@@ -29,6 +30,18 @@ const WrapperDiv = styled.div`
   position: relative;
   perspective: 600px;
   transform-style: preserve-3d;
+`;
+
+const AIInfo = styled.div`
+  font-size: 28px;
+  padding: 12px;
+  position: fixed;
+  top: 50%;
+  right: 40px;
+  pointer-events: none;
+  color: white;
+  background: rgba(0, 0, 0, 0.4);
+  transform: translate3d(0, -50%, 40px);
 `;
 
 const PassDiv = styled.div`
@@ -278,6 +291,8 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
       }
     }
 
+    const { ai } = this.props;
+
     return (
       <WrapperDiv style={wrapperStyle}>
         {slots}
@@ -286,6 +301,11 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
         {passes}
         {covers}
         <ReactHint persist events />
+        <AIInfo>
+          {ai.thinking ? "Thinking..." : "Idle"}
+          <br />
+          AI win chance: {(ai.winChance * 100).toFixed()}%
+        </AIInfo>
       </WrapperDiv>
     );
   }
@@ -332,6 +352,7 @@ interface IDerivedProps {
   metrics: IMetricsState;
   game: IGameState;
   controls: IControlsState;
+  ai: IAIState;
 
   playCard: typeof actions.playCard;
 }
@@ -342,6 +363,7 @@ export default connect<IProps>(PlayArea, {
     metrics: rs.metrics,
     game: rs.game,
     controls: rs.controls,
+    ai: rs.ai,
   }),
   actions: {
     playCard: actions.playCard,
