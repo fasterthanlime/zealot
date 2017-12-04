@@ -7,9 +7,9 @@ import {
 } from "../types/index";
 import { SquareHeight, SquareWidth } from "../components/square";
 
-const deckMargin = 10;
-const playAreaMargin = 10;
-const globalMargin = 20;
+const deckMargin = 8;
+const playAreaMargin = 4;
+const globalMargin = 8;
 
 export function getMetrics(rs: IRootState): IMetricsState {
   const { board, decks } = rs.game;

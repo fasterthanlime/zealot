@@ -23,6 +23,7 @@ import Square, { SquareWidth, SquareHeight } from "./square";
 import Slot from "./slot";
 import Highlight from "./highlight";
 import * as actions from "../actions";
+import { aiLevelFactor } from "../util/rules";
 
 const ReactHintFactory = require("react-hint");
 const ReactHint = ReactHintFactory(React);
@@ -154,7 +155,7 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
       const ourTurn = color === controls.turnPlayer;
       const deck = game.decks[color];
       const deckMetrics = metrics.decks[color];
-      const xAngle = color === Color.Red ? 3 : -3;
+      const xAngle = 6 * (color === Color.Red ? 1 : -1);
 
       {
         let hiding = !(ourTurn && controls.awaitingInput);
@@ -323,13 +324,18 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
           on the board at the end of the game wins. Good luck!<br />
           {ai.itersPerSec} AI win chance: {(ai.winChance * 100).toFixed()}%
           <br />
+          Difficulty:
           {this.renderSelect(ai.level, [
-            [1, "Level 1"],
-            [2, "Level 2"],
-            [4, "Level 3"],
-            [8, "Level 4"],
-            [16, "Level 5"],
-          ])}
+            [1, "Little baby"],
+            [2, "Big baby"],
+            [4, "Peasant"],
+            [8, "Monk"],
+            [16, "Marksman"],
+            [32, "Goblin"],
+            [64, "Priest"],
+            [128, "Necromancer"],
+          ])}{" "}
+          ({ai.level * aiLevelFactor}s AI rounds)
         </AIInfo>
         {ai.thinking ? (
           <AIInfo2>
@@ -355,7 +361,7 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
 
   onSelectChange = (ev: React.ChangeEvent<HTMLSelectElement>) => {
     this.props.updateAi({
-      level: ev.currentTarget.value,
+      level: parseInt(ev.currentTarget.value, 10),
     });
   };
 

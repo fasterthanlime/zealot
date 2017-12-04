@@ -7,10 +7,9 @@ import { SquareWidth, SquareHeight } from "./square";
 const SlotDiv = styled.div`
   position: absolute;
   border: 1px solid rgba(255, 255, 255, 0.3);
-  width: ${SquareWidth + 10}px;
-  height: ${SquareHeight + 10}px;
-  left: -5px;
-  top: -5px;
+  width: ${SquareWidth}px;
+  height: ${SquareHeight}px;
+  border-radius: 8px;
 `;
 
 class Slot extends React.PureComponent<IProps & IDerivedProps> {

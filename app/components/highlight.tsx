@@ -7,10 +7,9 @@ const HighlightDiv = styled.div`
   position: absolute;
   background: white;
   opacity: 0.4;
-  width: ${SquareWidth + 10}px;
-  height: ${SquareHeight + 10}px;
-  left: -5px;
-  top: -5px;
+  width: ${SquareWidth}px;
+  height: ${SquareHeight}px;
+  border-radius: 8px;
 
   pointer-events: none;
 

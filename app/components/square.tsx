@@ -6,8 +6,9 @@ import { connect } from "./connect";
 
 import * as actions from "../actions";
 
-export const SquareWidth = 90;
-export const SquareHeight = 110;
+const squareFactor = 1.5;
+export const SquareWidth = 90 * squareFactor;
+export const SquareHeight = 110 * squareFactor;
 
 const SquareDiv = styled.div`
   position: absolute;

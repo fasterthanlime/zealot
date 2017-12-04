@@ -268,6 +268,8 @@ export function bestPlay(root: MCNode) {}
 // exploration parameter, typically sqrt(2)
 const c = Math.sqrt(2);
 
+export const aiLevelFactor = 0.25;
+
 export function playAI(store: IStore, game: IGameState, player: Color): MCNode {
   let root: MCNode = {
     play: null,
@@ -500,7 +502,7 @@ export function playAI(store: IStore, game: IGameState, player: Color): MCNode {
     }
   };
 
-  let deadline = store.getState().ai.level * 1000;
+  let deadline = store.getState().ai.level * aiLevelFactor * 1000;
   let startTime = Date.now();
   let iterations = 0;
   while (true) {
