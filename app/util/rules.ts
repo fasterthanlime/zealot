@@ -9,6 +9,7 @@ import {
   swapColor,
   Color,
   IStore,
+  suitName,
 } from "../types/index";
 import * as actions from "../actions";
 import { IPlayCardPayload } from "../actions";
@@ -278,9 +279,128 @@ export function playAI(store: IStore, game: IGameState, player: Color): MCNode {
   let firstTries = 0;
   let weightedTries = 0;
 
+  const scoreScale = 10 / 80;
+  const H = (game: IGameState, play: IPlayCardPayload): number => {
+    if (!play) {
+      return 0;
+    }
+
+    // phew, ok, there we go - let's grade this play!
+    const card = game.decks[play.player][play.index];
+    const bcard = getSquare(game.board, play.col, play.row);
+
+    let score = 0;
+
+    // playing on an empty square
+    if (card.suit === Suit.Goblin) {
+      if (bcard) {
+      } else {
+        // wasting a goblin is a little naughty
+        score -= 20;
+      }
+    } else if (card.suit === Suit.Priest) {
+      if (!bcard) {
+      } else {
+        // wasting a priest is medium naughty
+        score -= 30;
+      }
+    } else if (card.suit === Suit.Necromancer) {
+      if (bcard) {
+        if (bcard.suit === Suit.Priest) {
+          // stealing a priest is hella cool
+          score += 50;
+        } else if (bcard.suit === Suit.Goblin) {
+          // well that's cool too
+          score += 30;
+        }
+      } else {
+        // wasting a necromancer is extremely naughty
+        score -= 50;
+      }
+    } else if (card.suit === Suit.MarksmanL) {
+      let ourCardCount = 0;
+      for (let col = play.col - 1; col >= 0; col--) {
+        const bcard = getSquare(game.board, play.col, play.row);
+        if (bcard && bcard.color === play.player) {
+          ourCardCount++;
+        }
+      }
+      score += ourCardCount * 4;
+
+      if (ourCardCount > 0) {
+        const distanceFromBorder = play.col;
+        score += distanceFromBorder * 0.2;
+      }
+    } else if (card.suit === Suit.MarksmanR) {
+      let ourCardCount = 0;
+      for (let col = play.col + 1; col < game.board.numCols; col++) {
+        const bcard = getSquare(game.board, play.col, play.row);
+        if (bcard && bcard.color === play.player) {
+          ourCardCount++;
+        }
+      }
+      score += ourCardCount * 4;
+
+      if (ourCardCount > 0) {
+        const distanceFromBorder = game.board.numCols - play.col;
+        score += distanceFromBorder * 0.2;
+      }
+    } else if (card.suit === Suit.Monk) {
+      let ourCardCount = 0;
+      let tryCard = (dc: number, dr: number) => {
+        let ccol = play.col + dc;
+        let crow = play.row + dr;
+        if (
+          ccol >= 0 &&
+          ccol < game.board.numCols &&
+          crow >= 0 &&
+          crow < game.board.numRows
+        ) {
+          const bcard = getSquare(game.board, ccol, crow);
+          if (bcard && bcard.color === play.player) {
+            ourCardCount++;
+          }
+        }
+      };
+      tryCard(-1, -1);
+      tryCard(0, -1);
+      tryCard(1, -1);
+      tryCard(1, 0);
+      tryCard(1, 1);
+      tryCard(0, 1);
+      tryCard(-1, 1);
+      tryCard(-1, 0);
+      score += ourCardCount * 10;
+    } else if (card.suit === Suit.Peasant) {
+      // getting rid of peasants is a neat idea
+      score += 1;
+
+      const leftCard = getSquare(game.board, play.col - 1, play.row);
+      let adjacencyCount = 0;
+      if (leftCard && leftCard.color === player) {
+        // ok yes that's generally good
+        score += 2;
+        adjacencyCount++;
+      }
+      const rightCard = getSquare(game.board, play.col - 1, play.row);
+      if (rightCard && rightCard.color === player) {
+        // ok yes that's good too
+        score += 2;
+        adjacencyCount++;
+      }
+
+      if (adjacencyCount >= 2) {
+        score += 1; // even better!
+      }
+    }
+
+    return score * scoreScale;
+  };
+
   const select = (root: MCNode): MCPath => {
     let path: MCPath = [];
     let n = root;
+    let currentGame = game;
 
     while (true) {
       // leaf node!
@@ -290,7 +410,7 @@ export function playAI(store: IStore, game: IGameState, player: Color): MCNode {
 
       let untriedIndices: number[] = [];
       let bestIndex = -1;
-      let bestValue = -1;
+      let bestValue = Number.MIN_SAFE_INTEGER;
 
       let Ni = 0;
       for (const child of n.children) {
@@ -308,7 +428,8 @@ export function playAI(store: IStore, game: IGameState, player: Color): MCNode {
           const ni = child.plays;
 
           // see https://en.wikipedia.org/wiki/Monte_Carlo_tree_search#Exploration_and_exploitation
-          const value = wi / ni + c * Math.sqrt(logNi / ni);
+          const h = H(currentGame, child.play) / ni;
+          const value = wi / ni + c * Math.sqrt(logNi / ni) + h;
           if (value > bestValue) {
             bestIndex = index;
             bestValue = value;
@@ -325,11 +446,12 @@ export function playAI(store: IStore, game: IGameState, player: Color): MCNode {
       }
 
       n = n.children[bestIndex];
+      currentGame = applyMove(currentGame, n.play);
       path.push(bestIndex);
     }
   };
 
-  let deadline = 6000;
+  let deadline = 3000;
   let startTime = Date.now();
   let iterations = 0;
   while (true) {
@@ -358,9 +480,13 @@ export function playAI(store: IStore, game: IGameState, player: Color): MCNode {
       if (outcome === Outcome.Neutral) {
         let nextPlayer = swapColor(node.player);
         let plays = legalPlays(currentGame, nextPlayer);
+        // let scoredPlays = _.map(plays, p => ({ p, s: H(currentGame, p) }));
+        // scoredPlays = _.sortBy(scoredPlays, p => -p.s);
+        // // keep the 40 best plays!
+        // const maxBestPlays = 40;
+        // plays = _.map(_.first(scoredPlays, maxBestPlays), p => p.p);
 
-        node.children = new Array(plays.length);
-        let i = 0;
+        node.children = [];
         for (const play of plays) {
           let childNode: MCNode = {
             play,
@@ -369,8 +495,9 @@ export function playAI(store: IStore, game: IGameState, player: Color): MCNode {
             wins: 0,
             children: null,
           };
-          node.children[i++] = childNode;
+          node.children.push(childNode);
         }
+
         let chosenChildIndex = _.random(0, node.children.length - 1);
         path.push(chosenChildIndex);
         let child = node.children[chosenChildIndex];
@@ -421,14 +548,22 @@ export function playAI(store: IStore, game: IGameState, player: Color): MCNode {
   }
   console.warn(`first tries: ${firstTries}, weighted tries: ${weightedTries}`);
 
+  const h = H(game, bestNode.play);
   console.log(
-    `best node leads to ${bestNode.wins}/${bestNode.plays} wins (${
+    `best node (h=${h}) leads to ${bestNode.wins}/${bestNode.plays} wins (${
       root.plays
     } plays total, ${(
       root.wins /
       root.plays *
       100
     ).toFixed()}% wins for other player)`,
+  );
+  const card = game.decks[bestNode.player][bestNode.play.index];
+  const bcard = getSquare(game.board, bestNode.play.col, bestNode.play.row);
+  console.log(
+    `it's playing a ${suitName(card.suit)} at ${bestNode.play.col},${
+      bestNode.play.row
+    } over a ${bcard ? suitName(bcard.suit) : "blank"}`,
   );
 
   store.dispatch(
