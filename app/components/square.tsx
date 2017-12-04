@@ -1,4 +1,4 @@
-import styled, { animations } from "./styles";
+import styled from "./styles";
 import * as React from "react";
 import * as classNames from "classnames";
 import { Color, cardGraphics, ICard, tipForCard, Suit } from "../types/index";
