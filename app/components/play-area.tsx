@@ -291,19 +291,17 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
   }
 
   onPass = () => {
-    this.props.pass({});
+    this.props.playCard(null);
   };
 
   componentWillReceiveProps(nextProps: IProps & IDerivedProps) {
     if (this.props.controls.draggable) {
       if (!nextProps.controls.draggable) {
-        console.log("drag end!");
         document.removeEventListener("mousemove", this.onMouseMove);
       }
     } else {
       if (nextProps.controls.draggable) {
         // TODO: set initial clientX/clientY
-        console.log("drag start!");
         document.addEventListener("mousemove", this.onMouseMove);
         this.setState({
           clientX: globalMouse.clientX,
@@ -315,7 +313,6 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
 
   onMouseMove = (e: MouseEvent) => {
     const { clientX, clientY } = e;
-    console.log("mouse at ", clientX, clientY);
     this.setState({
       clientX,
       clientY,
@@ -336,7 +333,7 @@ interface IDerivedProps {
   game: IGameState;
   controls: IControlsState;
 
-  pass: typeof actions.pass;
+  playCard: typeof actions.playCard;
 }
 
 export default connect<IProps>(PlayArea, {
@@ -347,6 +344,6 @@ export default connect<IProps>(PlayArea, {
     controls: rs.controls,
   }),
   actions: {
-    pass: actions.pass,
+    playCard: actions.playCard,
   },
 });

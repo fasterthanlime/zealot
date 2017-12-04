@@ -44,7 +44,6 @@ export const types = mirror({
   CARD_PLAYED: null,
   END_TURN: null,
   NEXT_TURN: null,
-  PASS: null,
 
   MOUSE_MOVE: null,
 
@@ -107,8 +106,6 @@ export const endTurn = createAction<{}>(types.END_TURN);
 export const nextTurn = createAction<{
   turnPlayer: Color;
 }>(types.NEXT_TURN);
-
-export const pass = createAction<{}>(types.PASS);
 
 export const invalidMove = createAction<{
   col: number;

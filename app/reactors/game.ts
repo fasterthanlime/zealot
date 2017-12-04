@@ -41,6 +41,7 @@ export default function(watcher: Watcher) {
 
       let potentialGames: IPotentialGame[] = [];
       let tries = 5000;
+      let startTime = Date.now();
 
       for (let k = 0; k < tries; k++) {
         let potentialGame = simulateGame(game, aiColor);
@@ -65,24 +66,24 @@ export default function(watcher: Watcher) {
         printGames(game, potentialGames);
         store.dispatch(actions.playCard(potentialGames[0].play));
       } else {
-        store.dispatch(actions.pass({}));
+        store.dispatch(actions.playCard(null));
       }
+      let endTime = Date.now();
+      console.log(`executed AI in ${endTime - startTime}ms`);
     }
   });
 
   watcher.on(actions.playCard, async (store, action) => {
-    store.dispatch(actions.endTurn({}));
-
     const rs = store.getState();
 
-    const { player, index } = action.payload;
-    const card = rs.game.decks[player].cards[index];
-    let swapPlayers = !isCivilian(card.suit);
+    store.dispatch(actions.endTurn({}));
 
-    playCardPlace();
-    store.dispatch(actions.cardPlayed(action.payload));
+    if (action.payload) {
+      playCardPlace();
+      store.dispatch(actions.cardPlayed(action.payload));
+    }
 
-    await doNextTurn(store, rs.controls.turnPlayer, swapPlayers);
+    await doNextTurn(store, rs.controls.turnPlayer, true);
   });
 
   watcher.on(actions.newGame, async (store, action) => {
@@ -97,12 +98,6 @@ export default function(watcher: Watcher) {
       await delay(dealWait);
       store.dispatch(actions.dealNext({}));
     }
-  });
-
-  watcher.on(actions.pass, async (store, action) => {
-    const { controls } = store.getState();
-    store.dispatch(actions.endTurn({}));
-    await doNextTurn(store, controls.turnPlayer, true);
   });
 
   watcher.on(actions.dragStart, async (store, action) => {

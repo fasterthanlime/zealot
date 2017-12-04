@@ -41,6 +41,10 @@ export function applyMove(
   state: IGameState,
   play: IPlayCardPayload,
 ): IGameState {
+  if (play === null) {
+    return state;
+  }
+
   const { player, index, col, row } = play;
   let card: ICard = null;
   const changeDeck = (deck: IDeck) => {
@@ -254,13 +258,9 @@ export function computeOutcome(game: IGameState, player: Color): Outcome {
 
 export function simulateGame(game: IGameState, player: Color): IPotentialGame {
   const cards = game.decks[player].cards;
-  if (cards.length === 0) {
-    return null;
-  }
-
   let tries = 20;
-  let play: IPlayCardPayload;
-  while (tries-- > 0) {
+  let play: IPlayCardPayload = null;
+  while (tries-- > 0 && cards.length > 0) {
     let index = random(0, cards.length - 1);
     const col = random(0, game.board.numCols - 1);
     const row = random(0, game.board.numRows - 1);
@@ -274,10 +274,6 @@ export function simulateGame(game: IGameState, player: Color): IPotentialGame {
     if (isValidMove(game, play)) {
       break;
     }
-  }
-
-  if (!play) {
-    return null;
   }
 
   const nextGame = applyMove(game, play);
