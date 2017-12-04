@@ -16,17 +16,61 @@ import {
 
 import { warning, info } from "react-notification-system-redux";
 import { playCardFlick, playCardPlace } from "../util/sounds";
+import { isValidMove } from "../util/rules";
+import { random } from "underscore";
 
 const dealWait = 80;
 const animDuration = 600;
 const clearDuration = 1000;
 
+const aiColor = Color.Red;
+
 export default function(watcher: Watcher) {
+  watcher.on(actions.nextTurn, async (store, action) => {
+    if (action.payload.turnPlayer === aiColor) {
+      const rs = store.getState();
+      const deck = rs.game.decks[aiColor];
+      const { cards } = deck;
+      let cardIndex = random(0, cards.length - 1);
+      const card = deck.cards[cardIndex];
+      const col = random(0, rs.game.board.numCols - 1);
+      const row = random(0, rs.game.board.numRows - 1);
+      if (isValidMove(rs.game, card, col, row)) {
+        store.dispatch(
+          actions.playCard({
+            col,
+            row,
+            index: cardIndex,
+            player: aiColor,
+          }),
+        );
+      } else {
+        store.dispatch(actions.pass({}));
+      }
+    }
+  });
+
+  watcher.on(actions.playCard, async (store, action) => {
+    store.dispatch(actions.endTurn({}));
+
+    const rs = store.getState();
+
+    const { player, index } = action.payload;
+    const card = rs.game.decks[player].cards[index];
+    let swapPlayers = !isCivilian(card.suit);
+
+    playCardPlace();
+    store.dispatch(actions.cardPlayed(action.payload));
+
+    await doNextTurn(store, rs.controls.turnPlayer, swapPlayers);
+  });
+
   watcher.on(actions.newGame, async (store, action) => {
     while (true) {
       const { dealPile } = store.getState().game;
       if (dealPile.length === 0) {
         store.dispatch(actions.doneDealing({}));
+        store.dispatch(actions.nextTurn({ turnPlayer: Color.Red }));
         return;
       }
 
@@ -89,7 +133,6 @@ export default function(watcher: Watcher) {
     const { draggable, dropTarget } = controls;
     if (draggable && dropTarget) {
       const card = game.decks[draggable.player].cards[draggable.index];
-      let swapPlayers = false;
       if (isCivilian(card.suit)) {
         const dropSquare = getSquare(
           game.board,
@@ -112,13 +155,7 @@ export default function(watcher: Watcher) {
           store.dispatch(actions.clearEffects({}));
           return;
         }
-      } else {
-        swapPlayers = true;
       }
-
-      store.dispatch(actions.endTurn({}));
-
-      playCardPlace();
       store.dispatch(
         actions.playCard({
           player: draggable.player,
@@ -127,7 +164,6 @@ export default function(watcher: Watcher) {
           row: dropTarget.row,
         }),
       );
-      await doNextTurn(store, controls.turnPlayer, swapPlayers);
     }
   });
 }
@@ -160,11 +196,11 @@ async function doNextTurn(
     if (r < b) {
       message = `Player ${colorName(Color.Red)} has won! (${r} vs ${
         b
-      } for blue)`;
+      } for ${colorName(Color.Blue)})`;
     } else if (b < r) {
       message = `Player ${colorName(Color.Blue)} has won! (${b} vs ${
         r
-      } for red)`;
+      } for ${colorName(Color.Red)})`;
     }
 
     store.dispatch(

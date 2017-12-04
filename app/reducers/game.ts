@@ -125,7 +125,7 @@ const initialReducer = reducer<IGameState>(initialState, on => {
     };
   });
 
-  on(actions.playCard, (state, action) => {
+  on(actions.cardPlayed, (state, action) => {
     return applyMove(state, action.payload);
   });
 });

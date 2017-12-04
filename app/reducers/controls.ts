@@ -23,7 +23,6 @@ export default reducer<IControlsState>(initialState, on => {
   on(actions.doneDealing, (state, action) => {
     return {
       ...state,
-      awaitingInput: true,
     };
   });
   on(actions.endTurn, (state, action) => {

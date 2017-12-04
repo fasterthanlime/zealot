@@ -116,7 +116,7 @@ class PlayArea extends React.PureComponent<IProps & IDerivedProps> {
           height: `${deckMetrics.height + 20}px`,
           opacity: hiding ? 1 : 0,
         };
-        covers.push(<CoverDiv style={coverStyle} />);
+        covers.push(<CoverDiv key={`cover-${color}`} style={coverStyle} />);
       }
 
       let metricIndex = 0;

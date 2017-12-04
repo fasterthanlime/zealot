@@ -41,6 +41,7 @@ export const types = mirror({
   EXIT_SQUARE: null,
 
   PLAY_CARD: null,
+  CARD_PLAYED: null,
   END_TURN: null,
   NEXT_TURN: null,
   PASS: null,
@@ -100,6 +101,7 @@ export interface IPlayCardPayload {
   row: number;
 }
 export const playCard = createAction<IPlayCardPayload>(types.PLAY_CARD);
+export const cardPlayed = createAction<IPlayCardPayload>(types.CARD_PLAYED);
 
 export const endTurn = createAction<{}>(types.END_TURN);
 export const nextTurn = createAction<{

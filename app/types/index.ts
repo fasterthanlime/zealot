@@ -247,8 +247,10 @@ export const cardCounts = {
 };
 
 export const playerColors = {
-  [Color.Red]: "#c5632d", // actually orange
-  [Color.Blue]: "#3e5a1e", // actually green
+  // [Color.Red]: "#c5632d", // actually orange
+  [Color.Red]: "#ff9861", // actually orange
+  // [Color.Blue]: "#3e5a1e", // actually green
+  [Color.Blue]: "#8ec44f", // actually green
   [Color.Neutral]: "#101010", // pretty much black
   default: "black",
 };

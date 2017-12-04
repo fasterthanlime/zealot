@@ -42,7 +42,7 @@ const SquareDiv = styled.div`
     bottom: 0;
     right: 0;
     transform-style: preserve-3d;
-    background-size: 90% auto;
+    background-size: 100% auto;
     background-position: 50% 50%;
     background-repeat: no-repeat;
     backface-visibility: hidden;
