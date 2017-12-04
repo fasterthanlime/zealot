@@ -43,11 +43,6 @@ function main() {
   document.addEventListener("mouseup", () => {
     store.dispatch(actions.dragEnd({}));
   });
-
-  document.addEventListener("mousemove", e => {
-    const x = e.clientX;
-    const y = e.clientY;
-  });
 }
 
 main();
