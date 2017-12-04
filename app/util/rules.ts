@@ -87,34 +87,35 @@ export function applyMove(
       };
     }
 
-    board = withChangedSquare(board, col, row, {
-      ...makeNeutralSquare(),
-    });
+    board = {
+      ...board,
+      squares: [...board.squares],
+    };
+    board.squares[row * board.numCols + col] = makeNeutralSquare();
+
     trashPile = [...trashPile, { color: player, card }];
   } else {
     discard(previousSquare);
 
-    board = withChangedSquare(board, col, row, {
-      card,
-      color: player,
-    });
+    board = {
+      ...board,
+      squares: [...board.squares],
+    };
+    board.squares[row * board.numCols + col] = { card, color: player };
 
     const areaType = getCardAreaType(previousSquare.card);
     forEachAreaSquare(board, col, row, areaType, (col, row, square) => {
       switch (card.suit) {
         case Suit.Goblin:
           // destroy all the things!
-          board = setSquare(board, col, row, oldSquare => {
-            discard(oldSquare);
-            return makeNeutralSquare();
-          });
+          board.squares[row * board.numCols + col] = makeNeutralSquare();
           break;
         case Suit.Priest:
           // swap all the things!
-          board = withChangedSquare(board, col, row, {
+          board.squares[row * board.numCols + col] = {
             card: square.card,
             color: swapColor(square.color),
-          });
+          };
           break;
       }
     });
