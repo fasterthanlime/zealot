@@ -16,12 +16,10 @@ import {
 
 import { warning, info } from "react-notification-system-redux";
 import { playCardFlick, playCardPlace } from "../util/sounds";
-import { simulateGame, Outcome, randomPlay } from "../util/rules";
+import { playAI } from "../util/rules";
 
 const dealWait = 80;
 const animDuration = 600;
-const clearDuration = 1000;
-// const aiThinkTime = 1000;
 
 const aiColor = Color.Red;
 
@@ -34,30 +32,17 @@ export default function(watcher: Watcher) {
       const rs = store.getState();
       let { game } = rs;
 
-      let tries = 5000;
       let startTime = Date.now();
 
-      let outcomes: any = {
-        Draw: 0,
-        Neutral: 0,
-        Loss: 0,
-        Win: 0,
-      };
-      let totalOutcomes = 0;
-
-      for (let k = 0; k < tries; k++) {
-        const outcome = simulateGame(game, aiColor);
-        outcomes[Outcome[outcome]]++;
-        totalOutcomes++;
-      }
-
+      const node = playAI(game, aiColor);
       store.dispatch(
         actions.updateAi({
           thinking: false,
-          winChance: outcomes.Win / totalOutcomes,
+          winChance: node.wins / node.plays,
         }),
       );
-      store.dispatch(actions.playCard(randomPlay(game, aiColor)));
+      store.dispatch(actions.playCard(node.play));
+
       let endTime = Date.now();
       console.log(`executed AI in ${endTime - startTime}ms`);
     }
@@ -184,14 +169,6 @@ async function doNextTurn(
   previousPlayer: Color,
   swapPlayers: boolean,
 ) {
-  setTimeout(() => {
-    try {
-      store.dispatch(actions.clearEffects({}));
-    } catch (e) {
-      // meh
-    }
-  }, clearDuration);
-
   const rs = store.getState();
   if (hasEmptyDeck(rs, Color.Red) && hasEmptyDeck(rs, Color.Blue)) {
     const r = rs.game.counts[Color.Red];
@@ -221,8 +198,7 @@ async function doNextTurn(
   }
 
   if (swapPlayers) {
-    // double delay!
-    await delay(animDuration * 2);
+    await delay(animDuration);
   }
   let nextPlayer = swapPlayers ? swapColor(previousPlayer) : previousPlayer;
   if (hasEmptyDeck(rs, nextPlayer)) {

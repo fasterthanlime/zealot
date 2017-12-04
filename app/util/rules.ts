@@ -170,11 +170,6 @@ export function computeScore(game: IGameState, color: Color): number {
 
 // AI stuff!
 
-export interface IPotentialPlay {
-  play: IPlayCardPayload;
-  benefit: number;
-}
-
 function formatCard(card: ICard, color: Color): string {
   if (!card) {
     return "<empty>";
@@ -225,6 +220,7 @@ export interface IPotentialGame {
 }
 
 import { random } from "underscore";
+import * as _ from "underscore";
 
 export function swapOutcome(outcome: Outcome): Outcome {
   if (outcome === Outcome.Win) {
@@ -278,6 +274,30 @@ export function randomPlay(game: IGameState, player: Color): IPlayCardPayload {
   return play;
 }
 
+export function legalPlays(
+  game: IGameState,
+  player: Color,
+): IPlayCardPayload[] {
+  // pass is always part of the legal plays
+  let plays: IPlayCardPayload[] = [];
+  const cards = game.decks[player].cards;
+  for (let index = 0; index < cards.length; index++) {
+    for (let col = 0; col < game.board.numCols; col++) {
+      for (let row = 0; row < game.board.numRows; row++) {
+        const play = { col, row, index, player };
+        if (isValidMove(game, play)) {
+          plays.push(play);
+        }
+      }
+    }
+  }
+  if (plays.length === 0) {
+    // then we can pass
+    plays.push(null);
+  }
+  return plays;
+}
+
 export function simulateGame(game: IGameState, player: Color): Outcome {
   const nextGame = applyMove(game, randomPlay(game, player));
   const outcome = computeOutcome(nextGame, player);
@@ -286,4 +306,180 @@ export function simulateGame(game: IGameState, player: Color): Outcome {
   } else {
     return outcome;
   }
+}
+
+// monte-carlo tree search, woo!
+
+export interface MCNode {
+  // root play is ignored!
+  play: IPlayCardPayload;
+  wins: number;
+  plays: number;
+
+  children: MCNode[];
+}
+export type MCPath = number[];
+
+export function bestPlay(root: MCNode) {}
+
+export function playAI(game: IGameState, player: Color): MCNode {
+  let root: MCNode = {
+    play: null,
+    wins: 0,
+    plays: 0,
+    children: [],
+  };
+
+  // exploration parameter, typically sqrt(2)
+  const c = Math.sqrt(2);
+
+  const select = (root: MCNode): MCPath => {
+    let path: MCPath = [];
+    let n = root;
+
+    while (true) {
+      // leaf node!
+      if (n.children.length === 0) {
+        return path;
+      }
+
+      let untriedIndices: number[] = [];
+      let bestIndex = -1;
+      let bestValue = -1;
+
+      let Ni = 0;
+      for (const child of n.children) {
+        Ni += child.plays;
+      }
+
+      for (let index = 0; index < n.children.length; index++) {
+        let child = n.children[index];
+        if (child.plays === 0) {
+          // untried nodes should be done first!
+          untriedIndices.push(index);
+        } else {
+          let wi = child.wins;
+          const ni = child.plays;
+
+          // see https://en.wikipedia.org/wiki/Monte_Carlo_tree_search#Exploration_and_exploitation
+          const value = wi / ni + c * Math.sqrt(Math.log(Ni) / ni);
+          if (value > bestValue) {
+            bestIndex = index;
+            bestValue = value;
+          }
+        }
+      }
+
+      // if any were untried, pick one at random
+      if (untriedIndices.length > 0) {
+        bestIndex = _.sample(untriedIndices);
+      }
+
+      n = n.children[bestIndex];
+      path.push(bestIndex);
+    }
+  };
+
+  let deadline = 3000;
+  let startTime = Date.now();
+  let iterations = 0;
+  while (true) {
+    if (Date.now() - startTime > deadline) {
+      // woop, it's time
+      break;
+    }
+    iterations++;
+
+    // Phase 1: select!
+    let path = select(root);
+    let node = root;
+
+    let currentGame = game;
+    for (const childIndex of path) {
+      let child = node.children[childIndex];
+      currentGame = applyMove(currentGame, child.play);
+      node = child;
+    }
+
+    // Phase 2: expand!
+    {
+      const oddPathSize = path.length % 2 === 1;
+      const nodePlayer = oddPathSize ? swapColor(player) : player;
+
+      let outcome = computeOutcome(currentGame, nodePlayer);
+      if (outcome === Outcome.Neutral) {
+        let plays = legalPlays(currentGame, nodePlayer);
+        for (const play of plays) {
+          let childNode: MCNode = {
+            play,
+            plays: 0,
+            wins: 0,
+            children: [],
+          };
+          node.children.push(childNode);
+        }
+        let chosenChildIndex = _.random(0, node.children.length - 1);
+        path.push(chosenChildIndex);
+        let child = node.children[chosenChildIndex];
+        currentGame = applyMove(currentGame, child.play);
+        node = child;
+      }
+    }
+
+    // Phase 3: simulate!
+    let nodePlayer: Color;
+    {
+      const oddPathSize = path.length % 2 === 1;
+      nodePlayer = oddPathSize ? swapColor(player) : player;
+    }
+    const playout = simulateGame(game, nodePlayer);
+
+    // Phase 4: backpropagation!
+    let countWins = playout === Outcome.Win || playout === Outcome.Loss;
+    let winnerRemain = 0;
+    if (player !== nodePlayer) {
+      winnerRemain = 1 - winnerRemain;
+    }
+    if (playout === Outcome.Loss) {
+      winnerRemain = 1 - winnerRemain;
+    }
+
+    let propNode = root;
+    root.plays++;
+
+    for (let i = 0; i < path.length; i++) {
+      let distanceFromRoot = i + 1;
+      propNode = propNode.children[path[i]];
+      propNode.plays++;
+      if (countWins) {
+        if (distanceFromRoot % 2 === winnerRemain) {
+          propNode.wins++;
+        }
+      }
+    }
+  }
+
+  console.log(`tree (${iterations} iterations):`, root);
+
+  let bestWins = Number.MAX_SAFE_INTEGER;
+  let bestNode: MCNode = null;
+  for (const child of root.children) {
+    if (child.wins < bestWins) {
+      console.log(`${child.wins} < ${bestWins}, play wins:`, child.play);
+      bestWins = child.wins;
+      bestNode = child;
+    }
+  }
+
+  if (!bestNode) {
+    console.warn(`has no best node, had to pick at random`);
+    bestNode = _.sample(root.children);
+  }
+
+  console.log(
+    `best node leads to ${bestNode.wins}/${
+      bestNode.plays
+    } wins for other player (${root.plays} plays total)`,
+  );
+  return bestNode;
 }

@@ -25,9 +25,9 @@ const initialState: IGameState = {
 
 const initialReducer = reducer<IGameState>(initialState, on => {
   on(actions.newGame, (state, action) => {
-    const deckSize = 8;
+    const deckSize = 7;
     let board = {
-      numCols: 4,
+      numCols: 3,
       numRows: 3,
       squares: [],
     };
@@ -57,9 +57,45 @@ const initialReducer = reducer<IGameState>(initialState, on => {
       }));
     };
 
+    let aiDeck: IDeal[] = [
+      {
+        color: Color.Red,
+        card: {
+          id: genid(),
+          suit: Suit.MarksmanR,
+        },
+      },
+      {
+        color: Color.Red,
+        card: {
+          id: genid(),
+          suit: Suit.Priest,
+        },
+      },
+    ];
+
+    let myDeck: IDeal[] = [
+      {
+        color: Color.Blue,
+        card: {
+          id: genid(),
+          suit: Suit.Peasant,
+        },
+      },
+      {
+        color: Color.Blue,
+        card: {
+          id: genid(),
+          suit: Suit.Priest,
+        },
+      },
+    ];
+
     let deals = shuffle<IDeal>([
-      ...generateDeck(Color.Blue),
       ...generateDeck(Color.Red),
+      ...generateDeck(Color.Blue),
+      // ...aiDeck,
+      // ...myDeck,
     ]);
 
     return {
