@@ -51,7 +51,15 @@ const CoverDiv = styled.div`
   transition: transform 0.32s, opacity 0.32s;
 `;
 
-class PlayArea extends React.PureComponent<IProps & IDerivedProps> {
+class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
+  constructor(props, context) {
+    super(props, context);
+    this.state = {
+      clientX: 0,
+      clientY: 0,
+    };
+  }
+
   render() {
     const { system, metrics, game } = this.props;
     if (!metrics.decks) {
@@ -136,9 +144,9 @@ class PlayArea extends React.PureComponent<IProps & IDerivedProps> {
         metricIndex++;
 
         if (draggedCard && draggedCard.id === card.id) {
-          const { mouse } = controls;
-          const x = mouse.x - SquareWidth * 0.5;
-          const y = mouse.y - SquareHeight * 0.5;
+          const { clientX, clientY } = this.state;
+          const x = clientX - SquareWidth * 0.5;
+          const y = clientY - SquareHeight * 0.5;
           cardStyle.transform = `translate3d(${x}px, ${
             y
           }px, 40px) rotateX(0deg)`;
@@ -272,6 +280,35 @@ class PlayArea extends React.PureComponent<IProps & IDerivedProps> {
   onPass = () => {
     this.props.pass({});
   };
+
+  componentWillReceiveProps(nextProps: IProps & IDerivedProps) {
+    if (this.props.controls.draggable) {
+      if (!nextProps.controls.draggable) {
+        console.log("drag end!");
+        document.removeEventListener("mousemove", this.onMouseMove);
+      }
+    } else {
+      if (nextProps.controls.draggable) {
+        // TODO: set initial clientX/clientY
+        console.log("drag start!");
+        document.addEventListener("mousemove", this.onMouseMove);
+      }
+    }
+  }
+
+  onMouseMove = (e: MouseEvent) => {
+    const { clientX, clientY } = e;
+    console.log("mouse at ", clientX, clientY);
+    this.setState({
+      clientX,
+      clientY,
+    });
+  };
+}
+
+interface IState {
+  clientX: number;
+  clientY: number;
 }
 
 interface IProps {}

@@ -110,13 +110,6 @@ export const nextTurn = createAction<{
 
 export const pass = createAction<{}>(types.PASS);
 
-// TODO: make that a local listener instead, just don't change
-// the state every time
-export const mouseMove = createAction<{
-  x: number;
-  y: number;
-}>(types.MOUSE_MOVE);
-
 export const invalidMove = createAction<{
   col: number;
   row: number;

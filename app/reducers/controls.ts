@@ -6,10 +6,6 @@ const initialState: IControlsState = {
   draggable: null,
   dropSeq: -1,
   dropTarget: null,
-  mouse: {
-    x: 0,
-    y: 0,
-  },
   turnPlayer: Color.Red,
   awaitingInput: false,
 };
@@ -68,12 +64,6 @@ export default reducer<IControlsState>(initialState, on => {
     return {
       ...state,
       dropTarget: null,
-    };
-  });
-  on(actions.mouseMove, (state, action) => {
-    return {
-      ...state,
-      mouse: action.payload,
     };
   });
 });

@@ -45,12 +45,8 @@ function main() {
   });
 
   document.addEventListener("mousemove", e => {
-    store.dispatch(
-      actions.mouseMove({
-        x: e.clientX,
-        y: e.clientY,
-      }),
-    );
+    const x = e.clientX;
+    const y = e.clientY;
   });
 }
 

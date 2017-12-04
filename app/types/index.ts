@@ -88,10 +88,6 @@ export interface IControlsState {
     valid: boolean;
     areaType: AreaType;
   };
-  mouse: {
-    x: number;
-    y: number;
-  };
   turnPlayer: Color;
   awaitingInput: boolean;
 }
