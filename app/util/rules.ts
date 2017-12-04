@@ -130,20 +130,6 @@ export function applyMove(
   return state;
 }
 
-export function computeBenefit(
-  game1: IGameState,
-  game2: IGameState,
-  color: Color,
-): number {
-  const opponentColor = swapColor(color);
-  const before =
-    computeScore(game1, color) - computeScore(game1, opponentColor);
-  const after = computeScore(game2, color) - computeScore(game2, opponentColor);
-
-  const pointsGain = after - before;
-  return -pointsGain; // since we want to minimize
-}
-
 export function computeScore(game: IGameState, color: Color): number {
   let score = 0;
 
