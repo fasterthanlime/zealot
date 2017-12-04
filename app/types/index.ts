@@ -218,29 +218,45 @@ export function colorName(color: Color): string {
   return "Neutral";
 }
 
-const rPeasant = require("../images/cards/Rpeasant.png").default;
-console.log("rPeasant = ", rPeasant);
+// fusebox workaround :'(
+const Rpeasant = require("../images/cards/Rpeasant.png").default;
+const Rmartyr = require("../images/cards/Rmartyr.png").default;
+const Rmonk = require("../images/cards/Rmonk.png").default;
+const Rmarksmanl = require("../images/cards/Rmarksmanl.png").default;
+const Rmarksmanr = require("../images/cards/Rmarksmanr.png").default;
+const Rpriest = require("../images/cards/Rpriest.png").default;
+const Rgoblin = require("../images/cards/Rgoblin.png").default;
+const Rnecromancer = require("../images/cards/Rnecromancer.png").default;
+
+const Bpeasant = require("../images/cards/Bpeasant.png").default;
+const Bmartyr = require("../images/cards/Bmartyr.png").default;
+const Bmonk = require("../images/cards/Bmonk.png").default;
+const Bmarksmanl = require("../images/cards/Bmarksmanl.png").default;
+const Bmarksmanr = require("../images/cards/Bmarksmanr.png").default;
+const Bpriest = require("../images/cards/Bpriest.png").default;
+const Bgoblin = require("../images/cards/Bgoblin.png").default;
+const Bnecromancer = require("../images/cards/Bnecromancer.png").default;
 
 export const cardGraphics = {
   [Color.Red]: {
-    [Suit.Peasant]: require("../images/cards/Rpeasant.png").default,
-    [Suit.Martyr]: require("../images/cards/Rmartyr.png").default,
-    [Suit.Monk]: require("../images/cards/Rmonk.png").default,
-    [Suit.MarksmanL]: require("../images/cards/Rmarksmanl.png").default,
-    [Suit.MarksmanR]: require("../images/cards/Rmarksmanr.png").default,
-    [Suit.Priest]: require("../images/cards/Rpriest.png").default,
-    [Suit.Goblin]: require("../images/cards/Rgoblin.png").default,
-    [Suit.Necromancer]: require("../images/cards/Rnecromancer.png").default,
+    [Suit.Peasant]: Rpeasant,
+    [Suit.Martyr]: Rmartyr,
+    [Suit.Monk]: Rmonk,
+    [Suit.MarksmanL]: Rmarksmanl,
+    [Suit.MarksmanR]: Rmarksmanr,
+    [Suit.Priest]: Rpriest,
+    [Suit.Goblin]: Rgoblin,
+    [Suit.Necromancer]: Rnecromancer,
   },
   [Color.Blue]: {
-    [Suit.Peasant]: require("../images/cards/Bpeasant.png").default,
-    [Suit.Martyr]: require("../images/cards/Bmartyr.png").default,
-    [Suit.Monk]: require("../images/cards/Bmonk.png").default,
-    [Suit.MarksmanL]: require("../images/cards/Bmarksmanl.png").default,
-    [Suit.MarksmanR]: require("../images/cards/Bmarksmanr.png").default,
-    [Suit.Priest]: require("../images/cards/Bpriest.png").default,
-    [Suit.Goblin]: require("../images/cards/Bgoblin.png").default,
-    [Suit.Necromancer]: require("../images/cards/Bnecromancer.png").default,
+    [Suit.Peasant]: Bpeasant,
+    [Suit.Martyr]: Bmartyr,
+    [Suit.Monk]: Bmonk,
+    [Suit.MarksmanL]: Bmarksmanl,
+    [Suit.MarksmanR]: Bmarksmanr,
+    [Suit.Priest]: Bpriest,
+    [Suit.Goblin]: Bgoblin,
+    [Suit.Necromancer]: Bnecromancer,
   },
 };
 
