@@ -313,6 +313,7 @@ export function simulateGame(game: IGameState, player: Color): Outcome {
 export interface MCNode {
   // root play is ignored!
   play: IPlayCardPayload;
+  player: Color;
   wins: number;
   plays: number;
 
@@ -325,6 +326,7 @@ export function bestPlay(root: MCNode) {}
 export function playAI(game: IGameState, player: Color): MCNode {
   let root: MCNode = {
     play: null,
+    player: swapColor(player),
     wins: 0,
     plays: 0,
     children: [],
@@ -380,7 +382,7 @@ export function playAI(game: IGameState, player: Color): MCNode {
     }
   };
 
-  let deadline = 3000;
+  let deadline = 5000;
   let startTime = Date.now();
   let iterations = 0;
   while (true) {
@@ -393,25 +395,26 @@ export function playAI(game: IGameState, player: Color): MCNode {
     // Phase 1: select!
     let path = select(root);
     let node = root;
+    let backpath: MCNode[] = [root];
 
     let currentGame = game;
     for (const childIndex of path) {
       let child = node.children[childIndex];
       currentGame = applyMove(currentGame, child.play);
       node = child;
+      backpath = [node, ...backpath];
     }
 
     // Phase 2: expand!
     {
-      const oddPathSize = path.length % 2 === 1;
-      const nodePlayer = oddPathSize ? swapColor(player) : player;
-
-      let outcome = computeOutcome(currentGame, nodePlayer);
+      let outcome = computeOutcome(currentGame, node.player);
       if (outcome === Outcome.Neutral) {
-        let plays = legalPlays(currentGame, nodePlayer);
+        let nextPlayer = swapColor(node.player);
+        let plays = legalPlays(currentGame, nextPlayer);
         for (const play of plays) {
           let childNode: MCNode = {
             play,
+            player: nextPlayer,
             plays: 0,
             wins: 0,
             children: [],
@@ -423,37 +426,27 @@ export function playAI(game: IGameState, player: Color): MCNode {
         let child = node.children[chosenChildIndex];
         currentGame = applyMove(currentGame, child.play);
         node = child;
+        backpath = [node, ...backpath];
       }
     }
 
-    // Phase 3: simulate!
-    let nodePlayer: Color;
-    {
-      const oddPathSize = path.length % 2 === 1;
-      nodePlayer = oddPathSize ? swapColor(player) : player;
-    }
-    const playout = simulateGame(game, nodePlayer);
+    // Phase 3: simulate (after 'node', starting with the other player)
+    let playoutPlayer = swapColor(node.player);
+    const playoutOutcome = simulateGame(currentGame, playoutPlayer);
 
     // Phase 4: backpropagation!
-    let countWins = playout === Outcome.Win || playout === Outcome.Loss;
-    let winnerRemain = 0;
-    if (player !== nodePlayer) {
-      winnerRemain = 1 - winnerRemain;
-    }
-    if (playout === Outcome.Loss) {
-      winnerRemain = 1 - winnerRemain;
-    }
+    const win = playoutOutcome === Outcome.Win;
+    const loss = playoutOutcome === Outcome.Loss;
+    let countWins = win || loss;
 
-    let propNode = root;
-    root.plays++;
-
-    for (let i = 0; i < path.length; i++) {
-      let distanceFromRoot = i + 1;
-      propNode = propNode.children[path[i]];
-      propNode.plays++;
+    for (const node of backpath) {
+      node.plays++;
       if (countWins) {
-        if (distanceFromRoot % 2 === winnerRemain) {
-          propNode.wins++;
+        if (win && node.player === playoutPlayer) {
+          node.wins++;
+        }
+        if (loss && node.player !== playoutPlayer) {
+          node.wins++;
         }
       }
     }
@@ -461,11 +454,11 @@ export function playAI(game: IGameState, player: Color): MCNode {
 
   console.log(`tree (${iterations} iterations):`, root);
 
-  let bestWins = Number.MAX_SAFE_INTEGER;
+  let bestWins = 0;
   let bestNode: MCNode = null;
   for (const child of root.children) {
-    if (child.wins < bestWins) {
-      console.log(`${child.wins} < ${bestWins}, play wins:`, child.play);
+    if (child.wins > bestWins) {
+      console.log(`${child.wins} > ${bestWins}, play wins:`, child.play);
       bestWins = child.wins;
       bestNode = child;
     }
@@ -477,9 +470,13 @@ export function playAI(game: IGameState, player: Color): MCNode {
   }
 
   console.log(
-    `best node leads to ${bestNode.wins}/${
-      bestNode.plays
-    } wins for other player (${root.plays} plays total)`,
+    `best node leads to ${bestNode.wins}/${bestNode.plays} wins (${
+      root.plays
+    } plays total, ${(
+      root.wins /
+      root.plays *
+      100
+    ).toFixed()}% wins for other player)`,
   );
   return bestNode;
 }
