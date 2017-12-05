@@ -43,12 +43,18 @@ const AIInfo = styled.div`
   left: 80px;
   color: white;
   background: rgba(0, 0, 0, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  border-radius: 4px;
+
+  transition: transform 0.4s, opacity 0.4s;
   transform: translate3d(0, 0, 40px);
+  opacity: 1;
+
+  &.hidden {
+    transform: translate3d(0, 0, -40px);
+    opacity: 0;
+  }
 `;
 
-const AIInfo2 = styled.div`
+const SpinnerContainer = styled.div`
   position: absolute;
   top: 80px;
   left: 50%;
@@ -56,6 +62,105 @@ const AIInfo2 = styled.div`
   pointer-events: none;
   color: white;
   transform: translate3d(-50%, 0, 80px);
+`;
+
+const difficultyLevels = [
+  [1, "Little baby"],
+  [2, "Big baby"],
+  [4, "Peasant"],
+  [8, "Monk (recommended)"],
+  [16, "Marksman"],
+  [32, "Goblin"],
+  [64, "Priest"],
+  [128, "Necromancer"],
+];
+
+function formatDifficulty(value: number): string {
+  for (const lv of difficultyLevels) {
+    if (lv[0] === value) {
+      return lv[1] as string;
+    }
+  }
+  return "?";
+}
+
+const OptionsDiv = styled.div`
+  position: absolute;
+  padding: 40px;
+
+  width: 50%;
+  height: 80%;
+
+  top: 50%;
+  left: 50%;
+
+  transform: translate3d(-50%, -50%, 120px);
+  opacity: 1;
+  transition: transform 0.4s, opacity 0.4s;
+
+  font-size: 15px;
+  line-height: 1.4;
+
+  &.hidden {
+    transform: translate3d(-50%, -50%, -120px);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  image-rendering: optimizeSpeed; /* Legal fallback */
+  image-rendering: -moz-crisp-edges; /* Firefox        */
+  image-rendering: -o-crisp-edges; /* Opera          */
+  image-rendering: -webkit-optimize-contrast; /* Safari         */
+  image-rendering: optimize-contrast; /* CSS3 Proposed  */
+  image-rendering: crisp-edges; /* CSS4 Proposed  */
+  image-rendering: pixelated; /* CSS4 Proposed  */
+  -ms-interpolation-mode: nearest-neighbor; /* IE8+           */
+
+  background: #121212;
+  box-shadow: 0 0 40px #121212;
+
+  a {
+    &,
+    &:visited {
+      color: #e766ff;
+      text-decoration: none;
+
+      .icon {
+        margin-left: 8px;
+      }
+    }
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+`;
+
+const Course = styled.div`
+  column-count: 2;
+  border-bottom: 1px solid white;
+`;
+
+const Buttons = styled.div`
+  text-align: center;
+`;
+
+const Button = styled.div`
+  border: 2px solid white;
+  border-radius: 2px;
+  background: #232323;
+  padding: 12px 40px;
+  margin: 12px;
+
+  &.large {
+    font-size: 28px;
+  }
+
+  &:hover {
+    cursor: pointer;
+  }
+
+  display: inline-block;
 `;
 
 const Spinner = styled.div`
@@ -303,6 +408,10 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
     }
 
     const { ai } = this.props;
+    let aiInfoClass = "";
+    if (ai.optionsOpen) {
+      aiInfoClass = "hidden";
+    }
 
     return (
       <WrapperDiv style={wrapperStyle}>
@@ -312,39 +421,120 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
         {passes}
         {covers}
         <ReactHint persist events />
-        <AIInfo>
-          <div style={{ fontSize: "140%" }}>
+        <AIInfo className={aiInfoClass}>
+          <div style={{ fontSize: "180%" }}>
             AI {ai.wins}
             {" · "}
             You {ai.losses}
             {" · "}
             Draws {ai.draws}
           </div>
-          Whoever has the least amount of cards<br />
-          on the board at the end of the game wins. Good luck!<br />
           {ai.itersPerSec} AI win chance: {(ai.winChance * 100).toFixed()}%
           <br />
-          Difficulty:
-          {this.renderSelect(ai.level, [
-            [1, "Little baby"],
-            [2, "Big baby"],
-            [4, "Peasant"],
-            [8, "Monk"],
-            [16, "Marksman"],
-            [32, "Goblin"],
-            [64, "Priest"],
-            [128, "Necromancer"],
-          ])}{" "}
-          ({ai.level * aiLevelFactor}s AI rounds)
+          Difficulty: {formatDifficulty(ai.level)}
+          <Buttons>
+            <Button onClick={this.onOptions}>Options</Button>
+          </Buttons>
         </AIInfo>
         {ai.thinking ? (
-          <AIInfo2>
+          <SpinnerContainer>
             <Spinner />
-          </AIInfo2>
+          </SpinnerContainer>
         ) : null}
+        {this.renderOptions()}
       </WrapperDiv>
     );
   }
+
+  renderOptions(): JSX.Element {
+    let className = "";
+    const { ai } = this.props;
+    if (!ai.optionsOpen) {
+      className = "hidden";
+    }
+
+    return (
+      <OptionsDiv className={className}>
+        <h1>Zealot</h1>
+        <Course>
+          <p>
+            Whoever has the least amount of cards on the board at the end of the
+            game wins. You can get rid of cards by destroying them (Goblin
+            card), converting them (Priest card), or playing another card over
+            them.
+          </p>
+          <p>
+            Cards are played by dragging them from your deck (the blue one at
+            the bottom) to the board. If the move is illegal, the square will be
+            highlighted in red. If your move might affect several squares, all
+            the affected will be highlighted in white.
+          </p>
+          <p>
+            Goblin and Priest cards have a different area of effect depending on
+            which card they're played. A Goblin played on a Marksman can wipe
+            out a whole row! A Priest on a well-placed Monk can be devastating.
+          </p>
+          <p>
+            Civilian cards like peasants and monks can only be placed on empty
+            squares. However, Marksman cards, while they don't have an immediate
+            effect, can be placed over any other card.
+          </p>
+          <p>
+            Good luck! And don't forget to turn up the difficulty level if it's
+            too easy for you!
+          </p>
+        </Course>
+        <h2>Options</h2>
+        Difficulty level: {this.renderSelect(ai.level, difficultyLevels)}
+        {" — "}
+        {ai.level * aiLevelFactor}s AI rounds
+        <h2>Credits</h2>
+        <ul>
+          <li>
+            Amos Wenger (game design & programming)
+            <a target="_blank" href="https://twitter.com/fasterthanlime">
+              <span className="icon icon-feather" />
+            </a>
+            <a target="_blank" href="https://fasterthanlime.itch.io/">
+              <span className="icon icon-stars" />
+            </a>
+          </li>
+          <li>
+            Corinne Fenoglio (card artwork & play-testing)
+            <a target="_blank" href="https://twitter.com/nalhue_">
+              <span className="icon icon-feather" />
+            </a>
+            <a target="_blank" href="https://www.instagram.com/nalhue_art/">
+              <span className="icon icon-stars" />
+            </a>
+          </li>
+        </ul>
+        <p>
+          Made with love for{" "}
+          <a href="https://ldjam.com/" target="_blank">
+            Ludum Dare #40
+          </a>
+        </p>
+        <Buttons>
+          <Button className="large" onClick={this.onPlay}>
+            Play
+          </Button>
+        </Buttons>
+      </OptionsDiv>
+    );
+  }
+
+  onOptions = () => {
+    this.props.updateAi({
+      optionsOpen: true,
+    });
+  };
+
+  onPlay = () => {
+    this.props.updateAi({
+      optionsOpen: false,
+    });
+  };
 
   renderSelect(selectedValue: number, values: any[]): JSX.Element {
     const options: JSX.Element[] = [];

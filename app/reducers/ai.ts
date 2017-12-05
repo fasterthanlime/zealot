@@ -10,6 +10,7 @@ const initialState: IAIState = {
   losses: 0,
   draws: 0,
   level: 1,
+  optionsOpen: true,
 };
 
 export default reducer<IAIState>(initialState, on => {

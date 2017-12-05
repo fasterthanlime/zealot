@@ -79,6 +79,7 @@ export interface IAIState {
   losses: number;
   draws: number;
   level: number;
+  optionsOpen: boolean;
 }
 
 export interface IDecks {
