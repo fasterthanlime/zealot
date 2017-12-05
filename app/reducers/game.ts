@@ -110,36 +110,6 @@ const initialReducer = reducer<IGameState>(initialState, on => {
     };
   });
 
-  on(actions.invalidMove, (state, action) => {
-    let board = state.board;
-
-    const { col, row } = action.payload;
-    const square = getSquare(board, col, row);
-    board = withChangedSquare(board, col, row, {
-      ...square,
-    });
-
-    return {
-      ...state,
-      board,
-    };
-  });
-
-  on(actions.clearEffects, (state, action) => {
-    let board = state.board;
-    board = {
-      ...board,
-      cards: map(board.cards, square => ({
-        ...square,
-      })),
-    };
-
-    return {
-      ...state,
-      board,
-    };
-  });
-
   on(actions.cardPlayed, (state, action) => {
     return applyMove(state, action.payload);
   });

@@ -28,6 +28,8 @@ import { aiLevelFactor } from "../util/rules";
 const ReactHintFactory = require("react-hint");
 const ReactHint = ReactHintFactory(React);
 
+const inDev = (process.NODE_ENV = "development");
+
 const WrapperDiv = styled.div`
   position: relative;
   perspective: 600px;
@@ -85,6 +87,11 @@ function formatDifficulty(value: number): string {
 }
 
 const OptionsDiv = styled.div`
+  user-select: initial;
+  -moz-user-select: initial;
+  -webkit-user-select: initial;
+  -ms-user-select: initial;
+
   position: absolute;
   padding: 40px;
 
@@ -429,8 +436,11 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
             {" · "}
             Draws {ai.draws}
           </div>
-          {ai.itersPerSec} AI win chance: {(ai.winChance * 100).toFixed()}%
-          <br />
+          {inDev ? (
+            <div>
+              {ai.itersPerSec} AI win chance: {(ai.winChance * 100).toFixed()}%
+            </div>
+          ) : null}
           Difficulty: {formatDifficulty(ai.level)}
           <Buttons>
             <Button onClick={this.onOptions}>Options</Button>

@@ -126,8 +126,6 @@ export default function(watcher: Watcher) {
               )} (a civilian) on empty squares!`,
             }),
           );
-          await delay(animDuration);
-          store.dispatch(actions.clearEffects({}));
           return;
         }
       }
