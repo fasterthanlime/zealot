@@ -80,6 +80,7 @@ export interface IAIState {
   draws: number;
   level: number;
   optionsOpen: boolean;
+  musicEnabled: boolean;
 }
 
 export interface IDecks {

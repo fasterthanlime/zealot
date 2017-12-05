@@ -47,7 +47,7 @@ const fuse = FuseBox.init({
     CopyPlugin({
       files: [
         "images/**/*.png",
-        "sfx/*.wav",
+        "music/*.ogg",
         "sfx/*.ogg"
       ],
     }),

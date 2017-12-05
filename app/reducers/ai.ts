@@ -11,6 +11,7 @@ const initialState: IAIState = {
   draws: 0,
   level: 1,
   optionsOpen: true,
+  musicEnabled: true,
 };
 
 export default reducer<IAIState>(initialState, on => {
