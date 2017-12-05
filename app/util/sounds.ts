@@ -58,10 +58,12 @@ export function watchMusic(store: IStore) {
 
   setInterval(() => {
     const enabled = store.getState().ai.musicEnabled;
-    if (!enabled && currentSong) {
+    if (!enabled) {
       currentPlaylist.length = 0;
-      currentSong.stop();
-      currentSong = null;
+      if (currentSong) {
+        currentSong.stop();
+        currentSong = null;
+      }
       return;
     }
 

@@ -495,9 +495,21 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
           </p>
         </Course>
         <h2>Options</h2>
-        Difficulty level: {this.renderSelect(ai.level, difficultyLevels)}
-        {" — "}
-        {ai.level * aiLevelFactor}s AI rounds
+        <div>
+          Difficulty level: {this.renderSelect(ai.level, difficultyLevels)}
+          {" — "}
+          {ai.level * aiLevelFactor}s AI rounds
+        </div>
+        <div>
+          <label>
+            <input
+              type="checkbox"
+              checked={ai.musicEnabled}
+              onChange={this.onMusicChange}
+            />{" "}
+            Enable music
+          </label>
+        </div>
         <h2>Credits</h2>
         <ul>
           <li>
@@ -533,6 +545,12 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
       </OptionsDiv>
     );
   }
+
+  onMusicChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
+    this.props.updateAi({
+      musicEnabled: ev.currentTarget.checked,
+    });
+  };
 
   onOptions = () => {
     this.props.updateAi({
