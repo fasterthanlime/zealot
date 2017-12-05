@@ -15,7 +15,7 @@ import {
 } from "../types/index";
 
 import { warning, info } from "react-notification-system-redux";
-import { playCardFlick, playCardPlace } from "../util/sounds";
+import { playCardFlick, playCardPlace, playSound } from "../util/sounds";
 import { playAI } from "../util/rules";
 
 const dealWait = 0;
@@ -184,6 +184,7 @@ async function doNextTurn(
         }),
       );
       message = `AI won!`;
+      playSound("lose", 1);
     } else if (b < r) {
       store.dispatch(
         actions.updateAi({
@@ -191,6 +192,7 @@ async function doNextTurn(
         }),
       );
       message = `You won!`;
+      playSound("win", 1);
     } else {
       store.dispatch(
         actions.updateAi({

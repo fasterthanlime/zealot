@@ -13,6 +13,9 @@ let sounds = {
   cardplace3: new Howl({ src: require("../sfx/cardplace3.ogg").default }),
   cardplace4: new Howl({ src: require("../sfx/cardplace4.ogg").default }),
   cardplace5: new Howl({ src: require("../sfx/cardplace5.ogg").default }),
+
+  win1: new Howl({ volume: 0.6, src: require("../sfx/win.ogg").default }),
+  lose1: new Howl({ volume: 0.6, src: require("../sfx/lose.ogg").default }),
 };
 
 let musics = {
