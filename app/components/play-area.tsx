@@ -28,7 +28,7 @@ import { aiLevelFactor } from "../util/rules";
 const ReactHintFactory = require("react-hint");
 const ReactHint = ReactHintFactory(React);
 
-const inDev = (process.NODE_ENV = "development");
+const inDev = location.hostname === "localhost";
 
 const WrapperDiv = styled.div`
   position: relative;
