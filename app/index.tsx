@@ -7,7 +7,7 @@ import { theme, ThemeProvider } from "./components/styles";
 import store from "./store";
 import { Provider } from "react-redux";
 import * as actions from "./actions";
-import { playSound, watchMusic } from "./util/sounds";
+import { watchMusic } from "./util/sounds";
 
 require("./global-styles.css");
 require("./icomoon/style.css");

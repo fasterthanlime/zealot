@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "classnames": "^2.2.5",
-    "favicon-notification": "^0.1.4",
+    "favico.js": "^0.3.10",
     "howler": "^2.0.5",
     "nanoid": "^1.0.1",
     "react": "^16.0.0",

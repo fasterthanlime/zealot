@@ -23,6 +23,22 @@ const animDuration = 600;
 
 const aiColor = Color.Red;
 
+const iconPath = require("../images/favicon.png").default;
+
+(function() {
+  var link = (document.querySelector("link[rel*='icon']") ||
+    document.createElement("link")) as any;
+  link.type = "image/png";
+  link.rel = "shortcut icon";
+  link.href = iconPath;
+  document.getElementsByTagName("head")[0].appendChild(link);
+})();
+
+const Favico = require("favico.js");
+const favicon = new Favico({
+  animation: "slide",
+});
+
 export default function(watcher: Watcher) {
   watcher.on(actions.nextTurn, async (store, action) => {
     if (action.payload.turnPlayer === aiColor) {
@@ -34,6 +50,7 @@ export default function(watcher: Watcher) {
 
       const node = playAI(store, game, aiColor);
       store.dispatch(actions.playCard(node.play));
+      favicon.badge(1);
     }
   });
 
@@ -106,6 +123,8 @@ export default function(watcher: Watcher) {
   });
 
   watcher.on(actions.dragEnd, async (store, action) => {
+    favicon.reset();
+
     const { controls, game } = store.getState();
     store.dispatch(actions.dragClear({}));
 

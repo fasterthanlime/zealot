@@ -21,7 +21,6 @@ const outFolder = `public/${environment}`;
 const fuse = FuseBox.init({
   homeDir: "app",
   output: outFolder + "/$name.js",
-  // sourceMaps: isDevelopment,
   sourceMaps: false,
   hash: !isDevelopment,
   plugins: [
@@ -47,12 +46,13 @@ const fuse = FuseBox.init({
     CopyPlugin({
       files: [
         "images/**/*.png",
+        "images/*.png",
         "music/*.ogg",
         "sfx/*.ogg"
       ],
     }),
     WebIndexPlugin({
-      title: "Zealot — LD 40",
+      title: "Zealot",
       template: "./app/index.template.html"
     }),
     !isDevelopment &&
