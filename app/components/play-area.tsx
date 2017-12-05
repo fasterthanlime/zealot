@@ -14,6 +14,8 @@ import {
   forEachAreaSquare,
   IAIState,
   playerColors,
+  Suit,
+  AreaType,
 } from "../types/index";
 import { connect } from "./connect";
 
@@ -36,15 +38,34 @@ const WrapperDiv = styled.div`
   transform-style: preserve-3d;
 `;
 
+const ScoreBoard = styled.div`
+  border: inset 1px solid rgba(255, 255, 255, 0.4);
+  background: #212121;
+  border-radius: 4px;
+  display: inline-block;
+  margin-bottom: 0.7em;
+
+  padding: 4px 12px;
+
+  &.red {
+    background: ${playerColors[Color.Red]};
+  }
+
+  &.blue {
+    background: ${playerColors[Color.Blue]};
+  }
+`;
+
 const AIInfo = styled.div`
   font-size: 16px;
   line-height: 1.4;
-  padding: 12px;
+  padding: 12px 20px;
   position: fixed;
   top: 40px;
   left: 80px;
   color: white;
-  background: rgba(0, 0, 0, 0.7);
+  background: #121212;
+  box-shadow: 0 0 40px #121212;
 
   transition: transform 0.4s, opacity 0.4s;
   transform: translate3d(0, 0, 40px);
@@ -54,6 +75,14 @@ const AIInfo = styled.div`
     transform: translate3d(0, 0, -40px);
     opacity: 0;
   }
+`;
+
+const Separator = styled.div`
+  width: 2px;
+  margin: 0 8px;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.5);
+  display: inline-block;
 `;
 
 const SpinnerContainer = styled.div`
@@ -153,7 +182,8 @@ const Buttons = styled.div`
 `;
 
 const Button = styled.div`
-  border: 2px solid white;
+  border: 1px solid #afa9a933;
+  box-shadow: 0 0 1px black;
   border-radius: 2px;
   background: #232323;
   padding: 12px 40px;
@@ -256,12 +286,23 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
 
       const cdt = controls.dropTarget;
       if (cdt) {
+        let at = cdt.areaType;
+        if (
+          draggedCard.suit === Suit.Goblin ||
+          draggedCard.suit === Suit.Priest
+        ) {
+          // show the full area
+        } else {
+          // just highlight a single square
+          at = AreaType.Single;
+        }
+
         invalidDropTarget = !cdt.valid;
         forEachAreaSquare(
           game.board,
           cdt.col,
           cdt.row,
-          cdt.areaType,
+          at,
           (col, row, card) => {
             litSquares[row * board.numCols + col] = true;
           },
@@ -435,21 +476,24 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
         {covers}
         <ReactHint persist events />
         <AIInfo className={aiInfoClass}>
-          <div style={{ fontSize: "180%" }}>
-            AI {ai.wins}
-            {" · "}
-            You {ai.losses}
-            {" · "}
-            Draws {ai.draws}
+          <div style={{ fontSize: "180%", textAlign: "center" }}>
+            <ScoreBoard className="red">{ai.wins}</ScoreBoard>
+            <Separator />
+            <ScoreBoard>{ai.draws}</ScoreBoard>
+            <Separator />
+            <ScoreBoard className="blue">{ai.losses}</ScoreBoard>
           </div>
           {inDev ? (
             <div>
               {ai.itersPerSec} AI win chance: {(ai.winChance * 100).toFixed()}%
             </div>
           ) : null}
-          Difficulty: {formatDifficulty(ai.level)}
+          Difficulty: {formatDifficulty(ai.level)} ({ai.level * aiLevelFactor}s
+          AI rounds)
           <Buttons>
-            <Button onClick={this.onOptions}>Options</Button>
+            <Button className="small" onClick={this.onOptions}>
+              Options
+            </Button>
           </Buttons>
         </AIInfo>
         {ai.thinking ? (
