@@ -156,6 +156,7 @@ export enum Outcome {
 
 import { random } from "underscore";
 import * as _ from "underscore";
+import { delay } from "../reactors/game";
 
 export function swapOutcome(outcome: Outcome): Outcome {
   if (outcome === Outcome.Win) {
@@ -270,7 +271,11 @@ const c = Math.sqrt(2);
 
 export const aiLevelFactor = 0.25;
 
-export function playAI(store: IStore, game: IGameState, player: Color): MCNode {
+export async function playAI(
+  store: IStore,
+  game: IGameState,
+  player: Color,
+): Promise<MCNode> {
   let root: MCNode = {
     play: null,
     player: swapColor(player),
@@ -505,11 +510,20 @@ export function playAI(store: IStore, game: IGameState, player: Color): MCNode {
   let deadline = store.getState().ai.level * aiLevelFactor * 1000;
   let startTime = Date.now();
   let iterations = 0;
+  let sleepInterval = 0;
   while (true) {
-    if (Date.now() - startTime > deadline) {
+    let sinceStart = Date.now() - startTime;
+    if (sinceStart > deadline) {
       // woop, it's time
       break;
     }
+
+    let sleepIntervalNew = Math.ceil(sinceStart / 500);
+    if (sleepIntervalNew > sleepInterval) {
+      // sleep for a bit, just in case the UI needs to update or something
+      await delay(50);
+    }
+
     iterations++;
 
     // Phase 1: select!

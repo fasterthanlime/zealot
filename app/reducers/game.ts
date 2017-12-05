@@ -1,7 +1,6 @@
 import reducer from "./reducer";
 import {
   IGameState,
-  withChangedSquare,
   Color,
   Suit,
   getSquare,

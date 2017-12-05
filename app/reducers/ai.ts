@@ -9,7 +9,7 @@ const initialState: IAIState = {
   wins: 0,
   losses: 0,
   draws: 0,
-  level: 1,
+  level: 4,
   optionsOpen: true,
   musicEnabled: true,
 };

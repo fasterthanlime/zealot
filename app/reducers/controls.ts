@@ -6,7 +6,7 @@ const initialState: IControlsState = {
   draggable: null,
   dropSeq: -1,
   dropTarget: null,
-  turnPlayer: Color.Red,
+  turnPlayer: Color.Blue,
   awaitingInput: false,
 };
 

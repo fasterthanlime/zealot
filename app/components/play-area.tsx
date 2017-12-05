@@ -69,8 +69,8 @@ const SpinnerContainer = styled.div`
 const difficultyLevels = [
   [1, "Little baby"],
   [2, "Big baby"],
-  [4, "Peasant"],
-  [8, "Monk (recommended)"],
+  [4, "Peasant (recommended)"],
+  [8, "Monk"],
   [16, "Marksman"],
   [32, "Goblin"],
   [64, "Priest"],
@@ -158,6 +158,12 @@ const Button = styled.div`
   background: #232323;
   padding: 12px 40px;
   margin: 12px;
+
+  &.small {
+    font-size: 13px;
+    padding: 4px 12px;
+    margin: 8px;
+  }
 
   &.large {
     font-size: 28px;
@@ -497,8 +503,6 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
         <h2>Options</h2>
         <div>
           Difficulty level: {this.renderSelect(ai.level, difficultyLevels)}
-          {" — "}
-          {ai.level * aiLevelFactor}s AI rounds
         </div>
         <div>
           <label>
@@ -538,6 +542,9 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
           </a>
         </p>
         <Buttons>
+          <Button className="small" onClick={this.onReset}>
+            Reset game
+          </Button>
           <Button className="large" onClick={this.onPlay}>
             Play
           </Button>
@@ -545,6 +552,12 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
       </OptionsDiv>
     );
   }
+
+  onReset = () => {
+    if (window.confirm("Are you sure you want to reset the game?")) {
+      window.location.reload();
+    }
+  };
 
   onMusicChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
     this.props.updateAi({
@@ -567,7 +580,12 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
   renderSelect(selectedValue: number, values: any[]): JSX.Element {
     const options: JSX.Element[] = [];
     for (const value of values) {
-      options.push(<option value={value[0]}>{value[1]}</option>);
+      options.push(
+        <option value={value[0]}>
+          {value[1]} {" — "}
+          {value[0] * aiLevelFactor}s AI rounds
+        </option>,
+      );
     }
 
     return (

@@ -48,7 +48,7 @@ export default function(watcher: Watcher) {
       const rs = store.getState();
       let { game } = rs;
 
-      const node = playAI(store, game, aiColor);
+      const node = await playAI(store, game, aiColor);
       store.dispatch(actions.playCard(node.play));
       favicon.badge(1);
     }
@@ -72,7 +72,7 @@ export default function(watcher: Watcher) {
       const { dealPile } = store.getState().game;
       if (dealPile.length === 0) {
         store.dispatch(actions.doneDealing({}));
-        store.dispatch(actions.nextTurn({ turnPlayer: Color.Red }));
+        store.dispatch(actions.nextTurn({ turnPlayer: Color.Blue }));
         return;
       }
 
@@ -160,7 +160,7 @@ export default function(watcher: Watcher) {
   });
 }
 
-async function delay(ms: number): Promise<void> {
+export async function delay(ms: number): Promise<void> {
   return new Promise<void>((resolve, reject) => {
     setTimeout(resolve, ms);
   });
