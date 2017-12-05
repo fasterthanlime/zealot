@@ -7,8 +7,8 @@ import {
 } from "../types/index";
 import { SquareHeight, SquareWidth } from "../components/square";
 
-const deckMargin = 8;
-const playAreaMargin = 4;
+const deckMargin = 0;
+const playAreaMargin = 0;
 const globalMargin = 8;
 
 export function getMetrics(rs: IRootState): IMetricsState {

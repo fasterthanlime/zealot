@@ -34,7 +34,6 @@ const inDev = location.hostname === "localhost";
 
 const WrapperDiv = styled.div`
   position: relative;
-  perspective: 600px;
   transform-style: preserve-3d;
 `;
 
@@ -59,16 +58,14 @@ const ScoreBoard = styled.div`
 const AIInfo = styled.div`
   font-size: 16px;
   line-height: 1.4;
-  padding: 12px 20px;
+  padding: 6px 12px;
   position: fixed;
-  top: 40px;
-  left: 80px;
+  top: 50%;
+  left: 0;
   color: white;
-  background: #121212;
-  box-shadow: 0 0 40px #121212;
 
   transition: transform 0.4s, opacity 0.4s;
-  transform: translate3d(0, 0, 40px);
+  transform: translate3d(0, -50%, 40px);
   opacity: 1;
 
   &.hidden {
@@ -98,7 +95,7 @@ const SpinnerContainer = styled.div`
 const difficultyLevels = [
   [1, "Little baby"],
   [2, "Big baby"],
-  [4, "Peasant (recommended)"],
+  [4, "Peasant"],
   [8, "Monk"],
   [16, "Marksman"],
   [32, "Goblin"],
@@ -122,10 +119,12 @@ const OptionsDiv = styled.div`
   -ms-user-select: initial;
 
   position: absolute;
-  padding: 40px;
+  padding: 20px 10px;
 
-  width: 50%;
-  height: 80%;
+  width: 80%;
+  max-width: 800px;
+  overflow-y: auto;
+  max-height: 90%;
 
   top: 50%;
   left: 50%;
@@ -476,7 +475,7 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
         {covers}
         <ReactHint persist events />
         <AIInfo className={aiInfoClass}>
-          <div style={{ fontSize: "180%", textAlign: "center" }}>
+          <div style={{ fontSize: "120%", textAlign: "center" }}>
             <ScoreBoard className="red">{ai.wins}</ScoreBoard>
             <Separator />
             <ScoreBoard>{ai.draws}</ScoreBoard>
@@ -485,11 +484,11 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
           </div>
           {inDev ? (
             <div>
-              {ai.itersPerSec} AI win chance: {(ai.winChance * 100).toFixed()}%
+              {ai.itersPerSec}
+              <br />AI chance: {(ai.winChance * 100).toFixed()}%
             </div>
           ) : null}
-          Difficulty: {formatDifficulty(ai.level)} ({ai.level * aiLevelFactor}s
-          AI rounds)
+          {formatDifficulty(ai.level)}
           <Buttons>
             <Button className="small" onClick={this.onOptions}>
               Options
@@ -581,7 +580,10 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
         </ul>
         <p>
           Made with love for{" "}
-          <a href="https://ldjam.com/" target="_blank">
+          <a
+            href="https://ldjam.com/events/ludum-dare/40/zealot"
+            target="_blank"
+          >
             Ludum Dare #40
           </a>
         </p>
