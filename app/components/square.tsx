@@ -16,7 +16,7 @@ const SquareDiv = styled.div`
   width: ${SquareWidth}px;
   height: ${SquareHeight}px;
   opacity: 1;
-  transition: transform 0.4s;
+  transition: transform .9s;
 
   .turner {
     border: 1px solid #343434;
@@ -25,7 +25,7 @@ const SquareDiv = styled.div`
     position: relative;
     width: 100%;
     height: 100%;
-    transition: transform 0.4s;
+    transition: transform 0.8s;
     transform-style: preserve-3d;
 
     &.Peasant {
