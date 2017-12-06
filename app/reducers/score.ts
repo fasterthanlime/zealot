@@ -21,12 +21,12 @@ export default reducer<IScoreState>(initialState, on => {
       case Outcome.Loss:
         return {
           ...state,
-          wins: state.wins + 1,
+          wins: state.losses + 1,
         };
       case Outcome.Draw:
         return {
           ...state,
-          wins: state.wins + 1,
+          wins: state.draws + 1,
         };
     }
   });

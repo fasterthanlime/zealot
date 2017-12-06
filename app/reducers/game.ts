@@ -12,11 +12,8 @@ import { sample, map, shuffle } from "underscore";
 import { genid } from "../util/genid";
 import { applyMove } from "../util/rules";
 
-// const deckSize = 6;
-// const specialDeckSize = 3;
-
-const deckSize = 1;
-const specialDeckSize = 2;
+const deckSize = 6;
+const specialDeckSize = 3;
 
 const boardNumCols = 4;
 const boardNumRows = 3;
@@ -86,7 +83,7 @@ export default reducer<IGameState>(initialState, on => {
     };
 
     let deals = shuffle<ICard>([
-      ...generateDeck(Color.Red),
+      // ...generateDeck(Color.Red),
       ...generateDeck(Color.Blue),
     ]);
 

@@ -7,7 +7,6 @@ import {
   swapColor,
   IStore,
   Color,
-  IRootState,
   AreaType,
   getDraggedCard,
   getCardAreaType,
@@ -17,7 +16,13 @@ import {
 
 import { warning, info } from "react-notification-system-redux";
 import { playCardFlick, playCardPlace, playSound } from "../util/sounds";
-import { playAI, computeOutcome, Outcome } from "../util/rules";
+import {
+  playAI,
+  computeOutcome,
+  Outcome,
+  applyMove,
+  hasLegalPlays,
+} from "../util/rules";
 
 const dealWait = 250;
 const gameOverWait = 1000;
@@ -48,6 +53,11 @@ export default function(watcher: Watcher) {
       let { game } = rs;
 
       const node = await playAI(store, game, aiColor);
+      store.dispatch(
+        actions.updateAi({
+          thinking: false,
+        }),
+      );
       store.dispatch(actions.playCard(node.play));
       favicon.badge(1);
     }
@@ -86,12 +96,31 @@ export default function(watcher: Watcher) {
     const { col, row } = play;
     const card = game.decks[play.player][play.index];
 
+    let who = play.player === aiColor ? "AI" : "You";
+    let nextGame = applyMove(lastMove.game, lastMove.play);
+    let outcome = computeOutcome(nextGame, lastMove.play.player);
+
+    let consequence = ".";
+    if (outcome === Outcome.Win) {
+      consequence = " and won.";
+    } else if (outcome === Outcome.Loss) {
+      consequence = " and lost.";
+    } else if (outcome === Outcome.Draw) {
+      consequence = " and forced a draw.";
+    }
+
+    let onWhat = "empty square";
+    const bcard = getSquare(game.board, col, row);
+    if (bcard) {
+      onWhat = `${colorName(bcard.color)} ${suitName(bcard.suit)}`;
+    }
+
     store.dispatch(
       info({
         title: "Action replay",
-        message: `${Color[play.player]} played a ${suitName(card.suit)} at ${
+        message: `${who} played a ${suitName(card.suit)} on ${onWhat} at ${
           col
-        },${row}`,
+        },${row}${consequence}`,
       }),
     );
 
@@ -114,6 +143,13 @@ export default function(watcher: Watcher) {
         }),
       );
       store.dispatch(actions.cardPlayed(action.payload));
+    } else {
+      store.dispatch(
+        info({
+          title: "Passing",
+          message: `${colorName(rs.controls.turnPlayer)} player passed`,
+        }),
+      );
     }
 
     await doNextTurn(store, rs.controls.turnPlayer, true);
@@ -217,55 +253,23 @@ async function doNextTurn(
   swapPlayers: boolean,
 ) {
   const rs = store.getState();
-  if (hasEmptyDeck(rs, Color.Red) && hasEmptyDeck(rs, Color.Blue)) {
+
+  let nextPlayer = swapPlayers ? swapColor(previousPlayer) : previousPlayer;
+  if (
+    !hasLegalPlays(rs.game, nextPlayer) &&
+    !hasLegalPlays(rs.game, swapColor(nextPlayer))
+  ) {
     let playerOutcome = computeOutcome(rs.game, swapColor(aiColor));
-    let message = `It's a draw!`;
 
     if (playerOutcome === Outcome.Win) {
-      store.dispatch(
-        actions.updateAi({
-          losses: rs.ai.losses + 1,
-        }),
-      );
-      message = `You won!`;
       playSound("win", 1);
     } else if (playerOutcome === Outcome.Loss) {
-      store.dispatch(
-        actions.updateAi({
-          wins: rs.ai.wins + 1,
-        }),
-      );
-      message = `AI won!`;
       playSound("lose", 1);
-    } else {
-      store.dispatch(
-        actions.updateAi({
-          draws: rs.ai.draws + 1,
-        }),
-      );
     }
-
-    store.dispatch(
-      info({
-        title: "Game over!",
-        message,
-      }),
-    );
 
     await delay(gameOverWait);
     store.dispatch(actions.gameOver({ outcome: playerOutcome }));
     return;
-  }
-
-  let nextPlayer = swapPlayers ? swapColor(previousPlayer) : previousPlayer;
-  if (hasEmptyDeck(rs, nextPlayer)) {
-    store.dispatch(
-      info({
-        title: "Passing",
-        message: `${colorName(nextPlayer)} has no cards left.`,
-      }),
-    );
-    nextPlayer = swapColor(nextPlayer);
   }
 
   store.dispatch(
@@ -273,8 +277,4 @@ async function doNextTurn(
       turnPlayer: nextPlayer,
     }),
   );
-}
-
-function hasEmptyDeck(rs: IRootState, color: Color): boolean {
-  return rs.game.decks[color].length == 0;
 }

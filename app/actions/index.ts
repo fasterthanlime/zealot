@@ -1,12 +1,4 @@
-import {
-  IAction,
-  Color,
-  AreaType,
-  IAIState,
-  IGameState,
-  IScoreState,
-  ILastMove,
-} from "../types/index";
+import { IAction, Color, AreaType, IAIState, ILastMove } from "../types/index";
 import { Outcome } from "../util/rules";
 
 export function createAction<PayloadType>(type: string) {

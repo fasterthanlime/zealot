@@ -77,12 +77,20 @@ const OutcomeInfo = styled.div`
   position: fixed;
   top: 50%;
   left: 50%;
+  min-width: 50%;
+  min-height: 50%;
 
+  box-shadow: 0 0 40px black;
   background: black;
   color: white;
-  opacity: 0.6;
+  opacity: 0.7;
 
   pointer-events: initial;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 
   transform: translate3d(-50%, -50%, 0);
 `;
@@ -144,7 +152,7 @@ class UI extends React.PureComponent<IProps & IDerivedProps> {
             {firstRound ? (
               <p>Ready when you are!</p>
             ) : (
-              <p>Game result: {Outcome[controls.outcome]}</p>
+              <p>{formatOutcome(controls.outcome)}</p>
             )}
 
             <Buttons>
@@ -218,6 +226,19 @@ function formatDifficulty(value: number): string {
     }
   }
   return "?";
+}
+
+function formatOutcome(outcome: Outcome): string {
+  switch (outcome) {
+    case Outcome.Win:
+      return "You won!";
+    case Outcome.Loss:
+      return "You lost! But there's always next time :)";
+    case Outcome.Draw:
+      return "It's a draw!";
+    default:
+      return null;
+  }
 }
 
 interface IProps {}

@@ -214,6 +214,7 @@ export function randomPlay(game: IGameState, player: Color): IPlayCardPayload {
 export function legalPlays(
   game: IGameState,
   player: Color,
+  includePass = true,
 ): IPlayCardPayload[] {
   // pass is always part of the legal plays
   let plays: IPlayCardPayload[] = [];
@@ -228,11 +229,16 @@ export function legalPlays(
       }
     }
   }
-  if (plays.length === 0) {
-    // then we can pass
+  if (plays.length === 0 && includePass) {
+    // null means 'pass'
     plays.push(null);
   }
   return plays;
+}
+
+export function hasLegalPlays(game: IGameState, player: Color): boolean {
+  let plays = legalPlays(game, player, false);
+  return plays.length > 0;
 }
 
 export function simulateGame(game: IGameState, player: Color): Outcome {
@@ -265,8 +271,6 @@ export interface MCNode {
 }
 export type MCPath = number[];
 
-export function bestPlay(root: MCNode) {}
-
 // exploration parameter, typically sqrt(2)
 const c = Math.sqrt(2);
 
@@ -277,6 +281,17 @@ export async function playAI(
   game: IGameState,
   player: Color,
 ): Promise<MCNode> {
+  if (!hasLegalPlays(game, player)) {
+    // just pass
+    return <MCNode>{
+      play: null,
+      player,
+      wins: 0,
+      plays: 0,
+      children: null,
+    };
+  }
+
   let root: MCNode = {
     play: null,
     player: swapColor(player),
@@ -623,17 +638,21 @@ export async function playAI(
       100
     ).toFixed()}% wins for other player)`,
   );
-  const card = game.decks[bestNode.player][bestNode.play.index];
-  const bcard = getSquare(game.board, bestNode.play.col, bestNode.play.row);
-  console.log(
-    `it's playing a ${suitName(card.suit)} at ${bestNode.play.col},${
-      bestNode.play.row
-    } over a ${bcard ? suitName(bcard.suit) : "blank"}`,
-  );
+
+  if (bestNode.play) {
+    const card = game.decks[bestNode.player][bestNode.play.index];
+    const bcard = getSquare(game.board, bestNode.play.col, bestNode.play.row);
+    console.log(
+      `it's playing a ${suitName(card.suit)} at ${bestNode.play.col},${
+        bestNode.play.row
+      } over a ${bcard ? suitName(bcard.suit) : "blank"}`,
+    );
+  } else {
+    console.log(`it's passing`);
+  }
 
   store.dispatch(
     actions.updateAi({
-      thinking: false,
       winChance: bestNode.wins / bestNode.plays,
       itersPerSec: `${perSec}K iterations/s`,
     }),
