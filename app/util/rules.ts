@@ -109,6 +109,7 @@ export function applyMove(
       switch (card.suit) {
         case Suit.Goblin:
           // destroy all the things!
+          discard(bcard);
           board.cards[row * board.numCols + col] = null;
           break;
         case Suit.Priest:
