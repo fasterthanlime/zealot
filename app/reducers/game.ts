@@ -12,17 +12,11 @@ import { sample, map, shuffle } from "underscore";
 import { genid } from "../util/genid";
 import { applyMove } from "../util/rules";
 
-// const deckSize = 6;
-// const specialDeckSize = 3;
+const deckSize = 6;
+const specialDeckSize = 3;
 
-const deckSize = 9;
-const specialDeckSize = 0;
-
-// const boardNumCols = 4;
-// const boardNumRows = 3;
-
-const boardNumCols = 2;
-const boardNumRows = 2;
+const boardNumCols = 4;
+const boardNumRows = 3;
 
 const initialState: IGameState = {
   board: {
