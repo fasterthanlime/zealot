@@ -21,7 +21,7 @@ import { connect } from "./connect";
 
 import { map } from "underscore";
 
-import Square, { SquareWidth, SquareHeight } from "./square";
+import Square from "./square";
 import Slot from "./slot";
 import Highlight from "./highlight";
 import * as actions from "../actions";
@@ -77,15 +77,7 @@ document.addEventListener("mousemove", e => {
 
 const allColors = [Color.Red, Color.Blue];
 
-class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
-  constructor(props, context) {
-    super(props, context);
-    this.state = {
-      clientX: 0,
-      clientY: 0,
-    };
-  }
-
+class PlayArea extends React.PureComponent<IProps & IDerivedProps> {
   render() {
     const { system, metrics, game } = this.props;
     const { board } = game;
@@ -179,9 +171,6 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
 
         let dragged = false;
         if (draggedCard && draggedCard.id === card.id) {
-          const { clientX, clientY } = this.state;
-          x = clientX - SquareWidth * 0.5;
-          y = clientY - SquareHeight * 0.5;
           dragged = true;
         }
 
@@ -310,36 +299,6 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
   onPass = () => {
     this.props.playCard(null);
   };
-
-  componentWillReceiveProps(nextProps: IProps & IDerivedProps) {
-    if (this.props.controls.draggable) {
-      if (!nextProps.controls.draggable) {
-        document.removeEventListener("mousemove", this.onMouseMove);
-      }
-    } else {
-      if (nextProps.controls.draggable) {
-        // TODO: set initial clientX/clientY
-        document.addEventListener("mousemove", this.onMouseMove);
-        this.setState({
-          clientX: globalMouse.clientX,
-          clientY: globalMouse.clientY,
-        });
-      }
-    }
-  }
-
-  onMouseMove = (e: MouseEvent) => {
-    const { clientX, clientY } = e;
-    this.setState({
-      clientX,
-      clientY,
-    });
-  };
-}
-
-interface IState {
-  clientX: number;
-  clientY: number;
 }
 
 interface IProps {}

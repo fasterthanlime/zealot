@@ -5,6 +5,7 @@ import { Color, cardGraphics, ICard, tipForCard, Suit } from "../types/index";
 import { connect } from "./connect";
 
 import * as actions from "../actions";
+import { globalMouse } from "./play-area";
 
 const squareFactor = 1.5;
 export const SquareWidth = 90 * squareFactor;
@@ -134,9 +135,22 @@ const SquareDiv = styled.div`
   }
 `;
 
-class Square extends React.PureComponent<IProps & IDerivedProps> {
+class Square extends React.Component<IProps & IDerivedProps, IState> {
+  constructor(props, context) {
+    super(props, context);
+    this.state = {
+      clientX: 0,
+      clientY: 0,
+    };
+  }
+
   render() {
     let { x, y, zIndex, card, draggable, dragged, onBoard } = this.props;
+    if (dragged) {
+      const { clientX, clientY } = this.state;
+      x = clientX - SquareWidth * 0.5;
+      y = clientY - SquareHeight * 0.5;
+    }
 
     const style: React.CSSProperties = {
       transform: `translate(${x}px, ${y}px)`,
@@ -183,6 +197,36 @@ class Square extends React.PureComponent<IProps & IDerivedProps> {
       this.props.dragStart(draggable);
     }
   };
+
+  componentWillReceiveProps(nextProps: IProps & IDerivedProps) {
+    if (this.props.dragged) {
+      if (!nextProps.dragged) {
+        // not being dragged anymore
+        document.removeEventListener("mousemove", this.onMouseMove);
+      }
+    } else {
+      if (nextProps.dragged) {
+        // starting being dragged
+        document.addEventListener("mousemove", this.onMouseMove);
+        this.setState({
+          clientX: globalMouse.clientX,
+          clientY: globalMouse.clientY,
+        });
+      }
+    }
+  }
+
+  onMouseMove = (e: MouseEvent) => {
+    const { clientX, clientY } = e;
+    this.setState({
+      clientX,
+      clientY,
+    });
+  };
+
+  componentWillUnmount() {
+    document.removeEventListener("mousemove", this.onMouseMove);
+  }
 }
 
 interface IProps {
@@ -204,6 +248,11 @@ interface IProps {
 interface IDerivedProps {
   dragStart: typeof actions.dragStart;
   dragEnd: typeof actions.dragEnd;
+}
+
+interface IState {
+  clientX: number;
+  clientY: number;
 }
 
 export enum SquareMode {
