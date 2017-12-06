@@ -55,8 +55,7 @@ const OptionsDiv = styled.div`
 `;
 
 const Course = styled.div`
-  column-count: 2;
-  border-bottom: 1px solid white;
+  border-bottom: 1px solid #373737;
 `;
 
 class Options extends React.PureComponent<IProps & IDerivedProps> {
@@ -69,87 +68,65 @@ class Options extends React.PureComponent<IProps & IDerivedProps> {
 
     return (
       <OptionsDiv className={className}>
-        <h1>Zealot</h1>
         <Course>
           <p>
-            Whoever has the least amount of cards on the board at the end of the
-            game wins. You can get rid of cards by destroying them (Goblin
-            card), converting them (Priest card), or playing another card over
-            them.
+            Cards are played by dragging them from your deck (the bottom one) to
+            the board.
           </p>
           <p>
-            Cards are played by dragging them from your deck (the blue one at
-            the bottom) to the board. If the move is illegal, the square will be
-            highlighted in red. If your move might affect several squares, all
-            the affected will be highlighted in white.
+            <strong>It's normal to lose</strong> - things will get clearer after
+            you play a few games!
           </p>
           <p>
-            Goblin and Priest cards have a different area of effect depending on
-            which card they're played. A Goblin played on a Marksman can wipe
-            out a whole row! A Priest on a well-placed Monk can be devastating.
-          </p>
-          <p>
-            Civilian cards like peasants and monks can only be placed on empty
-            squares. However, Marksman cards, while they don't have an immediate
-            effect, can be placed over any other card.
-          </p>
-          <p>
-            Good luck! And don't forget to turn up the difficulty level if it's
-            too easy for you!
+            Whoever has the <strong>least amount of cards</strong> on the board
+            at the end of the game wins.
           </p>
         </Course>
-        <h2>Options</h2>
-        <div>
-          Difficulty level: {this.renderSelect(ai.level, difficultyLevels)}
-        </div>
-        <div>
-          <label>
-            <input
-              type="checkbox"
-              checked={ai.musicEnabled}
-              onChange={this.onMusicChange}
-            />{" "}
-            Enable music
-          </label>
-        </div>
-        <h2>Credits</h2>
-        <ul>
-          <li>
-            Amos Wenger (game design & programming)
-            <a target="_blank" href="https://twitter.com/fasterthanlime">
-              <span className="icon icon-feather" />
-            </a>
-            <a target="_blank" href="https://fasterthanlime.itch.io/">
-              <span className="icon icon-stars" />
-            </a>
-          </li>
-          <li>
-            Corinne Fenoglio (card artwork & play-testing)
-            <a target="_blank" href="https://twitter.com/nalhue_">
-              <span className="icon icon-feather" />
-            </a>
-            <a target="_blank" href="https://www.instagram.com/nalhue_art/">
-              <span className="icon icon-stars" />
-            </a>
-          </li>
-        </ul>
+        <Course>
+          <h2>Options</h2>
+          <div>Difficulty: {this.renderSelect(ai.level, difficultyLevels)}</div>
+          <div style={{ margin: "1em 0" }}>
+            <label>
+              <input
+                type="checkbox"
+                checked={ai.musicEnabled}
+                onChange={this.onMusicChange}
+              />{" "}
+              Enable music
+            </label>
+          </div>
+          <Buttons>
+            <Button className="small" onClick={this.onReset}>
+              Reset game
+            </Button>
+            <Button className="large" onClick={this.onPlay}>
+              Play Zealot
+            </Button>
+          </Buttons>
+        </Course>
         <p>
-          Made with love for{" "}
+          Zealot was made for{" "}
           <a
             href="https://ldjam.com/events/ludum-dare/40/zealot"
             target="_blank"
           >
-            Ludum Dare #40
+            Ludum Dare 40
+          </a>{" "}
+          by <abbr title="game design, music & programming">Amos Wenger</abbr>
+          <a target="_blank" href="https://twitter.com/fasterthanlime">
+            <span className="icon icon-feather" />
+          </a>
+          <a target="_blank" href="https://fasterthanlime.itch.io/">
+            <span className="icon icon-stars" />
+          </a>{" "}
+          and <abbr title="card art & play testing">Corinne Fenoglio</abbr>
+          <a target="_blank" href="https://twitter.com/nalhue_">
+            <span className="icon icon-feather" />
+          </a>
+          <a target="_blank" href="https://www.instagram.com/nalhue_art/">
+            <span className="icon icon-stars" />
           </a>
         </p>
-        <Buttons>
-          <Button className="small" onClick={this.onReset}>
-            Reset game
-          </Button>
-          <Button className="large" onClick={this.onPlay}>
-            Play
-          </Button>
-        </Buttons>
       </OptionsDiv>
     );
   }
