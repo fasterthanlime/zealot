@@ -532,8 +532,10 @@ export async function playAI(
   let deadline = store.getState().ai.level * aiLevelFactor * 1000;
   let startTime = Date.now();
   let iterations = 0;
-  let sleepInterval = 0;
+  let sleepInterval = 1;
   while (true) {
+    iterations++;
+    if (iterations % 100 === 0) {
     let sinceStart = Date.now() - startTime;
     if (sinceStart > deadline) {
       // woop, it's time
@@ -543,10 +545,10 @@ export async function playAI(
     let sleepIntervalNew = Math.ceil(sinceStart / 500);
     if (sleepIntervalNew > sleepInterval) {
       // sleep for a bit, just in case the UI needs to update or something
-      await delay(50);
+        await delay(10);
+        sleepInterval++;
+      }
     }
-
-    iterations++;
 
     // Phase 1: select!
     let path = select(root);
