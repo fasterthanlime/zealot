@@ -32,9 +32,21 @@ const ReactHint = ReactHintFactory(React);
 
 const inDev = location.hostname === "localhost";
 
+const RootDiv = styled.div`
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+`;
+
 const WrapperDiv = styled.div`
-  position: relative;
+  position: absolute;
   transform-style: preserve-3d;
+
+  &.no-events {
+    pointer-events: none;
+  }
 `;
 
 const ScoreBoard = styled.div`
@@ -64,12 +76,14 @@ const AIInfo = styled.div`
   left: 0;
   color: white;
 
+  pointer-events: initial;
+
   transition: transform 0.4s, opacity 0.4s;
-  transform: translate3d(0, -50%, 40px);
+  transform: translate3d(0, -50%, 0);
   opacity: 1;
 
   &.hidden {
-    transform: translate3d(0, 0, -40px);
+    transform: translate3d(-50%, -50%, 0);
     opacity: 0;
   }
 `;
@@ -118,6 +132,8 @@ const OptionsDiv = styled.div`
   -webkit-user-select: initial;
   -ms-user-select: initial;
 
+  pointer-events: initial;
+
   position: absolute;
   padding: 20px 10px;
 
@@ -129,15 +145,15 @@ const OptionsDiv = styled.div`
   top: 50%;
   left: 50%;
 
-  transform: translate3d(-50%, -50%, 120px);
   opacity: 1;
   transition: transform 0.4s, opacity 0.4s;
+  transform: translate3d(-50%, -50%, 200px);
 
   font-size: 15px;
   line-height: 1.4;
 
   &.hidden {
-    transform: translate3d(-50%, -50%, -120px);
+    transform: translate3d(-50%, -50%, -200px);
     opacity: 0;
     pointer-events: none;
   }
@@ -313,20 +329,17 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
       const ourTurn = color === controls.turnPlayer;
       const deck = game.decks[color];
       const deckMetrics = metrics.decks[color];
-      const xAngle = 6 * (color === Color.Red ? 1 : -1);
 
       {
         let hiding = !(ourTurn && controls.awaitingInput);
-        let z = -4;
+        let z = -180;
         if (hiding) {
-          z = 4;
+          z = 180;
         }
         const x = 0;
         const y = deckMetrics.offset.y;
         const coverStyle: React.CSSProperties = {
-          transform: `translate3d(${x}px, ${y - 10}px, ${z}px) rotateX(${
-            xAngle
-          }deg)`,
+          transform: `translate3d(${x}px, ${y - 10}px, ${z}px)`,
           width: "100%",
           height: `${deckMetrics.height + 20}px`,
           opacity: hiding ? 0.4 : 0,
@@ -347,7 +360,8 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
           transform: `translate3d(${deckMetrics.offset.x +
             deckMetrics.increment.x * metricIndex}px, ${
             deckMetrics.offset.y
-          }px, ${metricIndex * 0.2}px) rotateX(${xAngle}deg)`,
+          }px, ${metricIndex * 0}px)`,
+          zIndex: metricIndex,
         };
         metricIndex++;
 
@@ -356,11 +370,10 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
           const { clientX, clientY } = this.state;
           const x = clientX - SquareWidth * 0.5;
           const y = clientY - SquareHeight * 0.5;
-          cardStyle.transform = `translate3d(${x}px, ${
-            y
-          }px, 40px) rotateX(0deg)`;
+          cardStyle.transform = `translate3d(${x}px, ${y}px, 40px)`;
           cardStyle.transition = "initial";
           cardStyle.pointerEvents = "none";
+          cardStyle.zIndex = 200;
           dragged = true;
         }
 
@@ -404,7 +417,7 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
 
       const cardStyle: React.CSSProperties = {
         transform: `translate3d(${dpo.x}px, ${dpo.y}px, ${dealPile.length -
-          i}px) rotateX(0deg)`,
+          i}px)`,
       };
       cards[card.id] = <Square key={card.id} style={cardStyle} card={card} />;
     }
@@ -416,7 +429,7 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
 
       const cardStyle: React.CSSProperties = {
         transform: `translate3d(${tpo.x}px, ${tpo.y}px, ${trashPile.length -
-          i}px) rotateX(0deg)`,
+          i}px)`,
       };
       cards[card.id] = <Square key={card.id} style={cardStyle} card={card} />;
     }
@@ -426,7 +439,7 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
         const x = metrics.playAreaOffset.x + col * metrics.playAreaIncrement.x;
         const y = metrics.playAreaOffset.y + row * metrics.playAreaIncrement.y;
         const cardStyle: React.CSSProperties = {
-          transform: `translate(${x}px, ${y}px) rotateX(0deg)`,
+          transform: `translate(${x}px, ${y}px)`,
         };
         slots.push(
           <Slot
@@ -467,41 +480,45 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
     }
 
     return (
-      <WrapperDiv style={wrapperStyle}>
-        {slots}
-        {map(Object.keys(cards).sort(), key => cards[key])}
-        {highlights}
-        {passes}
-        {covers}
-        <ReactHint persist events />
-        <AIInfo className={aiInfoClass}>
-          <div style={{ fontSize: "120%", textAlign: "center" }}>
-            <ScoreBoard className="red">{ai.wins}</ScoreBoard>
-            <Separator />
-            <ScoreBoard>{ai.draws}</ScoreBoard>
-            <Separator />
-            <ScoreBoard className="blue">{ai.losses}</ScoreBoard>
-          </div>
-          {inDev ? (
-            <div>
-              {ai.itersPerSec}
-              <br />AI chance: {(ai.winChance * 100).toFixed()}%
+      <RootDiv>
+        <WrapperDiv style={wrapperStyle}>
+          {slots}
+          {map(Object.keys(cards).sort(), key => cards[key])}
+          {highlights}
+          {passes}
+          {covers}
+        </WrapperDiv>
+        <WrapperDiv className="no-events" style={wrapperStyle}>
+          <ReactHint persist events />
+          <AIInfo className={aiInfoClass}>
+            <div style={{ fontSize: "120%", textAlign: "center" }}>
+              <ScoreBoard className="red">{ai.wins}</ScoreBoard>
+              <Separator />
+              <ScoreBoard>{ai.draws}</ScoreBoard>
+              <Separator />
+              <ScoreBoard className="blue">{ai.losses}</ScoreBoard>
             </div>
+            {inDev ? (
+              <div>
+                {ai.itersPerSec}
+                <br />AI chance: {(ai.winChance * 100).toFixed()}%
+              </div>
+            ) : null}
+            {formatDifficulty(ai.level)}
+            <Buttons>
+              <Button className="small" onClick={this.onOptions}>
+                Options
+              </Button>
+            </Buttons>
+          </AIInfo>
+          {ai.thinking ? (
+            <SpinnerContainer>
+              <Spinner />
+            </SpinnerContainer>
           ) : null}
-          {formatDifficulty(ai.level)}
-          <Buttons>
-            <Button className="small" onClick={this.onOptions}>
-              Options
-            </Button>
-          </Buttons>
-        </AIInfo>
-        {ai.thinking ? (
-          <SpinnerContainer>
-            <Spinner />
-          </SpinnerContainer>
-        ) : null}
-        {this.renderOptions()}
-      </WrapperDiv>
+          {this.renderOptions()}
+        </WrapperDiv>
+      </RootDiv>
     );
   }
 

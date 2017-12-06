@@ -43,6 +43,16 @@ function main() {
     store.dispatch(actions.dragEnd({}));
   });
 
+  document.addEventListener("keyup", (ev: KeyboardEvent) => {
+    if (ev.key === "Escape") {
+      store.dispatch(
+        actions.updateAi({
+          optionsOpen: false,
+        }),
+      );
+    }
+  });
+
   watchMusic(store);
 }
 
