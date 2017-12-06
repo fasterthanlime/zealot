@@ -416,3 +416,14 @@ export const playerColors = {
   [Color.Blue]: "#233f45",
   [Color.Red]: "#46150d",
 };
+
+export const difficultyLevels = [
+  [1, "Little baby"],
+  [2, "Big baby"],
+  [4, "Peasant"],
+  [8, "Monk"],
+  [16, "Marksman"],
+  [32, "Goblin"],
+  [64, "Priest"],
+  [128, "Necromancer"],
+];

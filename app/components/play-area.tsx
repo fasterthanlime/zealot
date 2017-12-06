@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import styled, { animations } from "./styles";
+import styled from "./styles";
 import {
   Color,
   ISystemState,
@@ -25,12 +25,8 @@ import Square, { SquareWidth, SquareHeight } from "./square";
 import Slot from "./slot";
 import Highlight from "./highlight";
 import * as actions from "../actions";
-import { aiLevelFactor } from "../util/rules";
 
-const ReactHintFactory = require("react-hint");
-const ReactHint = ReactHintFactory(React);
-
-const inDev = location.hostname === "localhost";
+import UI from "./ui";
 
 const RootDiv = styled.div`
   width: 100%;
@@ -47,189 +43,6 @@ const WrapperDiv = styled.div`
   &.no-events {
     pointer-events: none;
   }
-`;
-
-const ScoreBoard = styled.div`
-  border: inset 1px solid rgba(255, 255, 255, 0.4);
-  background: #212121;
-  border-radius: 4px;
-  display: inline-block;
-  margin-bottom: 0.7em;
-
-  padding: 4px 12px;
-
-  &.red {
-    background: ${playerColors[Color.Red]};
-  }
-
-  &.blue {
-    background: ${playerColors[Color.Blue]};
-  }
-`;
-
-const AIInfo = styled.div`
-  font-size: 16px;
-  line-height: 1.4;
-  padding: 6px 12px;
-  position: fixed;
-  top: 50%;
-  left: 0;
-  color: white;
-
-  pointer-events: initial;
-
-  transition: transform 0.4s, opacity 0.4s;
-  transform: translate3d(0, -50%, 0);
-  opacity: 1;
-
-  &.hidden {
-    transform: translate3d(-50%, -50%, 0);
-    opacity: 0;
-  }
-`;
-
-const Separator = styled.div`
-  width: 2px;
-  margin: 0 8px;
-  height: 100%;
-  background: rgba(255, 255, 255, 0.5);
-  display: inline-block;
-`;
-
-const SpinnerContainer = styled.div`
-  position: absolute;
-  top: 80px;
-  left: 50%;
-  font-size: 80px;
-  pointer-events: none;
-  color: white;
-  transform: translate3d(-50%, 0, 80px);
-`;
-
-const difficultyLevels = [
-  [1, "Little baby"],
-  [2, "Big baby"],
-  [4, "Peasant"],
-  [8, "Monk"],
-  [16, "Marksman"],
-  [32, "Goblin"],
-  [64, "Priest"],
-  [128, "Necromancer"],
-];
-
-function formatDifficulty(value: number): string {
-  for (const lv of difficultyLevels) {
-    if (lv[0] === value) {
-      return lv[1] as string;
-    }
-  }
-  return "?";
-}
-
-const OptionsDiv = styled.div`
-  user-select: initial;
-  -moz-user-select: initial;
-  -webkit-user-select: initial;
-  -ms-user-select: initial;
-
-  pointer-events: initial;
-
-  position: absolute;
-  padding: 20px 10px;
-
-  width: 80%;
-  max-width: 800px;
-  overflow-y: auto;
-  max-height: 90%;
-
-  top: 50%;
-  left: 50%;
-
-  opacity: 1;
-  transition: transform 0.4s, opacity 0.4s;
-  transform: translate3d(-50%, -50%, 200px);
-
-  font-size: 15px;
-  line-height: 1.4;
-
-  &.hidden {
-    transform: translate3d(-50%, -50%, -200px);
-    opacity: 0;
-    pointer-events: none;
-  }
-
-  image-rendering: optimizeSpeed; /* Legal fallback */
-  image-rendering: -moz-crisp-edges; /* Firefox        */
-  image-rendering: -o-crisp-edges; /* Opera          */
-  image-rendering: -webkit-optimize-contrast; /* Safari         */
-  image-rendering: optimize-contrast; /* CSS3 Proposed  */
-  image-rendering: crisp-edges; /* CSS4 Proposed  */
-  image-rendering: pixelated; /* CSS4 Proposed  */
-  -ms-interpolation-mode: nearest-neighbor; /* IE8+           */
-
-  background: #121212;
-  box-shadow: 0 0 40px #121212;
-
-  a {
-    &,
-    &:visited {
-      color: #e766ff;
-      text-decoration: none;
-
-      .icon {
-        margin-left: 8px;
-      }
-    }
-
-    &:hover {
-      text-decoration: underline;
-    }
-  }
-`;
-
-const Course = styled.div`
-  column-count: 2;
-  border-bottom: 1px solid white;
-`;
-
-const Buttons = styled.div`
-  text-align: center;
-`;
-
-const Button = styled.div`
-  border: 1px solid #afa9a933;
-  box-shadow: 0 0 1px black;
-  border-radius: 2px;
-  background: #232323;
-  padding: 12px 40px;
-  margin: 12px;
-
-  &.small {
-    font-size: 13px;
-    padding: 4px 12px;
-    margin: 8px;
-  }
-
-  &.large {
-    font-size: 28px;
-  }
-
-  &:hover {
-    cursor: pointer;
-  }
-
-  display: inline-block;
-`;
-
-const Spinner = styled.div`
-  width: 1em;
-  height: 1em;
-  border: 3px solid white;
-  border-radius: 50%;
-  animation: 1s ${animations.beating} infinite;
-  display: inline-block;
-  margin-right: 4px;
-  background: #171217;
 `;
 
 const PassDiv = styled.div`
@@ -459,7 +272,6 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
           );
         }
 
-        // FIXME: better lookup
         let index = col + row * board.numCols;
         if (litSquares[index]) {
           highlights.push(
@@ -473,12 +285,6 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
       }
     }
 
-    const { ai } = this.props;
-    let aiInfoClass = "";
-    if (ai.optionsOpen) {
-      aiInfoClass = "hidden";
-    }
-
     return (
       <RootDiv>
         <WrapperDiv style={wrapperStyle}>
@@ -488,181 +294,10 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
           {passes}
           {covers}
         </WrapperDiv>
-        <WrapperDiv className="no-events" style={wrapperStyle}>
-          <ReactHint persist events />
-          <AIInfo className={aiInfoClass}>
-            <div style={{ fontSize: "120%", textAlign: "center" }}>
-              <ScoreBoard className="red">{ai.wins}</ScoreBoard>
-              <Separator />
-              <ScoreBoard>{ai.draws}</ScoreBoard>
-              <Separator />
-              <ScoreBoard className="blue">{ai.losses}</ScoreBoard>
-            </div>
-            {inDev ? (
-              <div>
-                {ai.itersPerSec}
-                <br />AI chance: {(ai.winChance * 100).toFixed()}%
-              </div>
-            ) : null}
-            {formatDifficulty(ai.level)}
-            <Buttons>
-              <Button className="small" onClick={this.onOptions}>
-                Options
-              </Button>
-            </Buttons>
-          </AIInfo>
-          {ai.thinking ? (
-            <SpinnerContainer>
-              <Spinner />
-            </SpinnerContainer>
-          ) : null}
-          {this.renderOptions()}
-        </WrapperDiv>
+        <UI />
       </RootDiv>
     );
   }
-
-  renderOptions(): JSX.Element {
-    let className = "";
-    const { ai } = this.props;
-    if (!ai.optionsOpen) {
-      className = "hidden";
-    }
-
-    return (
-      <OptionsDiv className={className}>
-        <h1>Zealot</h1>
-        <Course>
-          <p>
-            Whoever has the least amount of cards on the board at the end of the
-            game wins. You can get rid of cards by destroying them (Goblin
-            card), converting them (Priest card), or playing another card over
-            them.
-          </p>
-          <p>
-            Cards are played by dragging them from your deck (the blue one at
-            the bottom) to the board. If the move is illegal, the square will be
-            highlighted in red. If your move might affect several squares, all
-            the affected will be highlighted in white.
-          </p>
-          <p>
-            Goblin and Priest cards have a different area of effect depending on
-            which card they're played. A Goblin played on a Marksman can wipe
-            out a whole row! A Priest on a well-placed Monk can be devastating.
-          </p>
-          <p>
-            Civilian cards like peasants and monks can only be placed on empty
-            squares. However, Marksman cards, while they don't have an immediate
-            effect, can be placed over any other card.
-          </p>
-          <p>
-            Good luck! And don't forget to turn up the difficulty level if it's
-            too easy for you!
-          </p>
-        </Course>
-        <h2>Options</h2>
-        <div>
-          Difficulty level: {this.renderSelect(ai.level, difficultyLevels)}
-        </div>
-        <div>
-          <label>
-            <input
-              type="checkbox"
-              checked={ai.musicEnabled}
-              onChange={this.onMusicChange}
-            />{" "}
-            Enable music
-          </label>
-        </div>
-        <h2>Credits</h2>
-        <ul>
-          <li>
-            Amos Wenger (game design & programming)
-            <a target="_blank" href="https://twitter.com/fasterthanlime">
-              <span className="icon icon-feather" />
-            </a>
-            <a target="_blank" href="https://fasterthanlime.itch.io/">
-              <span className="icon icon-stars" />
-            </a>
-          </li>
-          <li>
-            Corinne Fenoglio (card artwork & play-testing)
-            <a target="_blank" href="https://twitter.com/nalhue_">
-              <span className="icon icon-feather" />
-            </a>
-            <a target="_blank" href="https://www.instagram.com/nalhue_art/">
-              <span className="icon icon-stars" />
-            </a>
-          </li>
-        </ul>
-        <p>
-          Made with love for{" "}
-          <a
-            href="https://ldjam.com/events/ludum-dare/40/zealot"
-            target="_blank"
-          >
-            Ludum Dare #40
-          </a>
-        </p>
-        <Buttons>
-          <Button className="small" onClick={this.onReset}>
-            Reset game
-          </Button>
-          <Button className="large" onClick={this.onPlay}>
-            Play
-          </Button>
-        </Buttons>
-      </OptionsDiv>
-    );
-  }
-
-  onReset = () => {
-    if (window.confirm("Are you sure you want to reset the game?")) {
-      window.location.reload();
-    }
-  };
-
-  onMusicChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
-    this.props.updateAi({
-      musicEnabled: ev.currentTarget.checked,
-    });
-  };
-
-  onOptions = () => {
-    this.props.updateAi({
-      optionsOpen: true,
-    });
-  };
-
-  onPlay = () => {
-    this.props.updateAi({
-      optionsOpen: false,
-    });
-  };
-
-  renderSelect(selectedValue: number, values: any[]): JSX.Element {
-    const options: JSX.Element[] = [];
-    for (const value of values) {
-      options.push(
-        <option value={value[0]}>
-          {value[1]} {" — "}
-          {value[0] * aiLevelFactor}s AI rounds
-        </option>,
-      );
-    }
-
-    return (
-      <select value={selectedValue} onChange={this.onSelectChange}>
-        {options}
-      </select>
-    );
-  }
-
-  onSelectChange = (ev: React.ChangeEvent<HTMLSelectElement>) => {
-    this.props.updateAi({
-      level: parseInt(ev.currentTarget.value, 10),
-    });
-  };
 
   onPass = () => {
     this.props.playCard(null);
