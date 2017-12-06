@@ -425,7 +425,7 @@ Can be played on empty space or over
 any card, discarding it.
       
 Any Attack card played over it will
-affect all cards to the left of the
+affect all cards to the right of the
 marksman.
 `;
 
