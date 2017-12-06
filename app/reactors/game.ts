@@ -67,7 +67,8 @@ export default function(watcher: Watcher) {
     const rs = store.getState();
     if (
       action.payload.optionsOpen === false &&
-      rs.controls.outcome === Outcome.Neutral
+      rs.controls.outcome === Outcome.Neutral &&
+      rs.controls.hasActiveGame === false
     ) {
       store.dispatch(actions.newGame({}));
     }
@@ -159,7 +160,9 @@ export default function(watcher: Watcher) {
     await delay(dealWait);
     store.dispatch(actions.dealAll({}));
     await delay(dealWait);
-    store.dispatch(actions.nextTurn({ turnPlayer: Color.Blue }));
+    store.dispatch(
+      actions.nextTurn({ turnPlayer: Color.Blue, canPass: false }),
+    );
   });
 
   watcher.on(actions.dragStart, async (store, action) => {
@@ -255,11 +258,13 @@ async function doNextTurn(
   const rs = store.getState();
 
   let nextPlayer = swapPlayers ? swapColor(previousPlayer) : previousPlayer;
-  if (
-    !hasLegalPlays(rs.game, nextPlayer) &&
-    !hasLegalPlays(rs.game, swapColor(nextPlayer))
-  ) {
-    let playerOutcome = computeOutcome(rs.game, swapColor(aiColor));
+  const nextHasLegalPlays = hasLegalPlays(rs.game, nextPlayer);
+  if (!nextHasLegalPlays && !hasLegalPlays(rs.game, swapColor(nextPlayer))) {
+    let playerOutcome = computeOutcome(
+      rs.game,
+      swapColor(aiColor),
+      true /* force outcome */,
+    );
 
     if (playerOutcome === Outcome.Win) {
       playSound("win", 1);
@@ -275,6 +280,7 @@ async function doNextTurn(
   store.dispatch(
     actions.nextTurn({
       turnPlayer: nextPlayer,
+      canPass: !nextHasLegalPlays,
     }),
   );
 }

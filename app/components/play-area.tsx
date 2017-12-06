@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import styled from "./styles";
+import styled, { animations } from "./styles";
 import {
   Color,
   ISystemState,
@@ -28,6 +28,7 @@ import Highlight from "./highlight";
 import * as actions from "../actions";
 
 import UI from "./ui";
+import { Button } from "./button";
 
 const RootDiv = styled.div`
   width: 100%;
@@ -46,18 +47,25 @@ const WrapperDiv = styled.div`
   }
 `;
 
+const PassDivInner = styled.div`
+  animation: 1s ${animations.beating} infinite;
+  text-align: center;
+`;
+
 const PassDiv = styled.div`
   position: absolute;
-  font-size: 28px;
+  font-size: 22px;
   padding: 12px;
   color: white;
   border: 2px solid rgba(255, 255, 255, 0.4);
+  background: rgba(0, 0, 0, 0.8);
   border-radius: 4px;
+  right: 10px;
+  top: 50%;
 
-  &:hover {
-    cursor: pointer;
-    border-color: rgba(255, 255, 255, 0.9);
-  }
+  transform: translate(0, -50%);
+
+  z-index: 1000;
 `;
 
 const CoverDiv = styled.div`
@@ -158,13 +166,11 @@ class PlayArea extends React.PureComponent<IProps & IDerivedProps> {
       }
 
       let metricIndex = 0;
-      let numCards = 0;
       for (let i = 0; i < deck.length; i++) {
         const card = deck[i];
         if (!card) {
           continue;
         }
-        numCards++;
         let x = deckMetrics.offset.x + deckMetrics.increment.x * metricIndex;
         let y = deckMetrics.offset.y;
         let zIndex = metricIndex;
@@ -196,18 +202,15 @@ class PlayArea extends React.PureComponent<IProps & IDerivedProps> {
         );
       }
 
-      if (numCards === 0 && canPlay && controls.awaitingInput) {
-        const passStyle: React.CSSProperties = {
-          transform: `translate(${deckMetrics.offset.x}px, ${
-            deckMetrics.offset.y
-          }px)`,
-        };
+      if (canPlay && controls.awaitingInput && controls.canPass) {
         passes.push(
-          <PassDiv style={passStyle} onClick={this.onPass}>
-            Pass
+          <PassDiv>
+            <p>You have no legal moves available!</p>
+            <PassDivInner>
+              <Button onClick={this.onPass}>Pass turn</Button>
+            </PassDivInner>
           </PassDiv>,
         );
-        deckMetrics.offset.y;
       }
     }
 

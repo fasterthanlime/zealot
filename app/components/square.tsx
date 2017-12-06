@@ -126,7 +126,6 @@ const SquareDiv = styled.div`
 
   &.dragged {
     transition: initial;
-    z-index: 200;
     pointer-events: none;
   }
 
@@ -150,6 +149,7 @@ class Square extends React.Component<IProps & IDerivedProps, IState> {
       const { clientX, clientY } = this.state;
       x = clientX - SquareWidth * 0.5;
       y = clientY - SquareHeight * 0.5;
+      zIndex = 200;
     }
 
     const style: React.CSSProperties = {

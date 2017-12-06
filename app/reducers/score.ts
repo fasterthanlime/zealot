@@ -21,14 +21,16 @@ export default reducer<IScoreState>(initialState, on => {
       case Outcome.Loss:
         return {
           ...state,
-          wins: state.losses + 1,
+          losses: state.losses + 1,
         };
       case Outcome.Draw:
         return {
           ...state,
-          wins: state.draws + 1,
+          draws: state.draws + 1,
         };
     }
+
+    return state;
   });
 
   on(actions.loadState, (state, action) => {

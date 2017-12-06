@@ -17,9 +17,24 @@ export const Button = styled.div`
   padding: 12px 40px;
   margin: 12px;
 
+  opacity: 0.9;
+  transform: scale(1);
+  transition: transform 0.2s;
+
+  &:hover {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+
   &.small {
-    font-size: 13px;
-    padding: 4px 12px;
+    font-size: 16px;
+    padding: 5px 14px;
+    margin: 6px;
+  }
+
+  &.medium {
+    font-size: 20px;
+    padding: 6px 16px;
     margin: 8px;
   }
 

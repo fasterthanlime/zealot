@@ -120,6 +120,7 @@ export const saveState = createAction<ILastMove>(types.SAVE_STATE);
 export const endTurn = createAction<{}>(types.END_TURN);
 export const nextTurn = createAction<{
   turnPlayer: Color;
+  canPass: boolean;
 }>(types.NEXT_TURN);
 
 export const invalidMove = createAction<{

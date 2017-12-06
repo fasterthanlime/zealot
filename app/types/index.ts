@@ -104,6 +104,7 @@ export interface IControlsState {
   hasActiveGame: boolean;
   showOutcome: boolean;
   outcome: Outcome;
+  canPass: boolean;
   lastMove?: ILastMove;
 }
 

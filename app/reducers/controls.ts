@@ -8,6 +8,7 @@ const initialState: IControlsState = {
   dropSeq: -1,
   dropTarget: null,
   turnPlayer: Color.Blue,
+  canPass: false,
   awaitingInput: false,
   hasActiveGame: false,
   showOutcome: true,
@@ -54,8 +55,10 @@ export default reducer<IControlsState>(initialState, on => {
   on(actions.nextTurn, (state, action) => {
     return {
       ...state,
+      canPass: action.payload.canPass,
       turnPlayer: action.payload.turnPlayer,
       awaitingInput: true,
+      hasActiveGame: true,
     };
   });
   on(actions.dragStart, (state, action) => {

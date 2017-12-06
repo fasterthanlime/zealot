@@ -71,7 +71,7 @@ const AIInfo = styled.div`
 `;
 
 const OutcomeInfo = styled.div`
-  font-size: 24px;
+  font-size: 32px;
   line-height: 1.4;
   padding: 12px 24px;
   position: fixed;
@@ -80,10 +80,9 @@ const OutcomeInfo = styled.div`
   min-width: 50%;
   min-height: 50%;
 
-  box-shadow: 0 0 40px black;
-  background: black;
+  text-shadow: 0 0 8px black;
+  background-color: rgba(0, 0, 0, 0.5);
   color: white;
-  opacity: 0.7;
 
   pointer-events: initial;
 
@@ -155,11 +154,15 @@ class UI extends React.PureComponent<IProps & IDerivedProps> {
               <p>{formatOutcome(controls.outcome)}</p>
             )}
 
-            <Buttons>
-              {controls.lastMove ? (
-                <Button onClick={this.onReplay}>Show last move</Button>
-              ) : null}
+            {controls.lastMove ? (
+              <Buttons>
+                <Button className="medium" onClick={this.onReplay}>
+                  Show last move
+                </Button>
+              </Buttons>
+            ) : null}
 
+            <Buttons>
               <Button onClick={this.onNewGame}>
                 {firstRound ? "New game" : "Play again"}
               </Button>
@@ -233,7 +236,7 @@ function formatOutcome(outcome: Outcome): string {
     case Outcome.Win:
       return "You won!";
     case Outcome.Loss:
-      return "You lost! But there's always next time :)";
+      return "You lost!";
     case Outcome.Draw:
       return "It's a draw!";
     default:

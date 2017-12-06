@@ -169,12 +169,18 @@ export function swapOutcome(outcome: Outcome): Outcome {
   return outcome;
 }
 
-export function computeOutcome(game: IGameState, player: Color): Outcome {
-  for (const color of [Color.Red, Color.Blue]) {
-    const deck = game.decks[color];
-    if (deck.length > 0) {
-      // cards left in play!
-      return Outcome.Neutral;
+export function computeOutcome(
+  game: IGameState,
+  player: Color,
+  forceOutcome = false,
+): Outcome {
+  if (!forceOutcome) {
+    for (const color of [Color.Red, Color.Blue]) {
+      const deck = game.decks[color];
+      if (deck.length > 0) {
+        // cards left in play!
+        return Outcome.Neutral;
+      }
     }
   }
 

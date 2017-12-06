@@ -76,27 +76,27 @@ export { css, injectGlobal, keyframes, ThemeProvider };
 export const animations = {
   beating: keyframes`
     0% {
-      transform: scale(0.82);
+      transform: scale(0.88);
     }
     4% {
-      transform: scale(1.07);
+      transform: scale(1.04);
     }
     8% {
-      transform: scale(0.82);
+      transform: scale(0.88);
     }
 
     20% {
-      transform: scale(0.82);
+      transform: scale(0.88);
     }
     24% {
-      transform: scale(1.02);
+      transform: scale(0.97);
     }
     28% {
-      transform: scale(0.82);
+      transform: scale(0.88);
     }
 
     100% {
-      transform: scale(0.82);
+      transform: scale(0.88);
     }
   `,
 
