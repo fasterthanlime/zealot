@@ -25,8 +25,6 @@ export default function(watcher: Watcher) {
         );
       }
     }
-
-    store.dispatch(actions.newGame({}));
   });
 
   watcher.on(actions.updateAi, async (store, action) => {

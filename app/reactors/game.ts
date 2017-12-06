@@ -17,10 +17,10 @@ import {
 
 import { warning, info } from "react-notification-system-redux";
 import { playCardFlick, playCardPlace, playSound } from "../util/sounds";
-import { playAI } from "../util/rules";
+import { playAI, computeOutcome, Outcome } from "../util/rules";
 
 const dealWait = 250;
-const animDuration = 600;
+const gameOverWait = 1000;
 
 const iconPath = require("../images/favicon.png").default;
 
@@ -53,6 +53,52 @@ export default function(watcher: Watcher) {
     }
   });
 
+  watcher.on(actions.updateAi, async (store, action) => {
+    const rs = store.getState();
+    if (
+      action.payload.optionsOpen === false &&
+      rs.controls.outcome === Outcome.Neutral
+    ) {
+      store.dispatch(actions.newGame({}));
+    }
+  });
+
+  watcher.on(actions.replay, async (store, action) => {
+    const rs = store.getState();
+    let { lastMove } = rs.controls;
+    if (!lastMove) {
+      console.log("can't replay, no last move");
+      // welp
+      return;
+    }
+
+    console.log("replaying: ", lastMove);
+
+    store.dispatch(
+      actions.loadState({
+        game: lastMove.game,
+        score: lastMove.score,
+        play: lastMove.play,
+      }),
+    );
+
+    const { game, play } = lastMove;
+    const { col, row } = play;
+    const card = game.decks[play.player][play.index];
+
+    store.dispatch(
+      info({
+        title: "Action replay",
+        message: `${Color[play.player]} played a ${suitName(card.suit)} at ${
+          col
+        },${row}`,
+      }),
+    );
+
+    await delay(gameOverWait);
+    store.dispatch(actions.playCard(lastMove.play));
+  });
+
   watcher.on(actions.playCard, async (store, action) => {
     const rs = store.getState();
 
@@ -60,6 +106,13 @@ export default function(watcher: Watcher) {
 
     if (action.payload) {
       playCardPlace();
+      store.dispatch(
+        actions.saveState({
+          game: rs.game,
+          score: rs.score,
+          play: action.payload,
+        }),
+      );
       store.dispatch(actions.cardPlayed(action.payload));
     }
 
@@ -165,19 +218,10 @@ async function doNextTurn(
 ) {
   const rs = store.getState();
   if (hasEmptyDeck(rs, Color.Red) && hasEmptyDeck(rs, Color.Blue)) {
-    const r = rs.game.counts[Color.Red];
-    const b = rs.game.counts[Color.Blue];
+    let playerOutcome = computeOutcome(rs.game, swapColor(aiColor));
     let message = `It's a draw!`;
 
-    if (r < b) {
-      store.dispatch(
-        actions.updateAi({
-          wins: rs.ai.wins + 1,
-        }),
-      );
-      message = `AI won!`;
-      playSound("lose", 1);
-    } else if (b < r) {
+    if (playerOutcome === Outcome.Win) {
       store.dispatch(
         actions.updateAi({
           losses: rs.ai.losses + 1,
@@ -185,6 +229,14 @@ async function doNextTurn(
       );
       message = `You won!`;
       playSound("win", 1);
+    } else if (playerOutcome === Outcome.Loss) {
+      store.dispatch(
+        actions.updateAi({
+          wins: rs.ai.wins + 1,
+        }),
+      );
+      message = `AI won!`;
+      playSound("lose", 1);
     } else {
       store.dispatch(
         actions.updateAi({
@@ -200,8 +252,8 @@ async function doNextTurn(
       }),
     );
 
-    await delay(animDuration * 2);
-    store.dispatch(actions.newGame({}));
+    await delay(gameOverWait);
+    store.dispatch(actions.gameOver({ outcome: playerOutcome }));
     return;
   }
 

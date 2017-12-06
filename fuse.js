@@ -21,7 +21,7 @@ const outFolder = `public/${environment}`;
 const fuse = FuseBox.init({
   homeDir: "app",
   output: outFolder + "/$name.js",
-  sourceMaps: false,
+  sourceMaps: isDevelopment,
   hash: !isDevelopment,
   plugins: [
     [

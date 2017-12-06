@@ -2,6 +2,11 @@ import styled from "./styles";
 
 export const Buttons = styled.div`
   text-align: center;
+
+  &.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
 `;
 
 export const Button = styled.div`

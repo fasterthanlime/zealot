@@ -1,4 +1,13 @@
-import { IAction, Color, AreaType, IAIState } from "../types/index";
+import {
+  IAction,
+  Color,
+  AreaType,
+  IAIState,
+  IGameState,
+  IScoreState,
+  ILastMove,
+} from "../types/index";
+import { Outcome } from "../util/rules";
 
 export function createAction<PayloadType>(type: string) {
   if (typeof type !== "string" || type.length === 0) {
@@ -31,6 +40,7 @@ export const types = mirror({
   BOOT: null,
 
   NEW_GAME: null,
+  GAME_OVER: null,
 
   DRAG_START: null,
   DRAG_END: null,
@@ -45,6 +55,8 @@ export const types = mirror({
   END_TURN: null,
   NEXT_TURN: null,
 
+  LOAD_STATE: null,
+
   MOUSE_MOVE: null,
 
   INVALID_MOVE: null,
@@ -55,11 +67,18 @@ export const types = mirror({
   DEAL_ALL: null,
 
   UPDATE_AI: null,
+
+  REPLAY: null,
+  SAVE_STATE: null,
 });
 
 export const boot = createAction<{}>(types.BOOT);
 
 export const newGame = createAction<{}>(types.NEW_GAME);
+export const replay = createAction<{}>(types.REPLAY);
+export const gameOver = createAction<{
+  outcome: Outcome;
+}>(types.GAME_OVER);
 export const dragStart = createAction<{
   player: Color;
   index: number;
@@ -102,6 +121,9 @@ export interface IPlayCardPayload {
 }
 export const playCard = createAction<IPlayCardPayload>(types.PLAY_CARD);
 export const cardPlayed = createAction<IPlayCardPayload>(types.CARD_PLAYED);
+
+export const loadState = createAction<ILastMove>(types.LOAD_STATE);
+export const saveState = createAction<ILastMove>(types.SAVE_STATE);
 
 export const endTurn = createAction<{}>(types.END_TURN);
 export const nextTurn = createAction<{

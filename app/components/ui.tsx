@@ -13,11 +13,16 @@ import {
   difficultyLevels,
   IAIState,
   IRootState,
+  IControlsState,
+  IScoreState,
+  swapColor,
+  aiColor,
 } from "../types/index";
 import { connect } from "./connect";
 
 import Options from "./options";
 import { Buttons, Button } from "./button";
+import { Outcome } from "../util/rules";
 
 const WrapperDiv = styled.div`
   pointer-events: none;
@@ -65,6 +70,23 @@ const AIInfo = styled.div`
   }
 `;
 
+const OutcomeInfo = styled.div`
+  font-size: 24px;
+  line-height: 1.4;
+  padding: 12px 24px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+
+  background: black;
+  color: white;
+  opacity: 0.6;
+
+  pointer-events: initial;
+
+  transform: translate3d(-50%, -50%, 0);
+`;
+
 const Separator = styled.div`
   width: 2px;
   margin: 0 8px;
@@ -96,22 +118,53 @@ const Spinner = styled.div`
 
 class UI extends React.PureComponent<IProps & IDerivedProps> {
   render() {
-    const { ai } = this.props;
+    const { ai, score, controls } = this.props;
     let aiInfoClass = "";
     if (ai.optionsOpen) {
       aiInfoClass = "hidden";
     }
 
+    const firstRound = controls.outcome === Outcome.Neutral;
+
+    let canLastMove = false;
+    if (!controls.hasActiveGame) {
+      canLastMove = !!controls.lastMove;
+    } else {
+      // in an active game, we can only show last move when it's
+      // our turn to play
+      const ourTurn = controls.turnPlayer === swapColor(aiColor);
+      canLastMove = !!controls.lastMove && ourTurn && controls.awaitingInput;
+    }
+
     return (
       <WrapperDiv>
         <ReactHint persist events />
+        {controls.showOutcome ? (
+          <OutcomeInfo>
+            {firstRound ? (
+              <p>Ready when you are!</p>
+            ) : (
+              <p>Game result: {Outcome[controls.outcome]}</p>
+            )}
+
+            <Buttons>
+              {controls.lastMove ? (
+                <Button onClick={this.onReplay}>Show last move</Button>
+              ) : null}
+
+              <Button onClick={this.onNewGame}>
+                {firstRound ? "New game" : "Play again"}
+              </Button>
+            </Buttons>
+          </OutcomeInfo>
+        ) : null}
         <AIInfo className={aiInfoClass}>
           <div style={{ fontSize: "120%", textAlign: "center" }}>
-            <ScoreBoard className="red">{ai.wins}</ScoreBoard>
+            <ScoreBoard className="red">{score.losses}</ScoreBoard>
             <Separator />
-            <ScoreBoard>{ai.draws}</ScoreBoard>
+            <ScoreBoard>{score.draws}</ScoreBoard>
             <Separator />
-            <ScoreBoard className="blue">{ai.losses}</ScoreBoard>
+            <ScoreBoard className="blue">{score.wins}</ScoreBoard>
           </div>
           {inDev ? (
             <div>
@@ -125,6 +178,13 @@ class UI extends React.PureComponent<IProps & IDerivedProps> {
               Options
             </Button>
           </Buttons>
+          {
+            <Buttons className={canLastMove ? "shown" : "hidden"}>
+              <Button className="small" onClick={this.onReplay}>
+                Show last move
+              </Button>
+            </Buttons>
+          }
         </AIInfo>
         {ai.thinking ? (
           <SpinnerContainer>
@@ -141,6 +201,14 @@ class UI extends React.PureComponent<IProps & IDerivedProps> {
       optionsOpen: true,
     });
   };
+
+  onReplay = () => {
+    this.props.replay({});
+  };
+
+  onNewGame = () => {
+    this.props.newGame({});
+  };
 }
 
 function formatDifficulty(value: number): string {
@@ -156,15 +224,23 @@ interface IProps {}
 
 interface IDerivedProps {
   ai: IAIState;
+  score: IScoreState;
+  controls: IControlsState;
 
   updateAi: typeof actions.updateAi;
+  newGame: typeof actions.newGame;
+  replay: typeof actions.replay;
 }
 
 export default connect<IProps>(UI, {
   state: (rs: IRootState) => ({
     ai: rs.ai,
+    score: rs.score,
+    controls: rs.controls,
   }),
   actions: {
     updateAi: actions.updateAi,
+    newGame: actions.newGame,
+    replay: actions.replay,
   },
 });

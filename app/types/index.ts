@@ -1,5 +1,7 @@
 import { Store, Action } from "redux";
 import { Watcher } from "../reactors/watcher";
+import { Outcome } from "../util/rules";
+import { IPlayCardPayload } from "../actions/index";
 
 export interface IStore extends Store<IRootState> {
   watcher: Watcher;
@@ -28,6 +30,7 @@ export function dispatcher<T, U>(
 export interface IRootState {
   system: ISystemState;
   game: IGameState;
+  score: IScoreState;
   ai: IAIState;
   controls: IControlsState;
   metrics: IMetricsState;
@@ -66,21 +69,21 @@ export interface IGameState {
   dealPile: ICard[];
   trashPile: ICard[];
   decks: IDecks;
-  counts: {
-    [color: number]: number;
-  };
 }
 
 export interface IAIState {
   thinking: boolean;
   winChance: number;
   itersPerSec: string;
-  wins: number;
-  losses: number;
-  draws: number;
   level: number;
   optionsOpen: boolean;
   musicEnabled: boolean;
+}
+
+export interface IScoreState {
+  wins: number;
+  losses: number;
+  draws: number;
 }
 
 export interface IDecks {
@@ -98,6 +101,16 @@ export interface IControlsState {
   };
   turnPlayer: Color;
   awaitingInput: boolean;
+  hasActiveGame: boolean;
+  showOutcome: boolean;
+  outcome: Outcome;
+  lastMove?: ILastMove;
+}
+
+export interface ILastMove {
+  play: IPlayCardPayload;
+  game: IGameState;
+  score: IScoreState;
 }
 
 export interface IDraggable {

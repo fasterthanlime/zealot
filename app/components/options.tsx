@@ -153,7 +153,7 @@ class Options extends React.PureComponent<IProps & IDerivedProps> {
     const options: JSX.Element[] = [];
     for (const value of values) {
       options.push(
-        <option value={value[0]}>
+        <option key={value[0]} value={value[0]}>
           {value[1]} {" — "}
           {value[0] * aiLevelFactor}s AI rounds
         </option>,

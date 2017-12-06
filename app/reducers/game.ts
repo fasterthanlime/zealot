@@ -3,32 +3,43 @@ import {
   IGameState,
   Color,
   Suit,
-  getSquare,
   cardCounts,
   ICard,
   specialCardCounts,
 } from "../types/index";
-import derivedReducer from "./derived-reducer";
 import * as actions from "../actions";
 import { sample, map, shuffle } from "underscore";
 import { genid } from "../util/genid";
 import { applyMove } from "../util/rules";
 
+// const deckSize = 6;
+// const specialDeckSize = 3;
+
+const deckSize = 1;
+const specialDeckSize = 2;
+
+const boardNumCols = 4;
+const boardNumRows = 3;
+
 const initialState: IGameState = {
-  board: null,
-  decks: null,
-  counts: null,
+  board: {
+    numCols: boardNumCols,
+    numRows: boardNumRows,
+    cards: new Array(boardNumCols * boardNumRows),
+  },
+  decks: {
+    [Color.Red]: [],
+    [Color.Blue]: [],
+  },
   dealPile: [],
   trashPile: [],
 };
 
-const initialReducer = reducer<IGameState>(initialState, on => {
+export default reducer<IGameState>(initialState, on => {
   on(actions.newGame, (state, action) => {
-    const deckSize = 6;
-    const specialDeckSize = 3;
     let board = {
-      numCols: 4,
-      numRows: 3,
+      numCols: boardNumCols,
+      numRows: boardNumRows,
       cards: [],
     };
     board.cards.length = board.numCols * board.numRows;
@@ -91,6 +102,10 @@ const initialReducer = reducer<IGameState>(initialState, on => {
     };
   });
 
+  on(actions.loadState, (state, action) => {
+    return action.payload.game;
+  });
+
   on(actions.dealAll, (state, action) => {
     let { dealPile, decks } = state;
 
@@ -116,32 +131,4 @@ const initialReducer = reducer<IGameState>(initialState, on => {
   on(actions.cardPlayed, (state, action) => {
     return applyMove(state, action.payload);
   });
-});
-
-export default derivedReducer(initialReducer, (state: IGameState) => {
-  if (!state || !state.board) {
-    return state;
-  }
-
-  const { board } = state;
-  let counts = {
-    [Color.Red]: 0,
-    [Color.Blue]: 0,
-  };
-
-  for (let col = 0; col < board.numCols; col++) {
-    for (let row = 0; row < board.numRows; row++) {
-      const square = getSquare(board, col, row);
-      if (square) {
-        if (counts.hasOwnProperty(square.color)) {
-          counts[square.color]++;
-        }
-      }
-    }
-  }
-
-  return {
-    ...state,
-    counts,
-  };
 });
