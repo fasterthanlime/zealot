@@ -377,25 +377,81 @@ export function tipForCard(card: ICard): string {
 
   switch (card.suit) {
     case Suit.Peasant:
-      return "[Peasant] Must be placed on empty space.";
+      return `Peasant [Neutral card]
 
+Must be played on empty space.
+
+Has no effect.
+`;
     case Suit.Monk:
-      return "[Monk] 3x3 square AOE. Must be placed on empty space.";
+      return `Monk [Area card]
+      
+Must be played on empty space.
+
+Has no immediate effect, but
+any Attack card played over it
+will affect the 8 cards around it.
+`;
 
     case Suit.MarksmanL:
-      return "[Marksman] Area effect: all cards to the left.";
+      return `Marksman [Area card]
+
+Can be played on empty space or over
+any card, discarding it.
+      
+Any Attack card played over it will
+affect all cards to the left of the
+marksman.
+`;
 
     case Suit.MarksmanR:
-      return "[Marksman] Area effect: all cards to the right.";
+      return `Marksman [Area card]
+
+Can be played on empty space or over
+any card, discarding it.
+      
+Any Attack card played over it will
+affect all cards to the left of the
+marksman.
+`;
 
     case Suit.Priest:
-      return "[Priest] Inverts card colors.";
+      return `Priest [Attack card]
+
+Can be played on empty space or over
+any card, discarding it.
+      
+Inverts card colors, including itself.
+
+Playing over a Marksman or a Monk card
+(of whichever color) affects many cards
+at once, see their descriptions.
+`;
 
     case Suit.Goblin:
-      return "[Goblin] Blows up cards.";
+      return `Goblin [Attack card]
+      
+Can be played on empty space or over
+any card, discarding it.
+
+Takes card off the board, including itself.
+
+Playing over a Marksman or a Monk card
+(of whichever color) affects many cards
+at once, see their descriptions.
+`;
 
     case Suit.Necromancer:
-      return "[Necromancer] Steal a card.";
+      return `Necromancer [Special card]
+
+Can be played on empty space (effectively
+discarding itself) or any other card.
+      
+Steals the card on which it's placed.
+
+Necromancer cards are not affected by Area
+cards - they always steal exactly zero or
+one card.`;
 
     default:
       return `${suitName(card.suit)}: TODO`;

@@ -28,6 +28,11 @@ const SquareDiv = styled.div`
     transition: transform 0.8s;
     transform-style: preserve-3d;
 
+    transform: rotateY(0deg);
+    &.Blue {
+      transform: rotateY(180deg);
+    }
+
     &.Peasant {
       .front { background-image: url('${
         cardGraphics[Color.Red][Suit.Peasant]
@@ -125,24 +130,7 @@ const SquareDiv = styled.div`
 
 class Square extends React.PureComponent<IProps & IDerivedProps> {
   render() {
-    let { card, draggable, dragged, onBoard } = this.props;
-    let style: React.CSSProperties = {
-      ...this.props.style,
-    };
-    let frontStyle: React.CSSProperties = {};
-    let backStyle: React.CSSProperties = {};
-
-    if (card) {
-      frontStyle.backgroundImage = `url(${cardGraphics[Color.Red][card.suit]})`;
-      backStyle.backgroundImage = `url(${cardGraphics[Color.Blue][card.suit]})`;
-    }
-
-    let turnerStyle: React.CSSProperties = {};
-    if (card.color === Color.Blue) {
-      turnerStyle.transform = `rotateY(180deg)`;
-    } else {
-      turnerStyle.transform = `rotateY(0deg)`;
-    }
+    let { style, card, draggable, dragged, onBoard } = this.props;
 
     const className = classNames({
       draggable: !!draggable,
@@ -150,6 +138,7 @@ class Square extends React.PureComponent<IProps & IDerivedProps> {
       onBoard: !!onBoard,
     });
 
+    let colorClass = Color[card.color];
     let suitClass = card ? Suit[card.suit] : "";
     let rhAt: string = null;
     if (card) {
@@ -165,7 +154,7 @@ class Square extends React.PureComponent<IProps & IDerivedProps> {
         onMouseDown={this.onMouseDown}
         style={style}
       >
-        <div className={`turner ${suitClass}`} style={turnerStyle}>
+        <div className={`turner ${suitClass} ${colorClass}`}>
           <div className="front" />
           <div className="back" />
         </div>

@@ -26,4 +26,10 @@ html, body, #app {
 
 .react-hint {
   min-width: 280px !important;
+  max-width: 400px !important;
+}
+
+.react-hint .react-hint__content {
+  font-size: 14px;
+  white-space: pre-wrap;
 }
