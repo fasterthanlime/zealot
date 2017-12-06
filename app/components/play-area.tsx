@@ -75,6 +75,8 @@ document.addEventListener("mousemove", e => {
   globalMouse.clientY = e.clientY;
 });
 
+const allColors = [Color.Red, Color.Blue];
+
 class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
   constructor(props, context) {
     super(props, context);
@@ -138,7 +140,7 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
       }
     }
 
-    for (const color of [Color.Red, Color.Blue]) {
+    for (const color of allColors) {
       const ourTurn = color === controls.turnPlayer;
       const deck = game.decks[color];
       const deckMetrics = metrics.decks[color];
@@ -169,24 +171,17 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
           continue;
         }
         numCards++;
-        const cardStyle: React.CSSProperties = {
-          transform: `translate3d(${deckMetrics.offset.x +
-            deckMetrics.increment.x * metricIndex}px, ${
-            deckMetrics.offset.y
-          }px, ${metricIndex * 0}px)`,
-          zIndex: metricIndex,
-        };
+        let x = deckMetrics.offset.x + deckMetrics.increment.x * metricIndex;
+        let y = deckMetrics.offset.y;
+        let zIndex = metricIndex;
+
         metricIndex++;
 
         let dragged = false;
         if (draggedCard && draggedCard.id === card.id) {
           const { clientX, clientY } = this.state;
-          const x = clientX - SquareWidth * 0.5;
-          const y = clientY - SquareHeight * 0.5;
-          cardStyle.transform = `translate3d(${x}px, ${y}px, 40px)`;
-          cardStyle.transition = "initial";
-          cardStyle.pointerEvents = "none";
-          cardStyle.zIndex = 200;
+          x = clientX - SquareWidth * 0.5;
+          y = clientY - SquareHeight * 0.5;
           dragged = true;
         }
 
@@ -200,7 +195,9 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
         cards[card.id] = (
           <Square
             key={card.id}
-            style={cardStyle}
+            x={x}
+            y={y}
+            zIndex={zIndex}
             card={card}
             draggable={draggable}
             dragged={dragged}
@@ -228,11 +225,12 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
     for (let i = 0; i < dealPile.length; i++) {
       const card = dealPile[i];
 
-      const cardStyle: React.CSSProperties = {
-        transform: `translate3d(${dpo.x}px, ${dpo.y}px, ${dealPile.length -
-          i}px)`,
-      };
-      cards[card.id] = <Square key={card.id} style={cardStyle} card={card} />;
+      let x = dpo.x;
+      let y = dpo.y;
+      let zIndex = dealPile.length - i;
+      cards[card.id] = (
+        <Square key={card.id} x={x} y={y} zIndex={zIndex} card={card} />
+      );
     }
 
     const { trashPile } = game;
@@ -240,24 +238,25 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
     for (let i = 0; i < trashPile.length; i++) {
       const card = trashPile[i];
 
-      const cardStyle: React.CSSProperties = {
-        transform: `translate3d(${tpo.x}px, ${tpo.y}px, ${trashPile.length -
-          i}px)`,
-      };
-      cards[card.id] = <Square key={card.id} style={cardStyle} card={card} />;
+      let x = tpo.x;
+      let y = tpo.y;
+      let zIndex = trashPile.length - i;
+      cards[card.id] = (
+        <Square key={card.id} x={x} y={y} zIndex={zIndex} card={card} />
+      );
     }
 
     for (let col = 0; col < board.numCols; col++) {
       for (let row = 0; row < board.numRows; row++) {
         const x = metrics.playAreaOffset.x + col * metrics.playAreaIncrement.x;
         const y = metrics.playAreaOffset.y + row * metrics.playAreaIncrement.y;
-        const cardStyle: React.CSSProperties = {
-          transform: `translate(${x}px, ${y}px)`,
-        };
+        const zIndex = 0;
         slots.push(
           <Slot
             key={`slot-${col}-${row}`}
-            style={cardStyle}
+            x={x}
+            y={y}
+            zIndex={zIndex}
             dropTarget={{
               col,
               row,
@@ -268,7 +267,14 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
         const bcard = getSquare(board, col, row);
         if (bcard) {
           cards[bcard.id] = (
-            <Square key={bcard.id} style={cardStyle} card={bcard} onBoard />
+            <Square
+              key={bcard.id}
+              x={x}
+              y={y}
+              zIndex={zIndex}
+              card={bcard}
+              onBoard
+            />
           );
         }
 
@@ -276,8 +282,10 @@ class PlayArea extends React.Component<IProps & IDerivedProps, IState> {
         if (litSquares[index]) {
           highlights.push(
             <Highlight
+              x={x}
+              y={y}
+              zIndex={zIndex}
               key={`highlight-${index}`}
-              style={cardStyle}
               invalid={invalidDropTarget}
             />,
           );

@@ -14,7 +14,11 @@ const SlotDiv = styled.div`
 
 class Slot extends React.PureComponent<IProps & IDerivedProps> {
   render() {
-    const { style } = this.props;
+    const { x, y, zIndex } = this.props;
+    const style: React.CSSProperties = {
+      transform: `translate(${x}px, ${y}px)`,
+      zIndex,
+    };
 
     return (
       <SlotDiv
@@ -41,7 +45,10 @@ class Slot extends React.PureComponent<IProps & IDerivedProps> {
 }
 
 interface IProps {
-  style: React.CSSProperties;
+  x: number;
+  y: number;
+  zIndex: number;
+
   dropTarget: {
     col: number;
     row: number;

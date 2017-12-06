@@ -123,6 +123,12 @@ const SquareDiv = styled.div`
     }
   }
 
+  &.dragged {
+    transition: initial;
+    z-index: 200;
+    pointer-events: none;
+  }
+
   &.onBoard {
     pointer-events: none;
   }
@@ -130,7 +136,12 @@ const SquareDiv = styled.div`
 
 class Square extends React.PureComponent<IProps & IDerivedProps> {
   render() {
-    let { style, card, draggable, dragged, onBoard } = this.props;
+    let { x, y, zIndex, card, draggable, dragged, onBoard } = this.props;
+
+    const style: React.CSSProperties = {
+      transform: `translate(${x}px, ${y}px)`,
+      zIndex,
+    };
 
     const className = classNames({
       draggable: !!draggable,
@@ -177,6 +188,9 @@ class Square extends React.PureComponent<IProps & IDerivedProps> {
 interface IProps {
   style?: React.CSSProperties;
   card?: ICard;
+  x: number;
+  y: number;
+  zIndex: number;
 
   draggable?: {
     player: Color;

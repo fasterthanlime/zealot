@@ -20,13 +20,21 @@ const HighlightDiv = styled.div`
 
 export default class Highlight extends React.PureComponent<IProps> {
   render() {
-    const { style, invalid } = this.props;
+    const { x, y, zIndex, invalid } = this.props;
     const className = classNames({ invalid });
+
+    const style: React.CSSProperties = {
+      transform: `translate(${x}px, ${y}px)`,
+      zIndex,
+    };
     return <HighlightDiv className={className} style={style} />;
   }
 }
 
 interface IProps {
-  style: React.CSSProperties;
   invalid: boolean;
+
+  x: number;
+  y: number;
+  zIndex: number;
 }
