@@ -16,6 +16,7 @@ import {
   playerColors,
   Suit,
   AreaType,
+  aiColor,
 } from "../types/index";
 import { connect } from "./connect";
 
@@ -134,6 +135,7 @@ class PlayArea extends React.PureComponent<IProps & IDerivedProps> {
 
     for (const color of allColors) {
       const ourTurn = color === controls.turnPlayer;
+      const canPlay = ourTurn && color !== aiColor;
       const deck = game.decks[color];
       const deckMetrics = metrics.decks[color];
 
@@ -175,7 +177,7 @@ class PlayArea extends React.PureComponent<IProps & IDerivedProps> {
         }
 
         let draggable: IDraggable;
-        if (ourTurn && controls.awaitingInput) {
+        if (canPlay && controls.awaitingInput) {
           draggable = {
             index: i,
             player: color,
@@ -194,7 +196,7 @@ class PlayArea extends React.PureComponent<IProps & IDerivedProps> {
         );
       }
 
-      if (numCards === 0 && ourTurn && controls.awaitingInput) {
+      if (numCards === 0 && canPlay && controls.awaitingInput) {
         const passStyle: React.CSSProperties = {
           transform: `translate(${deckMetrics.offset.x}px, ${
             deckMetrics.offset.y

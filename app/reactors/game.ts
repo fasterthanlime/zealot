@@ -12,16 +12,15 @@ import {
   getDraggedCard,
   getCardAreaType,
   colorName,
+  aiColor,
 } from "../types/index";
 
 import { warning, info } from "react-notification-system-redux";
 import { playCardFlick, playCardPlace, playSound } from "../util/sounds";
 import { playAI } from "../util/rules";
 
-const dealWait = 0;
+const dealWait = 250;
 const animDuration = 600;
-
-const aiColor = Color.Red;
 
 const iconPath = require("../images/favicon.png").default;
 
@@ -68,6 +67,7 @@ export default function(watcher: Watcher) {
   });
 
   watcher.on(actions.newGame, async (store, action) => {
+    await delay(dealWait);
     store.dispatch(actions.dealAll({}));
     await delay(dealWait);
     store.dispatch(actions.nextTurn({ turnPlayer: Color.Blue }));

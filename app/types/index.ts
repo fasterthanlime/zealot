@@ -483,3 +483,5 @@ export const difficultyLevels = [
   [64, "Priest"],
   [128, "Necromancer"],
 ];
+
+export const aiColor = Color.Red;
