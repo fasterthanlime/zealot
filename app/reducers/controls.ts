@@ -16,11 +16,6 @@ export default reducer<IControlsState>(initialState, on => {
       ...initialState,
     };
   });
-  on(actions.doneDealing, (state, action) => {
-    return {
-      ...state,
-    };
-  });
   on(actions.endTurn, (state, action) => {
     return {
       ...state,

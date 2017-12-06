@@ -91,21 +91,25 @@ const initialReducer = reducer<IGameState>(initialState, on => {
     };
   });
 
-  on(actions.dealNext, (state, action) => {
+  on(actions.dealAll, (state, action) => {
     let { dealPile, decks } = state;
-    let [toDeal, ...rest] = dealPile;
 
-    let deck = decks[toDeal.color];
-    deck = [...deck, toDeal];
-    decks = {
-      ...decks,
-      [toDeal.color]: deck,
-    };
+    while (dealPile.length > 0) {
+      let [toDeal, ...rest] = dealPile;
+
+      let deck = decks[toDeal.color];
+      deck = [...deck, toDeal];
+      decks = {
+        ...decks,
+        [toDeal.color]: deck,
+      };
+      dealPile = rest;
+    }
 
     return {
       ...state,
       decks,
-      dealPile: rest,
+      dealPile: [],
     };
   });
 

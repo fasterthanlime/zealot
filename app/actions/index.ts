@@ -52,8 +52,7 @@ export const types = mirror({
 
   VIEWPORT_RESIZED: null,
 
-  DEAL_NEXT: null,
-  DONE_DEALING: null,
+  DEAL_ALL: null,
 
   UPDATE_AI: null,
 });
@@ -121,7 +120,6 @@ export const viewportResized = createAction<{
   clientHeight: number;
 }>(types.VIEWPORT_RESIZED);
 
-export const dealNext = createAction<{}>(types.DEAL_NEXT);
-export const doneDealing = createAction<{}>(types.DONE_DEALING);
+export const dealAll = createAction<{}>(types.DEAL_ALL);
 
 export const updateAi = createAction<Partial<IAIState>>(types.UPDATE_AI);

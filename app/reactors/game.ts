@@ -68,17 +68,9 @@ export default function(watcher: Watcher) {
   });
 
   watcher.on(actions.newGame, async (store, action) => {
-    while (true) {
-      const { dealPile } = store.getState().game;
-      if (dealPile.length === 0) {
-        store.dispatch(actions.doneDealing({}));
-        store.dispatch(actions.nextTurn({ turnPlayer: Color.Blue }));
-        return;
-      }
-
-      await delay(dealWait);
-      store.dispatch(actions.dealNext({}));
-    }
+    store.dispatch(actions.dealAll({}));
+    await delay(dealWait);
+    store.dispatch(actions.nextTurn({ turnPlayer: Color.Blue }));
   });
 
   watcher.on(actions.dragStart, async (store, action) => {
