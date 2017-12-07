@@ -27,6 +27,8 @@ export interface LightMCNode {
   n: number;
   // children
   c: LightMCNode[];
+  // score
+  h: number;
 }
 
 export type LightMCPath = LightMCNode[];
@@ -390,6 +392,7 @@ export async function playAILight(
 
   let root: LightMCNode = {
     p: lightPassPlay,
+    h: 0,
     w: 0,
     n: 0,
     c: null,
@@ -466,7 +469,8 @@ export async function playAILight(
     }
   };
 
-  const scoreWeight = 2;
+  const scoreWeight = 4;
+  const scoreBonus = 10;
   const H = (lg: ILightGameState, play: ILightPlay, player: Color): number => {
     if (play.length === 0) {
       // pass play? score of 0
@@ -481,10 +485,10 @@ export async function playAILight(
     let col = boardIndex - row * numCols;
 
     let card = lg.decks[player][deckIndex];
-    let absoluteCard = card < 0 ? -card : card;
+    let absoluteCard = card > 0 ? card : -card;
 
     let bcard = lg.board[boardIndex];
-    let absoluteBCard = bcard < 0 ? -bcard : bcard;
+    let absoluteBCard = bcard > 0 ? bcard : -bcard;
     let opponent = swapColor(player);
 
     switch (absoluteCard) {
@@ -640,7 +644,7 @@ export async function playAILight(
       }
     }
 
-    return score * scoreWeight;
+    return (score + scoreBonus) * scoreWeight;
   };
 
   const select = (root: LightMCNode): ISelectResult => {
@@ -742,15 +746,16 @@ export async function playAILight(
       if (outcome === Outcome.Neutral) {
         let nextPlayer = swapColor(cplayer);
         let plays = lightLegalPlays(clg, nextPlayer);
-        let scoredPlays = _.map(plays, p => ({ p, s: H(clg, p, nextPlayer) }));
-        scoredPlays = _.sortBy(scoredPlays, p => -p.s);
+        let scoredPlays = _.map(plays, p => ({ p, h: H(clg, p, nextPlayer) }));
+        scoredPlays = _.sortBy(scoredPlays, p => -p.h);
         const maxBestPlays = Math.max(10, Math.ceil(plays.length / 8));
-        plays = _.map(_.first(scoredPlays, maxBestPlays), p => p.p);
+        scoredPlays = _.first(scoredPlays, maxBestPlays);
 
         node.c = [];
-        for (const play of plays) {
+        for (const sp of scoredPlays) {
           let childNode: LightMCNode = {
-            p: play,
+            p: sp.p,
+            h: sp.h,
             w: 0,
             n: 0,
             c: null,
@@ -815,9 +820,8 @@ export async function playAILight(
 
   console.log(`first tries: ${firstTries}, weighted tries: ${weightedTries}`);
 
-  const h = H(lg, bestNode.p, player);
   console.log(
-    `best node (h=${h}) leads to ${bestNode.w}/${bestNode.n} wins (${
+    `best node (h=${bestNode.h}) leads to ${bestNode.w}/${bestNode.n} wins (${
       root.n
     } plays total)`,
   );

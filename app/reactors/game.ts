@@ -46,7 +46,7 @@ const favicon = new Favico({
   animation: "slide",
 });
 
-async function playOriginalAI(store: IStore) {
+export async function playOriginalAI(store: IStore) {
   store.dispatch(actions.updateAi({ thinking: true }));
   const rs = store.getState();
   let { game } = rs;
@@ -62,7 +62,7 @@ async function playOriginalAI(store: IStore) {
   store.dispatch(actions.playCard(node.play));
 }
 
-async function playLightAI(store: IStore) {
+export async function playLightAI(store: IStore) {
   store.dispatch(actions.updateAi({ thinking: true }));
   const rs = store.getState();
   let { game } = rs;
@@ -89,7 +89,7 @@ async function playLightAI(store: IStore) {
   store.dispatch(actions.playCard(heavyPlay));
 }
 
-async function playRandomAI(store: IStore) {
+export async function playRandomAI(store: IStore) {
   store.dispatch(actions.updateAi({ thinking: true }));
   const rs = store.getState();
   let { game } = rs;
@@ -103,11 +103,13 @@ export default function(watcher: Watcher) {
   watcher.on(actions.nextTurn, async (store, action) => {
     const { turnPlayer } = action.payload;
     if (true) {
+      // await delay(200);
+
       if (turnPlayer === Color.Red) {
-        await playOriginalAI(store);
+        // await playOriginalAI(store);
+        await playLightAI(store);
       } else {
         // await playLightAI(store);
-        await playRandomAI(store);
       }
       // favicon.badge(1);
     }
