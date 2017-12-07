@@ -719,6 +719,7 @@ export async function playAILight(
   let deadline = store.getState().settings.level * aiLevelFactor * 1000;
   let startTime = Date.now();
   let iterations = 0;
+  let totalNodes = 0;
   let sleepInterval = 1;
   while (true) {
     iterations++;
@@ -760,6 +761,7 @@ export async function playAILight(
             n: 0,
             c: null,
           };
+          totalNodes++;
           node.c.push(childNode);
         }
 
@@ -800,7 +802,7 @@ export async function playAILight(
     }
   }
   let totalTime = Date.now() - startTime;
-  console.log(`${iterations} literations`);
+  console.log(`${iterations} literations, ${totalNodes} total nodes`);
 
   const perSec = (iterations / 1000 / (totalTime / 1000)).toFixed(1);
   console.log(`${perSec}K literations/s (${iterations} literations total)`);
@@ -825,6 +827,21 @@ export async function playAILight(
       root.n
     } plays total)`,
   );
+
+  const cleanNode = (n: LightMCNode) => {
+    if (n.c) {
+      for (const child of n.c) {
+        cleanNode(child);
+      }
+      n.c.length = 0;
+      n.c = null;
+    }
+  };
+  for (const child of root.c) {
+    if (child !== bestNode) {
+      cleanNode(child);
+    }
+  }
 
   if (bestNode.p.length > 0) {
     let play = bestNode.p;
