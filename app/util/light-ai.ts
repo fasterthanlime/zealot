@@ -20,15 +20,15 @@ const c = Math.sqrt(2);
 
 export interface LightMCNode {
   // move
-  p: ILightPlay;
+  play: ILightPlay;
   // number of wins
-  w: number;
+  wins: number;
   // number of plays
-  n: number;
+  numPlays: number;
   // children
-  c: LightMCNode[];
+  children: LightMCNode[];
   // score
-  h: number;
+  score: number;
 }
 
 export type LightMCPath = LightMCNode[];
@@ -383,19 +383,19 @@ export async function playAILight(
 
   if (!lightHasLegalPlays(lg, player)) {
     return <LightMCNode>{
-      p: lightPassPlay,
-      w: 0,
-      n: 0,
-      c: null,
+      play: lightPassPlay,
+      wins: 0,
+      numPlays: 0,
+      children: null,
     };
   }
 
   let root: LightMCNode = {
-    p: lightPassPlay,
-    h: 0,
-    w: 0,
-    n: 0,
-    c: null,
+    play: lightPassPlay,
+    score: 0,
+    wins: 0,
+    numPlays: 0,
+    children: null,
   };
 
   let firstTries = 0;
@@ -654,7 +654,7 @@ export async function playAILight(
     let cplayer = swapColor(player);
 
     while (true) {
-      if (!n.c) {
+      if (!n.children) {
         // leaf node, we're done selecting
         return { path, clg, cplayer, node: n };
       }
@@ -663,8 +663,8 @@ export async function playAILight(
       let bestIndex = -1;
       let bestValue = Number.MIN_SAFE_INTEGER;
 
-      for (let index = 0; index < n.c.length; index++) {
-        if (n.c[index].n === 0) {
+      for (let index = 0; index < n.children.length; index++) {
+        if (n.children[index].numPlays === 0) {
           untriedIndices.push(index);
         }
       }
@@ -679,18 +679,18 @@ export async function playAILight(
         weightedTries++;
         // otherwise, start weighing
         let Ni = 0;
-        for (const child of n.c) {
-          Ni += child.n;
+        for (const child of n.children) {
+          Ni += child.numPlays;
         }
         const logNi = Math.log(Ni);
 
-        for (let index = 0; index < n.c.length; index++) {
-          let child = n.c[index];
-          let wi = child.w;
-          let ni = child.n;
+        for (let index = 0; index < n.children.length; index++) {
+          let child = n.children[index];
+          let wi = child.wins;
+          let ni = child.numPlays;
 
           // see https://en.wikipedia.org/wiki/Monte_Carlo_tree_search#Exploration_and_exploitation
-          const h = H(clg, child.p, nextPlayer) / ni;
+          const h = H(clg, child.play, nextPlayer) / ni;
           const value = wi / ni + c * Math.sqrt(logNi / ni) + h;
           if (value > bestValue) {
             // if (ni > 100 && bestValue !== Number.MIN_SAFE_INTEGER) {
@@ -709,8 +709,8 @@ export async function playAILight(
         }
       }
 
-      n = n.c[bestIndex];
-      lightApplyMove(clg, n.p, nextPlayer, numCols, numRows);
+      n = n.children[bestIndex];
+      lightApplyMove(clg, n.play, nextPlayer, numCols, numRows);
       cplayer = nextPlayer;
       path.push(n);
     }
@@ -752,22 +752,22 @@ export async function playAILight(
         const maxBestPlays = Math.max(10, Math.ceil(plays.length / 8));
         scoredPlays = _.first(scoredPlays, maxBestPlays);
 
-        node.c = [];
+        node.children = [];
         for (const sp of scoredPlays) {
           let childNode: LightMCNode = {
-            p: sp.p,
-            h: sp.h,
-            w: 0,
-            n: 0,
-            c: null,
+            play: sp.p,
+            score: sp.h,
+            wins: 0,
+            numPlays: 0,
+            children: null,
           };
           totalNodes++;
-          node.c.push(childNode);
+          node.children.push(childNode);
         }
 
-        let chosenChild = _.sample<LightMCNode>(node.c);
+        let chosenChild = _.sample<LightMCNode>(node.children);
         path.push(chosenChild);
-        lightApplyMove(clg, chosenChild.p, nextPlayer, numCols, numRows);
+        lightApplyMove(clg, chosenChild.play, nextPlayer, numCols, numRows);
         cplayer = nextPlayer;
         node = chosenChild;
       }
@@ -787,15 +787,15 @@ export async function playAILight(
     const loss = playoutOutcome === Outcome.Loss;
     let countWins = win || loss;
 
-    root.n++;
+    root.numPlays++;
     let ccplayer = player;
     for (const node of path) {
-      node.n++;
+      node.numPlays++;
       if (countWins) {
         if (win && ccplayer == playoutPlayer) {
-          node.w++;
+          node.wins++;
         } else if (loss && ccplayer != playoutPlayer) {
-          node.w++;
+          node.wins++;
         }
       }
       ccplayer = swapColor(ccplayer);
@@ -809,42 +809,42 @@ export async function playAILight(
 
   let mostWins = 0;
   let bestNode: LightMCNode = null;
-  for (const child of root.c) {
-    if (child.w > mostWins) {
-      mostWins = child.w;
+  for (const child of root.children) {
+    if (child.wins > mostWins) {
+      mostWins = child.wins;
       bestNode = child;
     }
   }
   if (!bestNode) {
     console.log(`has no best node, had to pick at random`);
-    bestNode = _.sample(root.c);
+    bestNode = _.sample(root.children);
   }
 
   console.log(`first tries: ${firstTries}, weighted tries: ${weightedTries}`);
 
   console.log(
-    `best node (h=${bestNode.h}) leads to ${bestNode.w}/${bestNode.n} wins (${
-      root.n
-    } plays total)`,
+    `best node (h=${bestNode.score}) leads to ${bestNode.wins}/${
+      bestNode.numPlays
+    } wins (${root.numPlays} plays total)`,
   );
 
   const cleanNode = (n: LightMCNode) => {
-    if (n.c) {
-      for (const child of n.c) {
+    if (n.children) {
+      for (const child of n.children) {
         cleanNode(child);
       }
-      n.c.length = 0;
-      n.c = null;
+      n.children.length = 0;
+      n.children = null;
     }
   };
-  for (const child of root.c) {
+  for (const child of root.children) {
     if (child !== bestNode) {
       cleanNode(child);
     }
   }
 
-  if (bestNode.p.length > 0) {
-    let play = bestNode.p;
+  if (bestNode.play.length > 0) {
+    let play = bestNode.play;
     let [deckIndex, boardIndex] = play;
     const card = lg.decks[player][deckIndex];
     const absoluteCard = card > 0 ? card : -card;
@@ -866,7 +866,7 @@ export async function playAILight(
   store.dispatch(
     actions.updateAi({
       lightItersPerSec: `${perSec}K literations/s`,
-      lightWinChance: bestNode.w / bestNode.n,
+      lightWinChance: bestNode.wins / bestNode.numPlays,
     }),
   );
   console.log(`tree: `, root);

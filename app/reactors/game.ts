@@ -75,8 +75,8 @@ export async function playLightAI(store: IStore) {
   );
 
   let heavyPlay: IPlayCardPayload = null;
-  if (lightNode.p.length > 0) {
-    let [deckIndex, boardIndex] = lightNode.p;
+  if (lightNode.play.length > 0) {
+    let [deckIndex, boardIndex] = lightNode.play;
     let row = Math.floor(boardIndex / game.board.numCols);
     let col = boardIndex - row * game.board.numCols;
     heavyPlay = {
