@@ -75,6 +75,7 @@ export interface IAIState {
   thinking: boolean;
   winChance: number;
   itersPerSec: string;
+  lightItersPerSec: string;
   level: number;
   optionsOpen: boolean;
   musicEnabled: boolean;

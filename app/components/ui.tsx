@@ -180,6 +180,8 @@ class UI extends React.PureComponent<IProps & IDerivedProps> {
           {inDev ? (
             <div>
               {ai.itersPerSec}
+              <br />
+              {ai.lightItersPerSec}
               <br />AI chance: {(ai.winChance * 100).toFixed()}%
             </div>
           ) : null}

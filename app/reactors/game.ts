@@ -17,12 +17,13 @@ import {
 import { warning, info } from "react-notification-system-redux";
 import { playCardFlick, playCardPlace, playSound } from "../util/sounds";
 import {
-  playAI,
   computeOutcome,
   Outcome,
   applyMove,
   hasLegalPlays,
 } from "../util/rules";
+import { playAI } from "../util/original-ai";
+import { playAILight } from "../util/light-ai";
 
 const dealWait = 250;
 const gameOverWait = 1000;
@@ -58,6 +59,9 @@ export default function(watcher: Watcher) {
           thinking: false,
         }),
       );
+
+      await playAILight(store, game, aiColor);
+
       store.dispatch(actions.playCard(node.play));
       favicon.badge(1);
     }
