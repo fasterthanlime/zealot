@@ -1,4 +1,4 @@
-import { IAIState } from "../types/index";
+import { IAIState, Color } from "../types/index";
 import reducer from "./reducer";
 import * as actions from "../actions";
 
@@ -9,6 +9,7 @@ const initialState: IAIState = {
   itersPerSec: "",
   lightItersPerSec: "",
   optionsOpen: true,
+  firstTurn: Color.Red,
 };
 
 export default reducer<IAIState>(initialState, on => {

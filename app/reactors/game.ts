@@ -214,7 +214,9 @@ export default function(watcher: Watcher) {
     await delay(dealWait);
     store.dispatch(actions.dealAll({}));
     await delay(dealWait);
-    store.dispatch(actions.nextTurn({ turnPlayer: Color.Red, canPass: false }));
+    const firstTurn = store.getState().ai.firstTurn;
+    store.dispatch(actions.updateAi({ firstTurn: swapColor(firstTurn) }));
+    store.dispatch(actions.nextTurn({ turnPlayer: firstTurn, canPass: false }));
   });
 
   watcher.on(actions.dragStart, async (store, action) => {

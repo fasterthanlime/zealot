@@ -79,6 +79,7 @@ export interface IAIState {
   itersPerSec: string;
   lightItersPerSec: string;
   optionsOpen: boolean;
+  firstTurn: Color;
 }
 
 export interface ISettingsState {
