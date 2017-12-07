@@ -1,6 +1,11 @@
 import * as React from "react";
 import { connect } from "./connect";
-import { IRootState, IAIState, difficultyLevels } from "../types/index";
+import {
+  IRootState,
+  IAIState,
+  difficultyLevels,
+  ISettingsState,
+} from "../types/index";
 
 import * as actions from "../actions";
 import styled from "./styles";
@@ -61,7 +66,7 @@ const Course = styled.div`
 class Options extends React.PureComponent<IProps & IDerivedProps> {
   render(): JSX.Element {
     let className = "";
-    const { ai } = this.props;
+    const { ai, settings } = this.props;
     if (!ai.optionsOpen) {
       className = "hidden";
     }
@@ -84,12 +89,14 @@ class Options extends React.PureComponent<IProps & IDerivedProps> {
         </Course>
         <Course>
           <h2>Options</h2>
-          <div>Difficulty: {this.renderSelect(ai.level, difficultyLevels)}</div>
+          <div>
+            Difficulty: {this.renderSelect(settings.level, difficultyLevels)}
+          </div>
           <div style={{ margin: "1em 0" }}>
             <label>
               <input
                 type="checkbox"
-                checked={ai.musicEnabled}
+                checked={settings.musicEnabled}
                 onChange={this.onMusicChange}
               />{" "}
               Enable music
@@ -138,7 +145,7 @@ class Options extends React.PureComponent<IProps & IDerivedProps> {
   };
 
   onMusicChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
-    this.props.updateAi({
+    this.props.updateSettings({
       musicEnabled: ev.currentTarget.checked,
     });
   };
@@ -168,7 +175,7 @@ class Options extends React.PureComponent<IProps & IDerivedProps> {
   }
 
   onSelectChange = (ev: React.ChangeEvent<HTMLSelectElement>) => {
-    this.props.updateAi({
+    this.props.updateSettings({
       level: parseInt(ev.currentTarget.value, 10),
     });
   };
@@ -178,15 +185,19 @@ interface IProps {}
 
 interface IDerivedProps {
   ai: IAIState;
+  settings: ISettingsState;
 
   updateAi: typeof actions.updateAi;
+  updateSettings: typeof actions.updateSettings;
 }
 
 export default connect<IProps>(Options, {
   state: (rs: IRootState) => ({
     ai: rs.ai,
+    settings: rs.settings,
   }),
   actions: {
     updateAi: actions.updateAi,
+    updateSettings: actions.updateSettings,
   },
 });

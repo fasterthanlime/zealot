@@ -17,6 +17,7 @@ import {
   IScoreState,
   swapColor,
   aiColor,
+  ISettingsState,
 } from "../types/index";
 import { connect } from "./connect";
 
@@ -125,7 +126,7 @@ const Spinner = styled.div`
 
 class UI extends React.PureComponent<IProps & IDerivedProps> {
   render() {
-    const { ai, score, controls } = this.props;
+    const { ai, settings, score, controls } = this.props;
     let aiInfoClass = "";
     if (ai.optionsOpen) {
       aiInfoClass = "hidden";
@@ -185,7 +186,7 @@ class UI extends React.PureComponent<IProps & IDerivedProps> {
               <br />AI chance: {(ai.winChance * 100).toFixed()}%
             </div>
           ) : null}
-          {formatDifficulty(ai.level)}
+          {formatDifficulty(settings.level)}
           <Buttons>
             <Button className="small" onClick={this.onOptions}>
               Options
@@ -250,6 +251,7 @@ interface IProps {}
 
 interface IDerivedProps {
   ai: IAIState;
+  settings: ISettingsState;
   score: IScoreState;
   controls: IControlsState;
 
@@ -261,6 +263,7 @@ interface IDerivedProps {
 export default connect<IProps>(UI, {
   state: (rs: IRootState) => ({
     ai: rs.ai,
+    settings: rs.settings,
     score: rs.score,
     controls: rs.controls,
   }),

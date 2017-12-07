@@ -71,16 +71,19 @@ export default function(watcher: Watcher) {
             thinking: false,
           }),
         );
-        let [deckIndex, boardIndex] = lightNode.p;
 
-        let row = Math.floor(boardIndex / game.board.numCols);
-        let col = boardIndex - row * game.board.numCols;
-        const heavyPlay: IPlayCardPayload = {
-          col,
-          row,
-          index: deckIndex,
-          player: turnPlayer,
-        };
+        let heavyPlay: IPlayCardPayload = null;
+        if (lightNode.p.length > 0) {
+          let [deckIndex, boardIndex] = lightNode.p;
+          let row = Math.floor(boardIndex / game.board.numCols);
+          let col = boardIndex - row * game.board.numCols;
+          heavyPlay = {
+            col,
+            row,
+            index: deckIndex,
+            player: turnPlayer,
+          };
+        }
         store.dispatch(actions.playCard(heavyPlay));
       }
 

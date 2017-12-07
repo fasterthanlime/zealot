@@ -286,7 +286,7 @@ export async function playAI(
     }
   };
 
-  let deadline = store.getState().ai.level * aiLevelFactor * 1000;
+  let deadline = store.getState().settings.level * aiLevelFactor * 1000;
   let startTime = Date.now();
   let iterations = 0;
   let sleepInterval = 1;

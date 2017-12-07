@@ -32,6 +32,7 @@ export interface IRootState {
   game: IGameState;
   score: IScoreState;
   ai: IAIState;
+  settings: ISettingsState;
   controls: IControlsState;
   metrics: IMetricsState;
   notifications: any;
@@ -76,8 +77,11 @@ export interface IAIState {
   winChance: number;
   itersPerSec: string;
   lightItersPerSec: string;
-  level: number;
   optionsOpen: boolean;
+}
+
+export interface ISettingsState {
+  level: number;
   musicEnabled: boolean;
 }
 

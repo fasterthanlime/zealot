@@ -6,9 +6,8 @@ const initialState: IAIState = {
   thinking: false,
   winChance: 0,
   itersPerSec: "",
-  level: 4,
+  lightItersPerSec: "",
   optionsOpen: true,
-  musicEnabled: true,
 };
 
 export default reducer<IAIState>(initialState, on => {

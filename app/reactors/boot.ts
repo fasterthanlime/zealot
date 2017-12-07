@@ -18,7 +18,7 @@ export default function(watcher: Watcher) {
         console.log("Loaded settings: ", data);
         const { musicEnabled, level } = data;
         store.dispatch(
-          actions.updateAi({
+          actions.updateSettings({
             musicEnabled,
             level,
           }),
@@ -27,9 +27,8 @@ export default function(watcher: Watcher) {
     }
   });
 
-  watcher.on(actions.updateAi, async (store, action) => {
-    const { ai } = store.getState();
-    const { musicEnabled, level } = ai;
+  watcher.on(actions.updateSettings, async (store, action) => {
+    const { musicEnabled, level } = store.getState().settings;
     const settings = { musicEnabled, level };
     localStorage.setItem(LS_KEY, JSON.stringify(settings));
     console.log("Saved settings: ", settings);

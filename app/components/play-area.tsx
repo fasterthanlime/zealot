@@ -204,7 +204,7 @@ class PlayArea extends React.PureComponent<IProps & IDerivedProps> {
 
       if (canPlay && controls.awaitingInput && controls.canPass) {
         passes.push(
-          <PassDiv>
+          <PassDiv key={`pass-${color}`}>
             <p>You have no legal moves available!</p>
             <PassDivInner>
               <Button onClick={this.onPass}>Pass turn</Button>

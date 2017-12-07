@@ -1,4 +1,11 @@
-import { IAction, Color, AreaType, IAIState, ILastMove } from "../types/index";
+import {
+  IAction,
+  Color,
+  AreaType,
+  IAIState,
+  ILastMove,
+  ISettingsState,
+} from "../types/index";
 import { Outcome } from "../util/rules";
 
 export function createAction<PayloadType>(type: string) {
@@ -59,6 +66,7 @@ export const types = mirror({
   DEAL_ALL: null,
 
   UPDATE_AI: null,
+  UPDATE_SETTINGS: null,
 
   REPLAY: null,
   SAVE_STATE: null,
@@ -138,3 +146,6 @@ export const viewportResized = createAction<{
 export const dealAll = createAction<{}>(types.DEAL_ALL);
 
 export const updateAi = createAction<Partial<IAIState>>(types.UPDATE_AI);
+export const updateSettings = createAction<Partial<ISettingsState>>(
+  types.UPDATE_SETTINGS,
+);

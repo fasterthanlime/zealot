@@ -60,7 +60,7 @@ export function watchMusic(store: IStore) {
   let currentSong: any = null;
 
   setInterval(() => {
-    const enabled = store.getState().ai.musicEnabled;
+    const enabled = store.getState().settings.musicEnabled;
     if (!enabled) {
       currentPlaylist.length = 0;
       if (currentSong) {

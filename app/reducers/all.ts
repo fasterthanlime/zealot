@@ -6,6 +6,7 @@ import system from "./system";
 import game from "./game";
 import score from "./score";
 import ai from "./ai";
+import settings from "./settings";
 import { reducer as notifications } from "react-notification-system-redux";
 import { getMetrics } from "./get-metrics";
 import derivedReducer from "./derived-reducer";
@@ -17,6 +18,7 @@ const initialReducer = combineReducers<IRootState>({
   score,
   notifications,
   ai,
+  settings,
   metrics: (state = {}) => state,
 });
 
