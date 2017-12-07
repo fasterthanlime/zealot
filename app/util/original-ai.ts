@@ -46,7 +46,7 @@ export async function playAI(
   game: IGameState,
   player: Color,
 ): Promise<MCNode> {
-  console.warn(`=== Original AI start, playing ${colorName(player)}`);
+  // console.warn(`=== Original AI start, playing ${colorName(player)}`);
 
   if (!hasLegalPlays(game, player)) {
     // just pass
@@ -377,10 +377,10 @@ export async function playAI(
     }
   }
   let totalTime = Date.now() - startTime;
-  console.log(`${iterations} iterations`);
+  // console.log(`${iterations} iterations`);
 
   const perSec = (iterations / 1000 / (totalTime / 1000)).toFixed(1);
-  console.log(`${perSec}K iterations/s (${iterations} iterations total)`);
+  // console.log(`${perSec}K iterations/s (${iterations} iterations total)`);
 
   let mostWins = 0;
   let bestNode: MCNode = null;
@@ -392,32 +392,32 @@ export async function playAI(
   }
 
   if (!bestNode) {
-    console.log(`has no best node, had to pick at random`);
+    // console.log(`has no best node, had to pick at random`);
     bestNode = _.sample(root.children);
   }
-  console.log(`first tries: ${firstTries}, weighted tries: ${weightedTries}`);
+  // console.log(`first tries: ${firstTries}, weighted tries: ${weightedTries}`);
 
-  const h = H(game, bestNode.play);
-  console.log(
-    `best node (h=${h}) leads to ${bestNode.wins}/${bestNode.plays} wins (${
-      root.plays
-    } plays total, ${(
-      root.wins /
-      root.plays *
-      100
-    ).toFixed()}% wins for other player)`,
-  );
+  // const h = H(game, bestNode.play);
+  // console.log(
+  //   `best node (h=${h}) leads to ${bestNode.wins}/${bestNode.plays} wins (${
+  //     root.plays
+  //   } plays total, ${(
+  //     root.wins /
+  //     root.plays *
+  //     100
+  //   ).toFixed()}% wins for other player)`,
+  // );
 
   if (bestNode.play) {
-    const card = game.decks[bestNode.player][bestNode.play.index];
-    const bcard = getSquare(game.board, bestNode.play.col, bestNode.play.row);
-    console.log(
-      `it's playing a ${suitName(card.suit)} at ${bestNode.play.col},${
-        bestNode.play.row
-      } over a ${bcard ? suitName(bcard.suit) : "blank"}`,
-    );
+    // const card = game.decks[bestNode.player][bestNode.play.index];
+    // const bcard = getSquare(game.board, bestNode.play.col, bestNode.play.row);
+    // console.log(
+    //   `it's playing a ${suitName(card.suit)} at ${bestNode.play.col},${
+    //     bestNode.play.row
+    //   } over a ${bcard ? suitName(bcard.suit) : "blank"}`,
+    // );
   } else {
-    console.log(`it's passing`);
+    // console.log(`it's passing`);
   }
   // console.log(`tree: `, root);
 

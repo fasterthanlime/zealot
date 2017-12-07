@@ -338,9 +338,6 @@ function lightApplyMove(
 }
 
 function cloneLightGame(lg: ILightGameState): ILightGameState {
-  if (lg.board.length !== 12) {
-    throw new Error(`unexpected length: ${lg.board.length}`);
-  }
   const res: ILightGameState = {
     board: [...lg.board],
     decks: {
@@ -459,7 +456,6 @@ export async function playAILight(
   };
 
   const scoreWeight = 2;
-  // const scoreBonus = 10;
   const scoreBonus = 0;
   const H = (
     lg: ILightGameState,
@@ -473,7 +469,7 @@ export async function playAILight(
     }
 
     // phew, ok, there we go - let's grade this play!
-    let score = 0;
+    let score = 2;
 
     let row = Math.floor(boardIndex / numCols);
     let col = boardIndex - row * numCols;
@@ -494,11 +490,11 @@ export async function playAILight(
         if (gain < 2) {
           if (gain < 1) {
             // wasting a goblin isn't cool
-            score -= 4;
+            score -= 0.5;
           }
         } else {
           // kaboom
-          score = (gain - 2) * 1.5;
+          score = (gain - 2) * 1.3;
         }
         break;
       }
@@ -511,7 +507,7 @@ export async function playAILight(
         if (gain < 2) {
           if (gain < 1) {
             // wasting a priest is really not cool
-            score -= 6;
+            score -= 0.8;
           }
         } else {
           // aw yeah
@@ -524,69 +520,115 @@ export async function playAILight(
         switch (absoluteBCard) {
           case Suit.Priest: {
             // stealing a priest is hella cool
-            score += 10;
+            score += 5;
             break;
           }
           case Suit.Goblin: {
             // well that's cool too
-            score += 5;
+            score += 3;
             break;
           }
           case Suit.MarksmanL: {
-            let theirCardCount = countCards(
-              lg,
-              col,
-              row,
-              Suit.MarksmanL,
-              opponent,
-            );
+            let theirCardCount = 0;
+            if (col - 1 >= 0) {
+              theirCardCount += countCards(
+                lg,
+                col - 1,
+                row,
+                Suit.MarksmanL,
+                opponent,
+              );
+            }
             if (theirCardCount > 1) {
               // i'll allow it
-              score += (theirCardCount - 1) * 2.1;
+              score += (theirCardCount - 1) * 1.4;
+            } else {
+              score -= 0.4; // sounds dumb
             }
             break;
           }
           case Suit.MarksmanR: {
             // well, how much is it worth?
-            let theirCardCount = countCards(
-              lg,
-              col,
-              row,
-              Suit.MarksmanR,
-              opponent,
-            );
+            let theirCardCount = 0;
+            if (col + 1 < numCols) {
+              theirCardCount = countCards(
+                lg,
+                col + 1,
+                row,
+                Suit.MarksmanR,
+                opponent,
+              );
+            }
             if (theirCardCount > 1) {
               // i'll allow it
-              score += (theirCardCount - 1) * 2.1;
+              score += (theirCardCount - 1) * 1.4;
+            } else {
+              score -= 0.4; // sounds dumb
             }
             break;
           }
           default: {
             // wasting a necromancer is extremely naughty
-            score -= 10;
+            score -= 0.99;
           }
         }
         break;
       }
       case Suit.MarksmanL: {
-        let ourCardCount = countCards(lg, col, row, Suit.MarksmanL, player);
-        score += ourCardCount * 2;
+        if (col !== numCols - 1) {
+          if (absoluteBCard === 0) {
+            // wasting a marksman is weird
+            score -= 0.5;
+          } else {
+            // idk why AIs are obsessed with that move
+            score -= 0.3;
+          }
+        }
 
-        if (ourCardCount > 0) {
-          const distanceFromBorder = col;
-          score += distanceFromBorder * 0.2;
+        if (col + 1 < numCols) {
+          let ourCardCount = countCards(
+            lg,
+            col + 1,
+            row,
+            Suit.MarksmanL,
+            player,
+          );
+          score += ourCardCount * 0.8;
+
+          if (ourCardCount > 0) {
+            const distanceFromBorder = col;
+            score += distanceFromBorder * 0.2;
+          }
         }
         break;
       }
       case Suit.MarksmanR: {
-        let ourCardCount = countCards(lg, col, row, Suit.MarksmanR, player);
-        score += ourCardCount * 2;
-
-        if (ourCardCount > 0) {
-          const distanceFromBorder = numCols - col;
-          score += distanceFromBorder * 0.2;
+        if (col !== 0) {
+          if (absoluteBCard === 0) {
+            // wasting a marksman is weird
+            score -= 0.5;
+          } else {
+            // idk why AIs are obsessed with that move
+            score -= 0.3;
+          }
         }
-        break;
+
+        if (col - 1 >= 0) {
+          let ourCardCount = countCards(
+            lg,
+            col - 1,
+            row,
+            Suit.MarksmanR,
+            player,
+          );
+          score += ourCardCount * 0.8;
+
+          if (ourCardCount > 0) {
+            const distanceFromBorder = numCols - col;
+            score += distanceFromBorder * 0.2;
+          }
+          break;
+        }
       }
       case Suit.Monk: {
         let ourCardCount = countCards(lg, col, row, Suit.Monk, player);
@@ -595,14 +637,14 @@ export async function playAILight(
       }
       case Suit.Peasant: {
         // getting rid of peasants is a neat idea
-        score += 0.1;
+        score += 1.5;
 
         // placing peasants to the right of a MarksmanR is good
         for (let c = col - 1; c >= 0; c--) {
           const bc = lg.board[c + row * numCols];
           const abc = bc > 0 ? bc : -bc;
           if (abc === Suit.MarksmanR) {
-            score += 1;
+            score += 0.2;
           }
         }
         // placing peasants to the left of a MarksmanL is good
@@ -610,7 +652,7 @@ export async function playAILight(
           const bc = lg.board[c + row * numCols];
           const abc = bc > 0 ? bc : -bc;
           if (abc === Suit.MarksmanL) {
-            score += 1;
+            score += 0.2;
           }
         }
 
@@ -621,18 +663,18 @@ export async function playAILight(
         let rcol = col + 1;
         if (lcol >= 0 && lg.board[lcol + row * numCols] * mul > 0) {
           // one of our cards on the left? nice
-          score += 0.25;
+          score += 0.1;
           adjacencyCount++;
         }
         if (rcol < numCols && lg.board[rcol + row * numCols] * mul > 0) {
           // one of our cards on the right? nice
-          score += 0.25;
+          score += 0.1;
           adjacencyCount++;
         }
 
         if (adjacencyCount >= 2) {
           // cards on both sides? jackpot!
-          score += 1;
+          score += 0.3;
         }
         break;
       }
@@ -707,7 +749,7 @@ export async function playAILight(
     }
   };
 
-  let deadline = store.getState().settings.level * aiLevelFactor * 1000 * 4;
+  let deadline = store.getState().settings.level * aiLevelFactor * 1000;
   let startTime = Date.now();
   let iterations = 0;
   let totalNodes = 0;
@@ -746,7 +788,7 @@ export async function playAILight(
         totalNodes += children.length;
         children.length = Math.min(
           children.length,
-          Math.max(12, Math.ceil(children.length / 7)),
+          Math.max(10, Math.ceil(children.length / 8)),
         );
 
         node.children = children;
@@ -795,10 +837,7 @@ export async function playAILight(
     }
   }
   let totalTime = Date.now() - startTime;
-  console.log(`${iterations} literations, ${totalNodes} total nodes`);
-
   const perSec = (iterations / 1000 / (totalTime / 1000)).toFixed(1);
-  console.log(`${perSec}K literations/s (${iterations} literations total)`);
 
   let mostWins = 0;
   let bestNode: LightMCNode = null;
@@ -809,20 +848,13 @@ export async function playAILight(
     }
   }
   if (!bestNode) {
-    console.log(`has no best node, had to pick at random`);
+    // console.log(`has no best node, had to pick at random`);
     bestNode = _.sample(root.children);
   }
 
-  console.log(`first tries: ${firstTries}, weighted tries: ${weightedTries}`);
-
-  console.log(
-    `best node (h=${bestNode.score}) leads to ${bestNode.wins}/${
-      bestNode.numPlays
-    } wins (${root.numPlays} plays total)`,
-  );
-
+  let summary = ``;
   if (bestNode.deckIndex < 0) {
-    console.log(`it's passing`);
+    summary = `is passing`;
   } else {
     let { deckIndex, boardIndex } = bestNode;
     const card = lg.decks[player][deckIndex];
@@ -833,20 +865,32 @@ export async function playAILight(
     let row = Math.floor(boardIndex / numCols);
     let col = boardIndex - row * numCols;
 
-    console.log(
-      `it's playing a ${suitName(absoluteCard)} at ${col},${row} over a ${
-        absoluteBCard === 0 ? "blank" : suitName(absoluteBCard)
-      }`,
-    );
+    summary = `is playing a ${suitName(absoluteCard)} at ${col},${row} over a ${
+      absoluteBCard === 0 ? "blank" : suitName(absoluteBCard)
+    }`;
+  }
+
+  // console.log(`${perSec}K literations/s (${iterations} literations)`);
+  const oldWinChance = store.getState().ai.lightWinChance;
+  const winChance = bestNode.wins / bestNode.numPlays;
+
+  console.log(
+    `best node ${summary} (h=${bestNode.score}) leads to ${bestNode.wins}/${
+      bestNode.numPlays
+    } wins (${root.numPlays} plays total)`,
+  );
+  console.log(`====> new win chance: ${(winChance * 100).toFixed(1)}%`);
+
+  if (winChance < oldWinChance && oldWinChance - winChance > 0.1) {
+    console.error(`chance drop, did we do something stupid ?`);
   }
 
   store.dispatch(
     actions.updateAi({
       lightItersPerSec: `${perSec}K literations/s`,
-      lightWinChance: bestNode.wins / bestNode.numPlays,
+      lightWinChance: winChance,
     }),
   );
-  // console.log(`tree: `, root);
 
   return bestNode;
 }

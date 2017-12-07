@@ -214,9 +214,7 @@ export default function(watcher: Watcher) {
     await delay(dealWait);
     store.dispatch(actions.dealAll({}));
     await delay(dealWait);
-    store.dispatch(
-      actions.nextTurn({ turnPlayer: Color.Blue, canPass: false }),
-    );
+    store.dispatch(actions.nextTurn({ turnPlayer: Color.Red, canPass: false }));
   });
 
   watcher.on(actions.dragStart, async (store, action) => {
