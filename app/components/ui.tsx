@@ -179,11 +179,15 @@ class UI extends React.PureComponent<IProps & IDerivedProps> {
             <ScoreBoard className="blue">{score.wins}</ScoreBoard>
           </div>
           {inDev ? (
-            <div>
+            <div style={{ fontSize: "140%" }}>
               {ai.itersPerSec}
               <br />
+              AI chance: {(ai.winChance * 100).toFixed()}%
+              <hr />
               {ai.lightItersPerSec}
-              <br />AI chance: {(ai.winChance * 100).toFixed()}%
+              <br />
+              light AI chance: {(ai.lightWinChance * 100).toFixed()}%
+              <hr />
             </div>
           ) : null}
           {formatDifficulty(settings.level)}

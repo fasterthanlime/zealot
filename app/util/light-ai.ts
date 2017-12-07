@@ -689,14 +689,15 @@ export async function playAILight(
           const h = H(clg, child.p, nextPlayer) / ni;
           const value = wi / ni + c * Math.sqrt(logNi / ni) + h;
           if (value > bestValue) {
-            // if (ni > 100) {
-            // console.log(
-            //   `we've played`,
-            //   child,
-            //   `over a 100 times and yet ${value} > ${
-            //     bestValue
-            //   }. note that h = ${h}`,
-            // );
+            // if (ni > 100 && bestValue !== Number.MIN_SAFE_INTEGER) {
+            //   console.log(
+            //     `we've played`,
+            //     child,
+            //     `over a 100 times and yet ${value} > ${bestValue}. h = ${
+            //       h
+            //     }, wi = ${wi}, ni = ${ni}, c = ${c}, logNi / ni = ${logNi /
+            //       ni}`,
+            //   );
             // }
             bestIndex = index;
             bestValue = value;
@@ -742,6 +743,7 @@ export async function playAILight(
         let nextPlayer = swapColor(cplayer);
         let plays = lightLegalPlays(clg, nextPlayer);
         let scoredPlays = _.map(plays, p => ({ p, s: H(clg, p, nextPlayer) }));
+        scoredPlays = _.sortBy(scoredPlays, p => -p.s);
         const maxBestPlays = Math.max(10, Math.ceil(plays.length / 8));
         plays = _.map(_.first(scoredPlays, maxBestPlays), p => p.p);
 
@@ -843,6 +845,7 @@ export async function playAILight(
   store.dispatch(
     actions.updateAi({
       lightItersPerSec: `${perSec}K literations/s`,
+      lightWinChance: bestNode.w / bestNode.n,
     }),
   );
   console.log(`tree: `, root);

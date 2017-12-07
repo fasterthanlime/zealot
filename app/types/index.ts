@@ -75,6 +75,7 @@ export interface IGameState {
 export interface IAIState {
   thinking: boolean;
   winChance: number;
+  lightWinChance: number;
   itersPerSec: string;
   lightItersPerSec: string;
   optionsOpen: boolean;

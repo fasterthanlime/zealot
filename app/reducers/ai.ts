@@ -5,6 +5,7 @@ import * as actions from "../actions";
 const initialState: IAIState = {
   thinking: false,
   winChance: 0,
+  lightWinChance: 0,
   itersPerSec: "",
   lightItersPerSec: "",
   optionsOpen: true,
