@@ -197,6 +197,23 @@ export async function playAILight(
         break;
       }
 
+      case Suit.Priest: {
+        let gain =
+          countCards(lg, col, row, absoluteBCard, player) -
+          countCards(lg, col, row, absoluteBCard, opponent);
+
+        if (gain < 2) {
+          if (gain < 1) {
+            // wasting a priest is really not cool
+            score -= 6;
+          }
+        } else {
+          // aw yeah
+          score = (gain - 2) * 1.8;
+        }
+        break;
+      }
+
       case Suit.Necromancer: {
         switch (absoluteBCard) {
           case Suit.Priest: {
@@ -209,13 +226,12 @@ export async function playAILight(
             score += 5;
             break;
           }
-          case Suit.MarksmanR: {
-            // well, how much is it worth?
+          case Suit.MarksmanL: {
             let theirCardCount = countCards(
               lg,
               col,
               row,
-              Suit.MarksmanR,
+              Suit.MarksmanL,
               opponent,
             );
             if (theirCardCount > 1) {
@@ -224,12 +240,13 @@ export async function playAILight(
             }
             break;
           }
-          case Suit.MarksmanL: {
+          case Suit.MarksmanR: {
+            // well, how much is it worth?
             let theirCardCount = countCards(
               lg,
               col,
               row,
-              Suit.MarksmanL,
+              Suit.MarksmanR,
               opponent,
             );
             if (theirCardCount > 1) {
@@ -296,7 +313,7 @@ export async function playAILight(
         let adjacencyCount = 0;
         let lcol = col - 1;
         let rcol = col + 1;
-        if (lcol > 0 && lg.board[lcol + row * numCols] * mul > 0) {
+        if (lcol >= 0 && lg.board[lcol + row * numCols] * mul > 0) {
           // one of our cards on the left? nice
           score += 0.25;
           adjacencyCount++;
