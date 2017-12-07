@@ -66,6 +66,11 @@ export default function(watcher: Watcher) {
         store.dispatch(actions.playCard(node.play));
       } else {
         const lightNode = await playAILight(store, game, turnPlayer);
+        store.dispatch(
+          actions.updateAi({
+            thinking: false,
+          }),
+        );
         let [deckIndex, boardIndex] = lightNode.p;
 
         let row = Math.floor(boardIndex / game.board.numCols);
