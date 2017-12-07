@@ -419,7 +419,7 @@ export async function playAI(
   } else {
     console.log(`it's passing`);
   }
-  console.log(`tree: `, root);
+  // console.log(`tree: `, root);
 
   store.dispatch(
     actions.updateAi({

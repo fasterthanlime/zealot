@@ -75,8 +75,10 @@ export async function playLightAI(store: IStore) {
   );
 
   let heavyPlay: IPlayCardPayload = null;
-  if (lightNode.play.length > 0) {
-    let [deckIndex, boardIndex] = lightNode.play;
+  if (lightNode.deckIndex < 0) {
+    // pass
+  } else {
+    let { deckIndex, boardIndex } = lightNode;
     let row = Math.floor(boardIndex / game.board.numCols);
     let col = boardIndex - row * game.board.numCols;
     heavyPlay = {
@@ -106,10 +108,10 @@ export default function(watcher: Watcher) {
       // await delay(200);
 
       if (turnPlayer === Color.Red) {
-        // await playOriginalAI(store);
-        await playLightAI(store);
-      } else {
+        await playOriginalAI(store);
         // await playLightAI(store);
+      } else {
+        await playLightAI(store);
       }
       // favicon.badge(1);
     }

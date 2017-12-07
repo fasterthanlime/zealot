@@ -82,9 +82,31 @@ export default reducer<IGameState>(initialState, on => {
       return shuffle<ICard>([...normalCards, ...specialCards]);
     };
 
+    const fixedDeck = [
+      Suit.Priest,
+      Suit.Necromancer,
+      Suit.Monk,
+      Suit.MarksmanL,
+      Suit.MarksmanR,
+      Suit.Peasant,
+      Suit.Peasant,
+      Suit.Peasant,
+      Suit.Peasant,
+      Suit.Peasant,
+    ];
+
+    const generateFixedDeck = (color: Color): ICard[] =>
+      map(fixedDeck, suit => ({
+        id: genid(),
+        color,
+        suit,
+      }));
+
     let deals = shuffle<ICard>([
-      ...generateDeck(Color.Red),
-      ...generateDeck(Color.Blue),
+      // ...generateDeck(Color.Red),
+      // ...generateDeck(Color.Blue),
+      ...generateFixedDeck(Color.Red),
+      ...generateFixedDeck(Color.Blue),
     ]);
 
     return {

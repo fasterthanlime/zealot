@@ -20,7 +20,9 @@ const c = Math.sqrt(2);
 
 export interface LightMCNode {
   // move
-  play: ILightPlay;
+  deckIndex: number;
+  boardIndex: number;
+
   // number of wins
   wins: number;
   // number of plays
@@ -63,9 +65,6 @@ function cardToLightCard(card: ICard): number {
   return card.suit;
 }
 
-// [deckIndex, boardIndex]
-type ILightPlay = number[];
-
 export function lightHasLegalPlays(
   lg: ILightGameState,
   player: Color,
@@ -94,15 +93,12 @@ export function lightHasLegalPlays(
   return false;
 }
 
-// so it can be re-used
-let lightPassPlay = [];
-
 export function lightLegalPlays(
   lg: ILightGameState,
   player: Color,
   includePass = true,
-): ILightPlay[] {
-  let plays: ILightPlay[] = [];
+): LightMCNode[] {
+  let nodes: LightMCNode[] = [];
   let deck = lg.decks[player];
   let boardLength = lg.board.length;
   for (let deckIndex = 0; deckIndex < deck.length; deckIndex++) {
@@ -116,14 +112,28 @@ export function lightLegalPlays(
         // invalid move
       } else {
         // all good
-        plays.push([deckIndex, boardIndex]);
+        nodes.push({
+          deckIndex,
+          boardIndex,
+          numPlays: 0,
+          wins: 0,
+          score: 0,
+          children: null,
+        });
       }
     }
   }
-  if (includePass && plays.length === 0) {
-    plays.push(lightPassPlay);
+  if (includePass && nodes.length === 0) {
+    nodes.push({
+      deckIndex: -1,
+      boardIndex: 0,
+      numPlays: 0,
+      wins: 0,
+      score: 0,
+      children: null,
+    });
   }
-  return plays;
+  return nodes;
 }
 
 export function lightSimulateGame(
@@ -140,7 +150,9 @@ export function lightSimulateGame(
 
   while (true) {
     let tries = 20;
-    let play = lightPassPlay;
+    let playDeckIndex = -1;
+    let playBoardIndex = 0;
+
     let deck = lg.decks[player];
     if (deck.length > 0) {
       while (tries-- > 0) {
@@ -157,12 +169,13 @@ export function lightSimulateGame(
           continue;
         }
 
-        play = [deckIndex, boardIndex];
+        playDeckIndex = deckIndex;
+        playBoardIndex = boardIndex;
         break;
       }
     }
 
-    lightApplyMove(lg, play, player, numCols, numRows);
+    lightApplyMove(lg, playDeckIndex, playBoardIndex, player, numCols, numRows);
     let outcome = lightComputeOutcome(lg, player);
     if (outcome == Outcome.Neutral) {
       player = swapColor(player);
@@ -207,17 +220,17 @@ function lightComputeOutcome(lg: ILightGameState, player: Color): Outcome {
 
 function lightApplyMove(
   lg: ILightGameState,
-  play: ILightPlay,
+  deckIndex: number,
+  boardIndex: number,
   player: Color,
   numCols: number,
   numRows: number,
 ) {
-  if (play.length === 0) {
+  if (deckIndex < 0) {
     // if we're passing, don't change anything - that was easy!
     return;
   }
 
-  let [deckIndex, boardIndex] = play;
   let deck = lg.decks[player];
   let card = deck[deckIndex];
   deck.splice(deckIndex, 1);
@@ -226,26 +239,10 @@ function lightApplyMove(
   let mul = player === Color.Red ? 1 : -1;
 
   let row = Math.floor(boardIndex / numCols);
-  if (row < 0 || row >= 3) {
-    throw new Error(`row should be in [0,2], is ` + row);
-  }
   let col = boardIndex - row * numCols;
-  if (col < 0 || col >= 4) {
-    throw new Error(`col should be in [0,3], is ` + col);
-  }
-
-  if (boardIndex < 0 || boardIndex >= 12) {
-    throw new Error(`boardIndex should be in [0,11], is` + boardIndex);
-  }
 
   let bcard = lg.board[boardIndex];
   let absoluteBCard: Suit = bcard > 0 ? bcard : -bcard;
-
-  let chkIndex = (i: number) => {
-    if (i < 0 || i >= 12) {
-      throw new Error(`index should be in [0,11], is ` + i);
-    }
-  };
 
   switch (absoluteBCard) {
     case Suit.Necromancer: {
@@ -255,14 +252,12 @@ function lightApplyMove(
       } else {
         // steaaaal it
         deck.push(absoluteBCard * mul);
-        chkIndex(boardIndex);
         lg.board[boardIndex] = 0;
       }
       break;
     }
     default: {
       // first of all, we're the captain now
-      chkIndex(boardIndex);
       lg.board[boardIndex] = card;
 
       let goblin = absoluteCard === Suit.Goblin;
@@ -292,11 +287,9 @@ function lightApplyMove(
               for (let r = rMin; r <= rMax; r++) {
                 if (goblin) {
                   // boom!
-                  chkIndex(c + r * numCols);
                   lg.board[c + r * numCols] = 0;
                 } else if (priest) {
                   // convert!
-                  chkIndex(c + r * numCols);
                   lg.board[c + r * numCols] *= -1;
                 }
               }
@@ -308,10 +301,8 @@ function lightApplyMove(
             let cMin = 0;
             for (let c = cMax; c >= cMin; c--) {
               if (goblin) {
-                chkIndex(c + row * numCols);
                 lg.board[c + row * numCols] = 0;
               } else if (priest) {
-                chkIndex(c + row * numCols);
                 lg.board[c + row * numCols] *= -1;
               }
             }
@@ -322,10 +313,8 @@ function lightApplyMove(
             let cMax = numCols - 1;
             for (let c = cMin; c <= cMax; c++) {
               if (goblin) {
-                chkIndex(c + row * numCols);
                 lg.board[c + row * numCols] = 0;
               } else if (priest) {
-                chkIndex(c + row * numCols);
                 lg.board[c + row * numCols] *= -1;
               }
             }
@@ -333,10 +322,8 @@ function lightApplyMove(
           }
           default: {
             if (goblin) {
-              chkIndex(col + row * numCols);
               lg.board[col + row * numCols] = 0;
             } else if (priest) {
-              chkIndex(col + row * numCols);
               lg.board[col + row * numCols] *= -1;
             }
             break;
@@ -383,7 +370,8 @@ export async function playAILight(
 
   if (!lightHasLegalPlays(lg, player)) {
     return <LightMCNode>{
-      play: lightPassPlay,
+      deckIndex: -1,
+      boardIndex: 0,
       wins: 0,
       numPlays: 0,
       children: null,
@@ -391,7 +379,8 @@ export async function playAILight(
   }
 
   let root: LightMCNode = {
-    play: lightPassPlay,
+    deckIndex: -1,
+    boardIndex: 0,
     score: 0,
     wins: 0,
     numPlays: 0,
@@ -469,17 +458,22 @@ export async function playAILight(
     }
   };
 
-  const scoreWeight = 4;
-  const scoreBonus = 10;
-  const H = (lg: ILightGameState, play: ILightPlay, player: Color): number => {
-    if (play.length === 0) {
+  const scoreWeight = 2;
+  // const scoreBonus = 10;
+  const scoreBonus = 0;
+  const H = (
+    lg: ILightGameState,
+    deckIndex: number,
+    boardIndex: number,
+    player: Color,
+  ): number => {
+    if (deckIndex < 0) {
       // pass play? score of 0
       return 0;
     }
 
     // phew, ok, there we go - let's grade this play!
     let score = 0;
-    let [deckIndex, boardIndex] = play;
 
     let row = Math.floor(boardIndex / numCols);
     let col = boardIndex - row * numCols;
@@ -690,19 +684,9 @@ export async function playAILight(
           let ni = child.numPlays;
 
           // see https://en.wikipedia.org/wiki/Monte_Carlo_tree_search#Exploration_and_exploitation
-          const h = H(clg, child.play, nextPlayer) / ni;
+          const h = H(clg, child.deckIndex, child.boardIndex, nextPlayer) / ni;
           const value = wi / ni + c * Math.sqrt(logNi / ni) + h;
           if (value > bestValue) {
-            // if (ni > 100 && bestValue !== Number.MIN_SAFE_INTEGER) {
-            //   console.log(
-            //     `we've played`,
-            //     child,
-            //     `over a 100 times and yet ${value} > ${bestValue}. h = ${
-            //       h
-            //     }, wi = ${wi}, ni = ${ni}, c = ${c}, logNi / ni = ${logNi /
-            //       ni}`,
-            //   );
-            // }
             bestIndex = index;
             bestValue = value;
           }
@@ -710,13 +694,20 @@ export async function playAILight(
       }
 
       n = n.children[bestIndex];
-      lightApplyMove(clg, n.play, nextPlayer, numCols, numRows);
+      lightApplyMove(
+        clg,
+        n.deckIndex,
+        n.boardIndex,
+        nextPlayer,
+        numCols,
+        numRows,
+      );
       cplayer = nextPlayer;
       path.push(n);
     }
   };
 
-  let deadline = store.getState().settings.level * aiLevelFactor * 1000;
+  let deadline = store.getState().settings.level * aiLevelFactor * 1000 * 4;
   let startTime = Date.now();
   let iterations = 0;
   let totalNodes = 0;
@@ -746,28 +737,30 @@ export async function playAILight(
       let outcome = lightComputeOutcome(clg, cplayer);
       if (outcome === Outcome.Neutral) {
         let nextPlayer = swapColor(cplayer);
-        let plays = lightLegalPlays(clg, nextPlayer);
-        let scoredPlays = _.map(plays, p => ({ p, h: H(clg, p, nextPlayer) }));
-        scoredPlays = _.sortBy(scoredPlays, p => -p.h);
-        const maxBestPlays = Math.max(10, Math.ceil(plays.length / 8));
-        scoredPlays = _.first(scoredPlays, maxBestPlays);
-
-        node.children = [];
-        for (const sp of scoredPlays) {
-          let childNode: LightMCNode = {
-            play: sp.p,
-            score: sp.h,
-            wins: 0,
-            numPlays: 0,
-            children: null,
-          };
-          totalNodes++;
-          node.children.push(childNode);
+        let children = lightLegalPlays(clg, nextPlayer);
+        for (const c of children) {
+          c.score = H(clg, c.deckIndex, c.boardIndex, nextPlayer);
         }
+        // highest score first
+        children.sort((a, b) => b.score - a.score);
+        totalNodes += children.length;
+        children.length = Math.min(
+          children.length,
+          Math.max(12, Math.ceil(children.length / 7)),
+        );
+
+        node.children = children;
 
         let chosenChild = _.sample<LightMCNode>(node.children);
         path.push(chosenChild);
-        lightApplyMove(clg, chosenChild.play, nextPlayer, numCols, numRows);
+        lightApplyMove(
+          clg,
+          chosenChild.deckIndex,
+          chosenChild.boardIndex,
+          nextPlayer,
+          numCols,
+          numRows,
+        );
         cplayer = nextPlayer;
         node = chosenChild;
       }
@@ -828,24 +821,10 @@ export async function playAILight(
     } wins (${root.numPlays} plays total)`,
   );
 
-  const cleanNode = (n: LightMCNode) => {
-    if (n.children) {
-      for (const child of n.children) {
-        cleanNode(child);
-      }
-      n.children.length = 0;
-      n.children = null;
-    }
-  };
-  for (const child of root.children) {
-    if (child !== bestNode) {
-      cleanNode(child);
-    }
-  }
-
-  if (bestNode.play.length > 0) {
-    let play = bestNode.play;
-    let [deckIndex, boardIndex] = play;
+  if (bestNode.deckIndex < 0) {
+    console.log(`it's passing`);
+  } else {
+    let { deckIndex, boardIndex } = bestNode;
     const card = lg.decks[player][deckIndex];
     const absoluteCard = card > 0 ? card : -card;
     const bcard = lg.board[boardIndex];
@@ -859,8 +838,6 @@ export async function playAILight(
         absoluteBCard === 0 ? "blank" : suitName(absoluteBCard)
       }`,
     );
-  } else {
-    console.log(`it's passing`);
   }
 
   store.dispatch(
@@ -869,7 +846,7 @@ export async function playAILight(
       lightWinChance: bestNode.wins / bestNode.numPlays,
     }),
   );
-  console.log(`tree: `, root);
+  // console.log(`tree: `, root);
 
   return bestNode;
 }
