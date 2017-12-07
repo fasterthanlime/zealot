@@ -531,6 +531,10 @@ export function lightHasLegalPlays(
 ): boolean {
   let deck = lg.decks[player];
   let boardLength = lg.board.length;
+  if (boardLength !== 12) {
+    throw new Error(`board length should be 12, is ${boardLength}`);
+  }
+
   for (let deckIndex = 0; deckIndex < deck.length; deckIndex++) {
     let card = deck[deckIndex];
     let absoluteCard = card > 0 ? card : -card;
@@ -587,7 +591,10 @@ export function lightSimulateGame(
   numCols: number,
   numRows: number,
 ): Outcome {
-  let maxBoardIndex = lg.board.length;
+  if (lg.board.length !== 12) {
+    throw new Error(`lg.board.length should be 12, is ${lg.board.length}`);
+  }
+  let maxBoardIndex = lg.board.length - 1;
   let swap = false;
 
   while (true) {
@@ -678,10 +685,26 @@ function lightApplyMove(
   let mul = player === Color.Red ? 1 : -1;
 
   let row = Math.floor(boardIndex / numCols);
+  if (row < 0 || row >= 3) {
+    throw new Error(`row should be in [0,2], is ` + row);
+  }
   let col = boardIndex - row * numCols;
+  if (col < 0 || col >= 4) {
+    throw new Error(`col should be in [0,3], is ` + col);
+  }
+
+  if (boardIndex < 0 || boardIndex >= 12) {
+    throw new Error(`boardIndex should be in [0,11], is` + boardIndex);
+  }
 
   let bcard = lg.board[boardIndex];
   let absoluteBCard: Suit = bcard > 0 ? bcard : -bcard;
+
+  let chkIndex = (i: number) => {
+    if (i < 0 || i >= 12) {
+      throw new Error(`index should be in [0,11], is ` + i);
+    }
+  };
 
   switch (absoluteBCard) {
     case Suit.Necromancer: {
@@ -691,12 +714,14 @@ function lightApplyMove(
       } else {
         // steaaaal it
         deck.push(absoluteBCard * mul);
+        chkIndex(boardIndex);
         lg.board[boardIndex] = 0;
       }
       break;
     }
     default: {
       // first of all, we're the captain now
+      chkIndex(boardIndex);
       lg.board[boardIndex] = card;
 
       let goblin = absoluteCard === Suit.Goblin;
@@ -726,9 +751,11 @@ function lightApplyMove(
               for (let r = rMin; r <= rMax; r++) {
                 if (goblin) {
                   // boom!
+                  chkIndex(c + r * numCols);
                   lg.board[c + r * numCols] = 0;
                 } else if (priest) {
                   // convert!
+                  chkIndex(c + r * numCols);
                   lg.board[c + r * numCols] *= -1;
                 }
               }
@@ -740,20 +767,24 @@ function lightApplyMove(
             let cMin = 0;
             for (let c = cMax; c >= cMin; c--) {
               if (goblin) {
+                chkIndex(c + row * numCols);
                 lg.board[c + row * numCols] = 0;
               } else if (priest) {
+                chkIndex(c + row * numCols);
                 lg.board[c + row * numCols] *= -1;
               }
             }
             break;
           }
           case Suit.MarksmanR: {
-            let cMin = 0;
+            let cMin = col;
             let cMax = numCols - 1;
             for (let c = cMin; c <= cMax; c++) {
               if (goblin) {
+                chkIndex(c + row * numCols);
                 lg.board[c + row * numCols] = 0;
               } else if (priest) {
+                chkIndex(c + row * numCols);
                 lg.board[c + row * numCols] *= -1;
               }
             }
@@ -761,8 +792,10 @@ function lightApplyMove(
           }
           default: {
             if (goblin) {
+              chkIndex(col + row * numCols);
               lg.board[col + row * numCols] = 0;
             } else if (priest) {
+              chkIndex(col + row * numCols);
               lg.board[col + row * numCols] *= -1;
             }
             break;
@@ -777,6 +810,9 @@ function lightApplyMove(
 }
 
 function cloneLightGame(lg: ILightGameState): ILightGameState {
+  if (lg.board.length !== 12) {
+    throw new Error(`unexpected length: ${lg.board.length}`);
+  }
   const res: ILightGameState = {
     board: [...lg.board],
     decks: {

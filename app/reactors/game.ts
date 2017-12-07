@@ -24,6 +24,7 @@ import {
 } from "../util/rules";
 import { playAI } from "../util/original-ai";
 import { playAILight } from "../util/light-ai";
+import { IPlayCardPayload } from "../actions";
 
 const dealWait = 250;
 const gameOverWait = 1000;
@@ -46,24 +47,39 @@ const favicon = new Favico({
 
 export default function(watcher: Watcher) {
   watcher.on(actions.nextTurn, async (store, action) => {
-    if (action.payload.turnPlayer === aiColor) {
+    const { turnPlayer } = action.payload;
+    if (true || turnPlayer === aiColor) {
       store.dispatch(actions.updateAi({ thinking: true }));
       await delay(20);
 
       const rs = store.getState();
       let { game } = rs;
 
-      const node = await playAI(store, game, aiColor);
-      store.dispatch(
-        actions.updateAi({
-          thinking: false,
-        }),
-      );
+      if (turnPlayer === Color.Red) {
+        // old AI
+        const node = await playAI(store, game, turnPlayer);
+        store.dispatch(
+          actions.updateAi({
+            thinking: false,
+          }),
+        );
+        store.dispatch(actions.playCard(node.play));
+      } else {
+        const lightNode = await playAILight(store, game, turnPlayer);
+        let [deckIndex, boardIndex] = lightNode.p;
 
-      await playAILight(store, game, aiColor);
+        let row = Math.floor(boardIndex / game.board.numCols);
+        let col = boardIndex - row * game.board.numCols;
+        const heavyPlay: IPlayCardPayload = {
+          col,
+          row,
+          index: deckIndex,
+          player: turnPlayer,
+        };
+        store.dispatch(actions.playCard(heavyPlay));
+      }
 
-      store.dispatch(actions.playCard(node.play));
-      favicon.badge(1);
+      // favicon.badge(1);
     }
   });
 
