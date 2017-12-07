@@ -21,6 +21,7 @@ import {
   Outcome,
   applyMove,
   hasLegalPlays,
+  randomPlay,
 } from "../util/rules";
 import { playAI } from "../util/original-ai";
 import { playAILight } from "../util/light-ai";
@@ -45,48 +46,69 @@ const favicon = new Favico({
   animation: "slide",
 });
 
+async function playOriginalAI(store: IStore) {
+  store.dispatch(actions.updateAi({ thinking: true }));
+  const rs = store.getState();
+  let { game } = rs;
+  const { turnPlayer } = rs.controls;
+
+  // old AI
+  const node = await playAI(store, game, turnPlayer);
+  store.dispatch(
+    actions.updateAi({
+      thinking: false,
+    }),
+  );
+  store.dispatch(actions.playCard(node.play));
+}
+
+async function playLightAI(store: IStore) {
+  store.dispatch(actions.updateAi({ thinking: true }));
+  const rs = store.getState();
+  let { game } = rs;
+  const { turnPlayer } = rs.controls;
+  const lightNode = await playAILight(store, game, turnPlayer);
+  store.dispatch(
+    actions.updateAi({
+      thinking: false,
+    }),
+  );
+
+  let heavyPlay: IPlayCardPayload = null;
+  if (lightNode.p.length > 0) {
+    let [deckIndex, boardIndex] = lightNode.p;
+    let row = Math.floor(boardIndex / game.board.numCols);
+    let col = boardIndex - row * game.board.numCols;
+    heavyPlay = {
+      col,
+      row,
+      index: deckIndex,
+      player: turnPlayer,
+    };
+  }
+  store.dispatch(actions.playCard(heavyPlay));
+}
+
+async function playRandomAI(store: IStore) {
+  store.dispatch(actions.updateAi({ thinking: true }));
+  const rs = store.getState();
+  let { game } = rs;
+  const { turnPlayer } = rs.controls;
+  const play = randomPlay(game, turnPlayer);
+  store.dispatch(actions.playCard(play));
+  store.dispatch(actions.updateAi({ thinking: false }));
+}
+
 export default function(watcher: Watcher) {
   watcher.on(actions.nextTurn, async (store, action) => {
     const { turnPlayer } = action.payload;
-    if (true || turnPlayer === aiColor) {
-      store.dispatch(actions.updateAi({ thinking: true }));
-      await delay(20);
-
-      const rs = store.getState();
-      let { game } = rs;
-
+    if (true) {
       if (turnPlayer === Color.Red) {
-        // old AI
-        const node = await playAI(store, game, turnPlayer);
-        store.dispatch(
-          actions.updateAi({
-            thinking: false,
-          }),
-        );
-        store.dispatch(actions.playCard(node.play));
+        await playOriginalAI(store);
       } else {
-        const lightNode = await playAILight(store, game, turnPlayer);
-        store.dispatch(
-          actions.updateAi({
-            thinking: false,
-          }),
-        );
-
-        let heavyPlay: IPlayCardPayload = null;
-        if (lightNode.p.length > 0) {
-          let [deckIndex, boardIndex] = lightNode.p;
-          let row = Math.floor(boardIndex / game.board.numCols);
-          let col = boardIndex - row * game.board.numCols;
-          heavyPlay = {
-            col,
-            row,
-            index: deckIndex,
-            player: turnPlayer,
-          };
-        }
-        store.dispatch(actions.playCard(heavyPlay));
+        // await playLightAI(store);
+        await playRandomAI(store);
       }
-
       // favicon.badge(1);
     }
   });
