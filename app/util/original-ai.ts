@@ -14,6 +14,7 @@ import {
   forEachAreaSquare,
   Suit,
   getCardAreaType,
+  colorName,
 } from "../types/index";
 import {
   hasLegalPlays,
@@ -45,6 +46,8 @@ export async function playAI(
   game: IGameState,
   player: Color,
 ): Promise<MCNode> {
+  console.warn(`=== Original AI start, playing ${colorName(player)}`);
+
   if (!hasLegalPlays(game, player)) {
     // just pass
     return <MCNode>{
@@ -389,10 +392,10 @@ export async function playAI(
   }
 
   if (!bestNode) {
-    console.warn(`has no best node, had to pick at random`);
+    console.log(`has no best node, had to pick at random`);
     bestNode = _.sample(root.children);
   }
-  console.warn(`first tries: ${firstTries}, weighted tries: ${weightedTries}`);
+  console.log(`first tries: ${firstTries}, weighted tries: ${weightedTries}`);
 
   const h = H(game, bestNode.play);
   console.log(
@@ -404,7 +407,6 @@ export async function playAI(
       100
     ).toFixed()}% wins for other player)`,
   );
-  console.log(`tree: `, root);
 
   if (bestNode.play) {
     const card = game.decks[bestNode.player][bestNode.play.index];
@@ -417,6 +419,7 @@ export async function playAI(
   } else {
     console.log(`it's passing`);
   }
+  console.log(`tree: `, root);
 
   store.dispatch(
     actions.updateAi({
