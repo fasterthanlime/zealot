@@ -32,7 +32,7 @@ const gameOverWait = 1000;
 
 const iconPath = require("../images/favicon.png").default;
 
-(function() {
+(function () {
   var link = (document.querySelector("link[rel*='icon']") ||
     document.createElement("link")) as any;
   link.type = "image/png";
@@ -101,19 +101,20 @@ export async function playRandomAI(store: IStore) {
   store.dispatch(actions.updateAi({ thinking: false }));
 }
 
-export default function(watcher: Watcher) {
+export default function (watcher: Watcher) {
   watcher.on(actions.nextTurn, async (store, action) => {
     const { turnPlayer } = action.payload;
     if (true) {
-      // await delay(200);
+      await delay(200);
 
       if (turnPlayer === Color.Red) {
         await playOriginalAI(store);
         // await playLightAI(store);
       } else {
-        await playLightAI(store);
+        // Let human play (uncomment next line for AI vs AI)
+        // await playLightAI(store);
       }
-      // favicon.badge(1);
+      favicon.badge(1);
     }
   });
 
@@ -173,9 +174,9 @@ export default function(watcher: Watcher) {
     store.dispatch(
       info({
         title: "Action replay",
-        message: `${who} played a ${suitName(card.suit)} on ${onWhat} at ${
-          col
-        },${row}${consequence}`,
+        message: `${who} played a ${suitName(
+          card.suit,
+        )} on ${onWhat} at ${col},${row}${consequence}`,
       }),
     );
 

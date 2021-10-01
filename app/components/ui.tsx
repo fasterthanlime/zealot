@@ -4,7 +4,8 @@ import * as actions from "../actions";
 const ReactHintFactory = require("react-hint");
 const ReactHint = ReactHintFactory(React);
 
-const inDev = location.hostname === "localhost";
+// const inDev = location.hostname === "localhost";
+const inDev = false;
 
 import styled, { animations } from "./styles";
 import {
